@@ -8,15 +8,16 @@ API so they fit naturally into scikit-learn pipelines and cross-validation workf
 
 ## Samplers
 
-| Class | Description |
+Samplers are illustrated in the [`examples/usage.ipynb`](https://github.com/ljwolf/geovalidate/blob/main/examples/usage.ipynb) notebook. 
+
+| Class | What it does |
 |---|---|
 | `PointSampler` | Uniform random points inside any Shapely geometry |
-| `ConstantClassSampler` | Exactly *n* points per class (GeoDataFrame column or raster band) |
-| `StratifiedClassSampler` | Fixed total *n*, allocated across classes proportionally to class weight |
-| `IntensitySampler` | IPPP — local density proportional to a raster band or GDF column |
+| `ConstantClassSampler` | Exactly *n* points from every class |
+| `StratifiedClassSampler` | Fixed total allocated proportionally to a value column |
+| `MultinomialSampler` | Multinomial allocation across label groups weighted by a per-geometry value |
 
-All samplers accept either a **GeoDataFrame** (with an appropriate column) or a
-**rasterio-compatible raster** (with an appropriate band).
+Each sampler also accepts `quasi_random="sobol"`, `"halton"`, or `"r2"` to replace the default uniform RNG with a low-discrepancy sequence. Quasi-random sequences have better space-filling properties than points sampled at random, meaning that they tend to be less "clumpy" than randomly-sampled points. These options are only supported for some samplers.
 
 ## Installation
 
@@ -27,34 +28,89 @@ pip install -e ".[raster]"   # includes rasterio for raster-based samplers
 ## Quick start
 
 ```python
-from shapely.geometry import box
-import geopandas as gpd
-from geovalidate import (
-    PointSampler,
-    ConstantClassSampler,
-    StratifiedClassSampler,
-    IntensitySampler,
+import geopandas, geodatasets
+from geovalidate.samplers import (
+  PointSampler,
+  ConstantClassSampler,
+  StratifiedClassSampler,
+  MultinomialSampler
 )
 
-# 1 — uniform points inside a geometry
-pts = PointSampler(n_samples=500, random_state=0).sample(box(0, 0, 1, 1))
-
-# 2 — balanced: 100 points per land-cover class
-gdf = gpd.read_file("landcover.gpkg")
-pts = ConstantClassSampler(n_per_class=100, class_col="lc_class").sample(gdf)
-
-# 3 — proportional: 1000 points total, weighted by per-class area sum
-pts = StratifiedClassSampler(
-    n_samples=1000, class_col="lc_class", value_col="area_ha"
-).sample(gdf)
-
-# 4 — IPPP from a raster intensity band
-import rasterio
-with rasterio.open("ndvi.tif") as ds:
-    pts = IntensitySampler(n_samples=2000, band=1).sample(ds)
+nybb = geopandas.read_file(geodatasets.get_path("nybb"))
 ```
 
-## sklearn compatibility
+### PointSampler — uniform random points inside a geometry
+
+```python
+# Sample from a single geometry
+pts = PointSampler(n_samples=200, random_state=0).sample(nybb.geometry.iloc[0])
+
+# Or from the union of a GeoSeries
+pts = PointSampler(n_samples=500, random_state=0).sample(nybb.geometry)
+```
+
+### ConstantClassSampler — exactly n points per class
+
+```python
+# Pass geometry and a labels vector — no column names required
+pts = ConstantClassSampler(n_per_class=80, random_state=0).sample(
+    nybb.geometry, nybb["BoroName"]
+)
+pts.groupby("class_label").size()
+```
+
+### StratifiedClassSampler — total n allocated proportionally to weights
+
+```python
+# Weights control the allocation; counts are deterministic (greatest remainder is assigned the final sample)
+pts = StratifiedClassSampler(n_samples=400, random_state=0).sample(
+    nybb.geometry, nybb["BoroName"], nybb["Shape_Area"]
+)
+
+# Without weights, allocation is uniform across classes
+pts = StratifiedClassSampler(n_samples=400, random_state=0).sample(
+    nybb.geometry, nybb["BoroName"]
+)
+```
+
+### MultinomialSampler — stochastic allocation from a multinomial draw
+
+```python
+# Class totals W_k = sum(weights where label == k)
+# Counts ~ Multinomial(n_samples, W_k / ΣW_k), then points sampled uniformly per class
+pts = MultinomialSampler(n_samples=500, random_state=0).sample(
+    nybb.geometry, nybb["BoroName"], nybb["Shape_Area"]
+)
+```
+
+### Raster input
+
+Pass a rasterio `DatasetReader` as the geometry and read bands yourself:
+
+```python
+import rasterio
+
+with rasterio.open("classes.tif") as ds:
+    class_arr = ds.read(1)
+    pts = ConstantClassSampler(n_per_class=60, random_state=0).sample(ds, class_arr)
+
+with rasterio.open("classes.tif") as ds_c, rasterio.open("weights.tif") as ds_w:
+    pts = MultinomialSampler(n_samples=500, random_state=0).sample(
+        ds_c, ds_c.read(1), ds_w.read(1)
+    )
+```
+
+### Quasi-random sequences
+
+All samplers accept `quasi_random="sobol"`, `"halton"`, or `"r2"` for better spatial coverage:
+
+```python
+pts = PointSampler(n_samples=200, quasi_random="halton", random_state=0).sample(
+    nybb.geometry.iloc[0]
+)
+```
+
+### sklearn compatibility
 
 Every sampler is a `BaseEstimator` subclass, so the standard sklearn utilities work:
 
