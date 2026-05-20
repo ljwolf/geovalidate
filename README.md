@@ -122,15 +122,3 @@ sampler = ConstantClassSampler(n_per_class=50, class_col="cls")
 print(sampler.get_params())
 sampler.set_params(n_per_class=200)
 ```
-
-## Design notes
-
-- **`ConstantClassSampler`** mirrors `StratifiedKFold`: the class distribution in the
-  output is perfectly balanced regardless of how skewed the source data is.
-- **`StratifiedClassSampler`** uses the largest-remainder (Hamilton) method for
-  integer allocation, guaranteeing `sum(per-class counts) == n_samples` exactly.
-- **`IntensitySampler`** draws Poisson-distributed counts per pixel / geometry,
-  which is the statistically correct IPPP behaviour.  The returned count therefore varies
-  around *n_samples*.
-- Rasterio is an optional dependency.  Install `geovalidate[raster]` if you need
-  raster-based sampling.
