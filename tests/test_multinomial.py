@@ -1,6 +1,6 @@
 import pytest
-import numpy as np
-import geopandas as gpd
+import numpy
+import geopandas
 from shapely.geometry import box, LineString
 
 from geovalidate import MultinomialSampler
@@ -39,7 +39,7 @@ def test_equal_class_weights_give_approx_equal_counts(multinomial_gdf):
 
 def test_skewed_weights_skew_counts():
     """Class A weight 1, class B weight 9 → class B gets ~90 % of samples."""
-    gdf = gpd.GeoDataFrame({
+    gdf = geopandas.GeoDataFrame({
         "class":   ["A", "B"],
         "weight":  [1.0, 9.0],
         "geometry": [box(0, 0, 5, 5), box(5, 0, 10, 5)],
@@ -63,7 +63,7 @@ def test_no_weights_defaults_to_count(multinomial_gdf):
 
 
 def test_total_always_exact_multiple_n():
-    gdf = gpd.GeoDataFrame({
+    gdf = geopandas.GeoDataFrame({
         "class":   ["A", "B", "C"],
         "weight":  [1.0, 2.0, 7.0],
         "geometry": [box(i, 0, i + 1, 1) for i in range(3)],
@@ -108,7 +108,7 @@ def test_numpy_array_inputs(multinomial_gdf):
 
 
 def test_line_geodataframe():
-    gdf = gpd.GeoDataFrame({
+    gdf = geopandas.GeoDataFrame({
         "class":   ["A", "B"],
         "weight":  [3.0, 7.0],
         "geometry": [LineString([(0, 0), (5, 0)]), LineString([(0, 1), (5, 1)])],

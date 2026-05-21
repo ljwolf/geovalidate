@@ -1,5 +1,5 @@
 import pytest
-import geopandas as gpd
+import geopandas
 from shapely.geometry import box, LineString
 
 from geovalidate import StratifiedClassSampler
@@ -36,7 +36,7 @@ def test_no_weights_is_uniform_not_row_count():
     Row-count weighting would give A=10 %, B=90 %.
     Uniform spatial sampling gives A≈50 %, B≈50 % because the areas are equal.
     """
-    gdf = gpd.GeoDataFrame({
+    gdf = geopandas.GeoDataFrame({
         "class": ["A"] + ["B"] * 9,
         "geometry": [box(0, 0, 9, 1)]
                   + [box(i, 1, i + 1, 2) for i in range(9)],
@@ -72,7 +72,7 @@ def test_geodataframe_input(class_gdf):
 
 
 def test_weights_as_numpy_array(class_gdf):
-    import numpy as np
+    import numpy
     pts = StratifiedClassSampler(n_samples=100, random_state=0).sample(
         class_gdf.geometry,
         class_gdf["class"].to_numpy(),
@@ -82,7 +82,7 @@ def test_weights_as_numpy_array(class_gdf):
 
 
 def test_line_geodataframe():
-    gdf = gpd.GeoDataFrame({
+    gdf = geopandas.GeoDataFrame({
         "class":  ["A", "B"],
         "length": [6.0, 4.0],
         "geometry": [LineString([(0, 0), (6, 0)]), LineString([(0, 1), (4, 1)])],

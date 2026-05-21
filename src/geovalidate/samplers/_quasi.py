@@ -27,7 +27,7 @@ across all d dimensions.  For reproducible scrambling we replace the fixed
 
 import warnings
 from scipy import stats
-import numpy as np
+import numpy
 
 VALID_SEQUENCES = frozenset({"sobol", "halton", "r2"})
 
@@ -64,9 +64,9 @@ def _phi(d: int) -> float:
 # ---------------------------------------------------------------------------
 
 
-def _sobol_2d(n: int, seed: int) -> np.ndarray:
+def _sobol_2d(n: int, seed: int) -> numpy.ndarray:
     """Scrambled Sobol sequence.  Rounds up to next power of 2 internally."""
-    m = int(2 ** np.ceil(np.log2(max(n, 1))))
+    m = int(2 ** numpy.ceil(numpy.log2(max(n, 1))))
     sampler = stats.qmc.Sobol(d=2, scramble=True, seed=seed)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -74,11 +74,11 @@ def _sobol_2d(n: int, seed: int) -> np.ndarray:
     return pts[:n]
 
 
-def _halton_2d(n: int, seed: int) -> np.ndarray:
+def _halton_2d(n: int, seed: int) -> numpy.ndarray:
     return stats.qmc.Halton(d=2, scramble=True, seed=seed).random(n)
 
 
-def _r2_2d(n: int, seed: int) -> np.ndarray:
+def _r2_2d(n: int, seed: int) -> numpy.ndarray:
     """Roberts R2 sequence (d=2).
 
     A single scalar offset is shared across both dimensions, matching the
@@ -87,13 +87,13 @@ def _r2_2d(n: int, seed: int) -> np.ndarray:
     on the diagonal at (seed, seed).
     """
     phi2 = _phi(2)
-    alpha = np.array([1.0 / phi2, 1.0 / phi2**2])
+    alpha = numpy.array([1.0 / phi2, 1.0 / phi2**2])
     # Single shared scalar seed — same offset for x and y
-    offset = float(np.random.default_rng(seed).random())
-    return (offset + np.outer(np.arange(1, n + 1), alpha)) % 1.0
+    offset = float(numpy.random.default_rng(seed).random())
+    return (offset + numpy.outer(numpy.arange(1, n + 1), alpha)) % 1.0
 
 
-def qrn_2d(n: int, sequence: str, seed: int) -> np.ndarray:
+def qrn_2d(n: int, sequence: str, seed: int) -> numpy.ndarray:
     """Dispatch to a 2-D quasi-random generator. Returns shape (n, 2)."""
     _check(sequence)
     if sequence == "sobol":
@@ -108,29 +108,29 @@ def qrn_2d(n: int, sequence: str, seed: int) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def _sobol_1d(n: int, seed: int) -> np.ndarray:
-    m = int(2 ** np.ceil(np.log2(max(n, 1))))
+def _sobol_1d(n: int, seed: int) -> numpy.ndarray:
+    m = int(2 ** numpy.ceil(numpy.log2(max(n, 1))))
     sampler = stats.qmc.Sobol(d=1, scramble=True, seed=seed)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         return sampler.random(m)[:n, 0]
 
 
-def _halton_1d(n: int, seed: int) -> np.ndarray:
+def _halton_1d(n: int, seed: int) -> numpy.ndarray:
     return stats.qmc.Halton(d=1, scramble=True, seed=seed).random(n)[:, 0]
 
 
-def _r2_1d(n: int, seed: int) -> np.ndarray:
+def _r2_1d(n: int, seed: int) -> numpy.ndarray:
     """Roberts R1 sequence — golden-ratio additive recurrence (d=1).
 
     t[n] = (seed + n / phi_1) mod 1,   n = 1, 2, 3, ...
     """
     phi1 = _phi(1)  # golden ratio ≈ 1.6180339887498948482
-    offset = float(np.random.default_rng(seed).random())
-    return (offset + np.arange(1, n + 1) / phi1) % 1.0
+    offset = float(numpy.random.default_rng(seed).random())
+    return (offset + numpy.arange(1, n + 1) / phi1) % 1.0
 
 
-def qrn_1d(n: int, sequence: str, seed: int) -> np.ndarray:
+def qrn_1d(n: int, sequence: str, seed: int) -> numpy.ndarray:
     """Dispatch to a 1-D quasi-random generator. Returns shape (n,)."""
     _check(sequence)
     if sequence == "sobol":

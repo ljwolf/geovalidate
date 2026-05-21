@@ -1,8 +1,8 @@
 """Tests for quasi-random (QRN) sequence support across all four samplers."""
 
-import numpy as np
+import numpy
 import pytest
-import geopandas as gpd
+import geopandas
 from shapely.geometry import box, LineString
 
 from geovalidate import (
@@ -102,7 +102,7 @@ def test_qrn_more_uniform_than_random(square):
     cell_w = 10 / cells
 
     def grid_variance(pts):
-        counts = np.zeros((cells, cells), dtype=int)
+        counts = numpy.zeros((cells, cells), dtype=int)
         for p in pts.geometry:
             i = min(int(p.x / cell_w), cells - 1)
             j = min(int(p.y / cell_w), cells - 1)

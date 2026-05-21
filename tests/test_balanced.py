@@ -1,5 +1,5 @@
 import pytest
-import geopandas as gpd
+import geopandas
 from shapely.geometry import box, LineString
 
 from geovalidate import ConstantClassSampler
@@ -28,7 +28,7 @@ def test_geodataframe_input(class_gdf):
 
 
 def test_labels_as_numpy_array(class_gdf):
-    import numpy as np
+    import numpy
     labels = class_gdf["class"].to_numpy()
     pts = ConstantClassSampler(n_per_class=15).sample(class_gdf.geometry, labels)
     assert set(pts["class_label"]) == {"A", "B"}
@@ -52,7 +52,7 @@ def test_sklearn_get_params():
 
 
 def test_line_geodataframe():
-    gdf = gpd.GeoDataFrame({
+    gdf = geopandas.GeoDataFrame({
         "class": ["A", "A", "B"],
         "geometry": [
             LineString([(0, 0), (5, 0)]),
@@ -71,7 +71,7 @@ def test_line_geodataframe():
 def test_many_classes():
     geoms = [box(i, 0, i + 1, 1) for i in range(10)]
     labels = list(range(10))
-    gdf = gpd.GeoDataFrame({"class": labels, "geometry": geoms})
+    gdf = geopandas.GeoDataFrame({"class": labels, "geometry": geoms})
     pts = ConstantClassSampler(n_per_class=20).sample(gdf.geometry, gdf["class"])
     counts = pts.groupby("class_label").size()
     assert len(counts) == 10

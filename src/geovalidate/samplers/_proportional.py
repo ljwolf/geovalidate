@@ -1,6 +1,6 @@
-import numpy as np
+import numpy
 import pandas as pd
-import geopandas as gpd
+import geopandas
 import shapely
 from sklearn.utils import check_random_state
 
@@ -52,7 +52,7 @@ class StratifiedClassSampler(BasePointSampler):
         self.quasi_random = quasi_random
         self.random_state = random_state
 
-    def sample(self, geometry, labels=None, weights=None) -> gpd.GeoDataFrame:
+    def sample(self, geometry, labels=None, weights=None) -> geopandas.GeoDataFrame:
         """Generate proportionally allocated class samples.
 
         Parameters
@@ -66,7 +66,7 @@ class StratifiedClassSampler(BasePointSampler):
 
         Returns
         -------
-        gpd.GeoDataFrame
+        geopandas.GeoDataFrame
             Columns: ``geometry``, ``class_label``.
         """
         rng = check_random_state(self.random_state)
@@ -78,14 +78,14 @@ class StratifiedClassSampler(BasePointSampler):
                 "or ds.read(band) for raster input."
             )
 
-        if isinstance(geometry, (gpd.GeoDataFrame, gpd.GeoSeries)):
-            geoseries = geometry.geometry if isinstance(geometry, gpd.GeoDataFrame) else geometry
-            labels_arr  = np.asarray(labels)
-            weights_arr = np.asarray(weights, dtype=float) if weights is not None else None
+        if isinstance(geometry, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
+            geoseries = geometry.geometry if isinstance(geometry, geopandas.GeoDataFrame) else geometry
+            labels_arr  = numpy.asarray(labels)
+            weights_arr = numpy.asarray(weights, dtype=float) if weights is not None else None
             return self._sample_gdf(geoseries, labels_arr, weights_arr, self.n_samples, rng)
 
-        labels_arr  = np.asarray(labels)
-        weights_arr = np.asarray(weights, dtype=float) if weights is not None else None
+        labels_arr  = numpy.asarray(labels)
+        weights_arr = numpy.asarray(weights, dtype=float) if weights is not None else None
         return self._sample_raster(geometry, labels_arr, weights_arr, self.n_samples, rng)
 
     # ------------------------------------------------------------------
@@ -93,24 +93,24 @@ class StratifiedClassSampler(BasePointSampler):
     # ------------------------------------------------------------------
 
     def _sample_gdf(self, geoseries, labels_arr, weights_arr, n_samples, rng):
-        geoms = np.asarray(geoseries)
+        geoms = numpy.asarray(geoseries)
         crs = geoseries.crs
 
         if weights_arr is None:
             # Uniform: sample from the full union, assign labels by containment.
             union = shapely.union_all(geoms)
             pts = _sample_geometry(union, n_samples, rng, self.quasi_random)
-            pts_arr = np.asarray(pts)
-            out_labels = np.empty(n_samples, dtype=object)
-            for label in np.unique(labels_arr):
+            pts_arr = numpy.asarray(pts)
+            out_labels = numpy.empty(n_samples, dtype=object)
+            for label in numpy.unique(labels_arr):
                 geom_union = shapely.union_all(geoms[labels_arr == label])
                 shapely.prepare(geom_union)
                 out_labels[shapely.covers(geom_union, pts_arr)] = label
-            return gpd.GeoDataFrame({"class_label": out_labels, "geometry": pts}, crs=crs)
+            return geopandas.GeoDataFrame({"class_label": out_labels, "geometry": pts}, crs=crs)
 
         # Weighted: allocate proportionally to per-class weight sum.
-        unique_labels = np.unique(labels_arr)
-        class_weights = np.array([
+        unique_labels = numpy.unique(labels_arr)
+        class_weights = numpy.array([
             weights_arr[labels_arr == label].sum() for label in unique_labels
         ])
         counts = _allocate_proportionally(class_weights / class_weights.sum(), n_samples)
@@ -121,7 +121,7 @@ class StratifiedClassSampler(BasePointSampler):
                 continue
             geom_union = shapely.union_all(geoms[labels_arr == label])
             pts = _sample_geometry(geom_union, count, rng, self.quasi_random)
-            frames.append(gpd.GeoDataFrame({"class_label": label, "geometry": pts}, crs=crs))
+            frames.append(geopandas.GeoDataFrame({"class_label": label, "geometry": pts}, crs=crs))
         return pd.concat(frames, ignore_index=True)
 
     # ------------------------------------------------------------------
@@ -142,17 +142,17 @@ class StratifiedClassSampler(BasePointSampler):
         if weights_arr is None:
             # Uniform: sample from all valid pixels.
             valid_mask = (class_data != nodata) if nodata is not None \
-                         else np.ones_like(class_data, dtype=bool)
-            valid_rows, valid_cols = np.where(valid_mask)
+                         else numpy.ones_like(class_data, dtype=bool)
+            valid_rows, valid_cols = numpy.where(valid_mask)
             replace = valid_rows.size < n_samples
             idx = rng.choice(valid_rows.size, n_samples, replace=replace)
             r, c = valid_rows[idx], valid_cols[idx]
 
             xs, ys = rasterio.transform.xy(transform, r, c)
-            xs = np.asarray(xs, dtype=float) + rng.uniform(-res_x / 2, res_x / 2, n_samples)
-            ys = np.asarray(ys, dtype=float) + rng.uniform(-res_y / 2, res_y / 2, n_samples)
+            xs = numpy.asarray(xs, dtype=float) + rng.uniform(-res_x / 2, res_x / 2, n_samples)
+            ys = numpy.asarray(ys, dtype=float) + rng.uniform(-res_y / 2, res_y / 2, n_samples)
             pts = list(shapely.points(xs, ys))
-            return gpd.GeoDataFrame(
+            return geopandas.GeoDataFrame(
                 {"class_label": class_data[r, c].astype(int), "geometry": pts}, crs=crs
             )
 
@@ -160,20 +160,20 @@ class StratifiedClassSampler(BasePointSampler):
         val_data = (weights_arr if weights_arr.ndim == 2 else weights_arr.squeeze()).copy()
         if nodata is not None:
             val_data[class_data == nodata] = 0.0
-        val_data = np.clip(val_data, 0, None)
+        val_data = numpy.clip(val_data, 0, None)
 
-        classes = np.unique(class_data)
+        classes = numpy.unique(class_data)
         if nodata is not None:
             classes = classes[classes != nodata]
 
-        class_weights = np.array([val_data[class_data == cls].sum() for cls in classes])
+        class_weights = numpy.array([val_data[class_data == cls].sum() for cls in classes])
         counts = _allocate_proportionally(class_weights / class_weights.sum(), n_samples)
 
         frames = []
         for cls, count in zip(classes, counts):
             if count == 0:
                 continue
-            rows, cols = np.where(class_data == cls)
+            rows, cols = numpy.where(class_data == cls)
             if rows.size == 0:
                 continue
             replace = rows.size < count
@@ -181,8 +181,8 @@ class StratifiedClassSampler(BasePointSampler):
             r, c = rows[idx], cols[idx]
 
             xs, ys = rasterio.transform.xy(transform, r, c)
-            xs = np.asarray(xs, dtype=float) + rng.uniform(-res_x / 2, res_x / 2, count)
-            ys = np.asarray(ys, dtype=float) + rng.uniform(-res_y / 2, res_y / 2, count)
+            xs = numpy.asarray(xs, dtype=float) + rng.uniform(-res_x / 2, res_x / 2, count)
+            ys = numpy.asarray(ys, dtype=float) + rng.uniform(-res_y / 2, res_y / 2, count)
             pts = list(shapely.points(xs, ys))
-            frames.append(gpd.GeoDataFrame({"class_label": int(cls), "geometry": pts}, crs=crs))
+            frames.append(geopandas.GeoDataFrame({"class_label": int(cls), "geometry": pts}, crs=crs))
         return pd.concat(frames, ignore_index=True)

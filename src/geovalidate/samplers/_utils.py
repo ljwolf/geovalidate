@@ -2,16 +2,16 @@
 
 from contextlib import contextmanager
 
-import numpy as np
+import numpy
 import shapely
-import geopandas as gpd
+import geopandas
 
 
 # ---------------------------------------------------------------------------
 # Public dispatch entry-point
 # ---------------------------------------------------------------------------
 
-def _sample_geometry(geometry, n_samples: int, rng: np.random.RandomState,
+def _sample_geometry(geometry, n_samples: int, rng: numpy.random.RandomState,
                      quasi_random: str | None = None) -> list:
     """Return *n_samples* points drawn uniformly at random inside/along *geometry*.
 
@@ -56,7 +56,7 @@ def _sample_geometry(geometry, n_samples: int, rng: np.random.RandomState,
 # ---------------------------------------------------------------------------
 
 def _sample_polygon_random(geometry, n_samples: int,
-                            rng: np.random.RandomState) -> list:
+                            rng: numpy.random.RandomState) -> list:
     """Adaptive batch rejection sampling (Shapely 2 vectorised)."""
     shapely.prepare(geometry)
     minx, miny, maxx, maxy = geometry.bounds
@@ -85,7 +85,7 @@ def _sample_polygon_random(geometry, n_samples: int,
 
 
 def _sample_polygon_qrn(geometry, n_samples: int,
-                         rng: np.random.RandomState, sequence: str) -> list:
+                         rng: numpy.random.RandomState, sequence: str) -> list:
     """Quasi-random rejection sampling for polygons.
 
     Generates a single batch of QRN candidates sized for the expected
@@ -99,7 +99,7 @@ def _sample_polygon_qrn(geometry, n_samples: int,
     width, height = maxx - minx, maxy - miny
 
     coverage = shapely.area(geometry) / (width * height)
-    n_cands = max(int(np.ceil(n_samples / max(coverage, 0.01) * 2)), n_samples + 256)
+    n_cands = max(int(numpy.ceil(n_samples / max(coverage, 0.01) * 2)), n_samples + 256)
 
     seed = int(rng.randint(0, 2 ** 31))
     xy = qrn_2d(n_cands, sequence, seed)
@@ -120,7 +120,7 @@ def _sample_polygon_qrn(geometry, n_samples: int,
 # Line sampler
 # ---------------------------------------------------------------------------
 
-def _sample_line(geometry, n_samples: int, rng: np.random.RandomState,
+def _sample_line(geometry, n_samples: int, rng: numpy.random.RandomState,
                  quasi_random: str | None = None) -> list:
     """Sample *n_samples* points uniformly by arc length along a line geometry.
 
@@ -149,17 +149,17 @@ def _sample_line(geometry, n_samples: int, rng: np.random.RandomState,
 # Integer allocation (largest-remainder / Hamilton method)
 # ---------------------------------------------------------------------------
 
-def _allocate_proportionally(proportions: np.ndarray, n_total: int) -> np.ndarray:
+def _allocate_proportionally(proportions: numpy.ndarray, n_total: int) -> numpy.ndarray:
     """Allocate *n_total* items across bins according to *proportions*.
 
     Uses the largest-remainder method so the sum equals *n_total* exactly.
     """
-    proportions = np.asarray(proportions, dtype=float)
+    proportions = numpy.asarray(proportions, dtype=float)
     raw = proportions * n_total
-    floor = np.floor(raw).astype(int)
+    floor = numpy.floor(raw).astype(int)
     deficit = n_total - floor.sum()
     remainder = raw - floor
-    top = np.argsort(remainder)[::-1][:deficit]
+    top = numpy.argsort(remainder)[::-1][:deficit]
     floor[top] += 1
     return floor
 

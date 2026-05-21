@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-import geopandas as gpd
+import geopandas
 from sklearn.base import BaseEstimator
 
 
@@ -13,7 +13,7 @@ class BasePointSampler(BaseEstimator):
     """
 
     @abstractmethod
-    def sample(self, source, **kwargs) -> gpd.GeoDataFrame:
+    def sample(self, source, **kwargs) -> geopandas.GeoDataFrame:
         """Generate sampled point locations.
 
         Parameters

@@ -1,6 +1,6 @@
-import numpy as np
+import numpy
 import pandas as pd
-import geopandas as gpd
+import geopandas
 import shapely
 from sklearn.utils import check_random_state
 
@@ -63,7 +63,7 @@ class MultinomialSampler(BasePointSampler):
         self.quasi_random = quasi_random
         self.random_state = random_state
 
-    def sample(self, geometry, labels=None, weights=None) -> gpd.GeoDataFrame:
+    def sample(self, geometry, labels=None, weights=None) -> geopandas.GeoDataFrame:
         """Generate multinomially allocated class samples.
 
         Parameters
@@ -80,7 +80,7 @@ class MultinomialSampler(BasePointSampler):
 
         Returns
         -------
-        gpd.GeoDataFrame
+        geopandas.GeoDataFrame
             Columns: ``geometry``, ``class_label``.
         """
         rng = check_random_state(self.random_state)
@@ -92,15 +92,15 @@ class MultinomialSampler(BasePointSampler):
                 "or ds.read(band) for raster input."
             )
 
-        if isinstance(geometry, (gpd.GeoDataFrame, gpd.GeoSeries)):
-            geoseries    = geometry.geometry if isinstance(geometry, gpd.GeoDataFrame) else geometry
-            labels_arr   = np.asarray(labels)
-            weights_arr  = np.asarray(weights, dtype=float) if weights is not None \
-                           else np.ones(len(labels_arr), dtype=float)
+        if isinstance(geometry, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
+            geoseries    = geometry.geometry if isinstance(geometry, geopandas.GeoDataFrame) else geometry
+            labels_arr   = numpy.asarray(labels)
+            weights_arr  = numpy.asarray(weights, dtype=float) if weights is not None \
+                           else numpy.ones(len(labels_arr), dtype=float)
             return self._sample_gdf(geoseries, labels_arr, weights_arr, self.n_samples, rng)
 
-        labels_arr  = np.asarray(labels)
-        weights_arr = np.asarray(weights, dtype=float) if weights is not None else None
+        labels_arr  = numpy.asarray(labels)
+        weights_arr = numpy.asarray(weights, dtype=float) if weights is not None else None
         return self._sample_raster(geometry, labels_arr, weights_arr, self.n_samples, rng)
 
     # ------------------------------------------------------------------
@@ -108,12 +108,12 @@ class MultinomialSampler(BasePointSampler):
     # ------------------------------------------------------------------
 
     def _sample_gdf(self, geoseries, labels_arr, weights_arr, n_samples, rng):
-        weights_arr = np.clip(weights_arr, 0.0, None)
-        geoms = np.asarray(geoseries)
+        weights_arr = numpy.clip(weights_arr, 0.0, None)
+        geoms = numpy.asarray(geoseries)
         crs = geoseries.crs
 
-        unique_labels = np.unique(labels_arr)
-        class_totals = np.array([
+        unique_labels = numpy.unique(labels_arr)
+        class_totals = numpy.array([
             weights_arr[labels_arr == lbl].sum() for lbl in unique_labels
         ])
 
@@ -132,11 +132,11 @@ class MultinomialSampler(BasePointSampler):
                 continue
             geom_union = shapely.union_all(geoms[labels_arr == lbl])
             pts = _sample_geometry(geom_union, count, rng, self.quasi_random)
-            frames.append(gpd.GeoDataFrame({"class_label": lbl, "geometry": pts}, crs=crs))
+            frames.append(geopandas.GeoDataFrame({"class_label": lbl, "geometry": pts}, crs=crs))
 
         if not frames:
-            return gpd.GeoDataFrame(
-                {"geometry": gpd.array.GeometryArray([]), "class_label": []}, crs=crs
+            return geopandas.GeoDataFrame(
+                {"geometry": geopandas.array.GeometryArray([]), "class_label": []}, crs=crs
             )
         return pd.concat(frames, ignore_index=True)
 
@@ -155,21 +155,21 @@ class MultinomialSampler(BasePointSampler):
 
         class_data = labels_arr if labels_arr.ndim == 2 else labels_arr.squeeze()
 
-        classes = np.unique(class_data)
+        classes = numpy.unique(class_data)
         if nodata is not None:
             classes = classes[classes != nodata]
 
         if weights_arr is None:
             # Default: weight = 1 per pixel → class weight = pixel count
-            class_totals = np.array([
-                np.sum(class_data == cls) for cls in classes
+            class_totals = numpy.array([
+                numpy.sum(class_data == cls) for cls in classes
             ], dtype=float)
         else:
             val_data = (weights_arr if weights_arr.ndim == 2 else weights_arr.squeeze()).copy()
             if nodata is not None:
                 val_data[class_data == nodata] = 0.0
-            val_data = np.clip(val_data, 0.0, None)
-            class_totals = np.array([val_data[class_data == cls].sum() for cls in classes])
+            val_data = numpy.clip(val_data, 0.0, None)
+            class_totals = numpy.array([val_data[class_data == cls].sum() for cls in classes])
 
         total = class_totals.sum()
         if total == 0:
@@ -182,7 +182,7 @@ class MultinomialSampler(BasePointSampler):
         for cls, count in zip(classes, counts):
             if count == 0:
                 continue
-            rows, cols = np.where(class_data == cls)
+            rows, cols = numpy.where(class_data == cls)
             if rows.size == 0:
                 continue
             replace = rows.size < count
@@ -190,13 +190,13 @@ class MultinomialSampler(BasePointSampler):
             r, c = rows[idx], cols[idx]
 
             xs, ys = rasterio.transform.xy(transform, r, c)
-            xs = np.asarray(xs, dtype=float) + rng.uniform(-res_x / 2, res_x / 2, count)
-            ys = np.asarray(ys, dtype=float) + rng.uniform(-res_y / 2, res_y / 2, count)
+            xs = numpy.asarray(xs, dtype=float) + rng.uniform(-res_x / 2, res_x / 2, count)
+            ys = numpy.asarray(ys, dtype=float) + rng.uniform(-res_y / 2, res_y / 2, count)
             pts = list(shapely.points(xs, ys))
-            frames.append(gpd.GeoDataFrame({"class_label": int(cls), "geometry": pts}, crs=crs))
+            frames.append(geopandas.GeoDataFrame({"class_label": int(cls), "geometry": pts}, crs=crs))
 
         if not frames:
-            return gpd.GeoDataFrame(
-                {"geometry": gpd.array.GeometryArray([]), "class_label": []}, crs=crs
+            return geopandas.GeoDataFrame(
+                {"geometry": geopandas.array.GeometryArray([]), "class_label": []}, crs=crs
             )
         return pd.concat(frames, ignore_index=True)

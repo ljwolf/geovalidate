@@ -1,5 +1,5 @@
 import pytest
-import geopandas as gpd
+import geopandas
 import shapely
 from shapely.geometry import box
 
@@ -111,6 +111,6 @@ def test_linearring():
 
 def test_line_crs_preserved():
     from shapely.geometry import LineString
-    gs = gpd.GeoSeries([LineString([(0, 0), (1, 0)])], crs="EPSG:32632")
+    gs = geopandas.GeoSeries([LineString([(0, 0), (1, 0)])], crs="EPSG:32632")
     pts = PointSampler(n_samples=50, random_state=0).sample(gs)
     assert pts.crs.to_epsg() == 32632

@@ -1,4 +1,4 @@
-import geopandas as gpd
+import geopandas
 import shapely
 from sklearn.utils import check_random_state
 
@@ -38,35 +38,32 @@ class PointSampler(BasePointSampler):
         self,
         geometry,
         n_samples: int | None = None,
-        crs=None,
-    ) -> gpd.GeoDataFrame:
+    ) -> geopandas.GeoDataFrame:
         """Sample *n_samples* points uniformly inside *geometry*.
 
         Parameters
         ----------
-        geometry : shapely.Geometry | gpd.GeoSeries | gpd.GeoDataFrame
+        geometry : shapely.Geometry | geopandas.GeoSeries | geopandas.GeoDataFrame
             Region to sample from.  A GeoSeries / GeoDataFrame is dissolved
-            into a single union before sampling.
+            into a single union before sampling.  CRS is inferred automatically.
         n_samples : int, optional
             Overrides ``self.n_samples`` for this call.
-        crs : CRS-like, optional
-            CRS to attach to the returned GeoDataFrame.  Inferred automatically
-            when *geometry* is a GeoSeries / GeoDataFrame.
 
         Returns
         -------
-        gpd.GeoDataFrame
+        geopandas.GeoDataFrame
             Single-column ``geometry`` GeoDataFrame of sampled Points.
         """
         rng = check_random_state(self.random_state)
         n = n_samples if n_samples is not None else self.n_samples
+        crs = None
 
-        if isinstance(geometry, gpd.GeoDataFrame):
-            crs = crs or geometry.crs
+        if isinstance(geometry, geopandas.GeoDataFrame):
+            crs = geometry.crs
             geometry = geometry.geometry.union_all()
-        elif isinstance(geometry, gpd.GeoSeries):
-            crs = crs or geometry.crs
+        elif isinstance(geometry, geopandas.GeoSeries):
+            crs = geometry.crs
             geometry = geometry.union_all()
 
         pts = _sample_geometry(geometry, n, rng, self.quasi_random)
-        return gpd.GeoDataFrame(geometry=pts, crs=crs)
+        return geopandas.GeoDataFrame(geometry=pts, crs=crs)

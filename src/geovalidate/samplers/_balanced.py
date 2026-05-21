@@ -1,6 +1,6 @@
-import numpy as np
+import numpy
 import pandas as pd
-import geopandas as gpd
+import geopandas
 import shapely
 from sklearn.utils import check_random_state
 
@@ -46,7 +46,7 @@ class ConstantClassSampler(BasePointSampler):
         self.quasi_random = quasi_random
         self.random_state = random_state
 
-    def sample(self, geometry, labels=None) -> gpd.GeoDataFrame:
+    def sample(self, geometry, labels=None) -> geopandas.GeoDataFrame:
         """Generate balanced class samples.
 
         Parameters
@@ -62,7 +62,7 @@ class ConstantClassSampler(BasePointSampler):
 
         Returns
         -------
-        gpd.GeoDataFrame
+        geopandas.GeoDataFrame
             Columns: ``geometry``, ``class_label``.
         """
         rng = check_random_state(self.random_state)
@@ -74,31 +74,31 @@ class ConstantClassSampler(BasePointSampler):
                 "or ds.read(band) for raster input."
             )
 
-        if isinstance(geometry, (gpd.GeoDataFrame, gpd.GeoSeries)):
+        if isinstance(geometry, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
             geoseries = (
                 geometry.geometry
-                if isinstance(geometry, gpd.GeoDataFrame)
+                if isinstance(geometry, geopandas.GeoDataFrame)
                 else geometry
             )
             return self._sample_gdf(
-                geoseries, np.asarray(labels), self.n_per_class, rng
+                geoseries, numpy.asarray(labels), self.n_per_class, rng
             )
 
-        return self._sample_raster(geometry, np.asarray(labels), self.n_per_class, rng)
+        return self._sample_raster(geometry, numpy.asarray(labels), self.n_per_class, rng)
 
     # ------------------------------------------------------------------
     # GeoDataFrame path
     # ------------------------------------------------------------------
 
     def _sample_gdf(self, geoseries, labels_arr, n_per_class, rng):
-        geoms = np.asarray(geoseries)
+        geoms = numpy.asarray(geoseries)
         crs = geoseries.crs
         frames = []
-        for label in np.unique(labels_arr):
+        for label in numpy.unique(labels_arr):
             union = shapely.union_all(geoms[labels_arr == label])
             pts = _sample_geometry(union, n_per_class, rng, self.quasi_random)
             frames.append(
-                gpd.GeoDataFrame({"class_label": label, "geometry": pts}, crs=crs)
+                geopandas.GeoDataFrame({"class_label": label, "geometry": pts}, crs=crs)
             )
         return pd.concat(frames, ignore_index=True)
 
@@ -117,13 +117,13 @@ class ConstantClassSampler(BasePointSampler):
             res_x, res_y = ds.res
 
         data = labels_arr if labels_arr.ndim == 2 else labels_arr.squeeze()
-        classes = np.unique(data)
+        classes = numpy.unique(data)
         if nodata is not None:
             classes = classes[classes != nodata]
 
         frames = []
         for cls in classes:
-            rows, cols = np.where(data == cls)
+            rows, cols = numpy.where(data == cls)
             if rows.size == 0:
                 continue
             replace = rows.size < n_per_class
@@ -131,16 +131,16 @@ class ConstantClassSampler(BasePointSampler):
             r, c = rows[idx], cols[idx]
 
             xs, ys = rasterio.transform.xy(transform, r, c)
-            xs = np.asarray(xs, dtype=float) + rng.uniform(
+            xs = numpy.asarray(xs, dtype=float) + rng.uniform(
                 -res_x / 2, res_x / 2, n_per_class
             )
-            ys = np.asarray(ys, dtype=float) + rng.uniform(
+            ys = numpy.asarray(ys, dtype=float) + rng.uniform(
                 -res_y / 2, res_y / 2, n_per_class
             )
 
             pts = list(shapely.points(xs, ys))
             frames.append(
-                gpd.GeoDataFrame({"class_label": int(cls), "geometry": pts}, crs=crs)
+                geopandas.GeoDataFrame({"class_label": int(cls), "geometry": pts}, crs=crs)
             )
 
         return pd.concat(frames, ignore_index=True)
