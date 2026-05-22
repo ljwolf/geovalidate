@@ -6,7 +6,7 @@ from shapely.geometry import box, LineString
 from geovalidate import MultinomialSampler
 
 
-# ── Basic counts ──────────────────────────────────────────────────────────────
+# -- Basic counts --------------------------------------------------------------
 
 def test_total_is_exact(multinomial_gdf):
     """Multinomial always returns exactly n_samples."""
@@ -25,10 +25,10 @@ def test_class_label_column(multinomial_gdf):
     assert set(pts["class_label"]) == {"A", "B"}
 
 
-# ── Multinomial allocation ────────────────────────────────────────────────────
+# -- Multinomial allocation ----------------------------------------------------
 
 def test_equal_class_weights_give_approx_equal_counts(multinomial_gdf):
-    """Class A total weight == class B total weight → roughly 50/50 split."""
+    """Class A total weight == class B total weight -> roughly 50/50 split."""
     pts = MultinomialSampler(n_samples=2000, random_state=0).sample(
         multinomial_gdf.geometry, multinomial_gdf["class"], multinomial_gdf["weight"]
     )
@@ -38,7 +38,7 @@ def test_equal_class_weights_give_approx_equal_counts(multinomial_gdf):
 
 
 def test_skewed_weights_skew_counts():
-    """Class A weight 1, class B weight 9 → class B gets ~90 % of samples."""
+    """Class A weight 1, class B weight 9 -> class B gets ~90 % of samples."""
     gdf = geopandas.GeoDataFrame({
         "class":   ["A", "B"],
         "weight":  [1.0, 9.0],
@@ -52,8 +52,8 @@ def test_skewed_weights_skew_counts():
 
 
 def test_no_weights_defaults_to_count(multinomial_gdf):
-    """Without weights every geometry counts equally → class size drives allocation."""
-    # Both classes have 2 geometries → expect ~50/50 split with no weights
+    """Without weights every geometry counts equally -> class size drives allocation."""
+    # Both classes have 2 geometries -> expect ~50/50 split with no weights
     pts = MultinomialSampler(n_samples=2000, random_state=0).sample(
         multinomial_gdf.geometry, multinomial_gdf["class"]
     )
@@ -75,7 +75,7 @@ def test_total_always_exact_multiple_n():
         assert len(pts) == n
 
 
-# ── Error handling ────────────────────────────────────────────────────────────
+# -- Error handling ------------------------------------------------------------
 
 def test_no_labels_raises(multinomial_gdf):
     with pytest.raises(ValueError, match="labels"):
@@ -89,7 +89,7 @@ def test_all_zero_weights_raises(multinomial_gdf):
         MultinomialSampler(n_samples=100).sample(gdf.geometry, gdf["class"], gdf["weight"])
 
 
-# ── Input types ───────────────────────────────────────────────────────────────
+# -- Input types ---------------------------------------------------------------
 
 def test_geodataframe_input(multinomial_gdf):
     pts = MultinomialSampler(n_samples=50, random_state=0).sample(
@@ -119,7 +119,7 @@ def test_line_geodataframe():
     assert len(pts) == 1000
 
 
-# ── Reproducibility ───────────────────────────────────────────────────────────
+# -- Reproducibility -----------------------------------------------------------
 
 def test_reproducible(multinomial_gdf):
     s1 = MultinomialSampler(n_samples=500, random_state=99)
@@ -130,7 +130,7 @@ def test_reproducible(multinomial_gdf):
     assert list(pts1.geometry.x) == list(pts2.geometry.x)
 
 
-# ── sklearn API ───────────────────────────────────────────────────────────────
+# -- sklearn API ---------------------------------------------------------------
 
 def test_sklearn_get_params():
     p = MultinomialSampler(n_samples=300).get_params()

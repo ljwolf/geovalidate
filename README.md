@@ -1,6 +1,6 @@
 # geovalidate
 
-Scikit-learn compatible spatial point samplers for geospatial model validation.
+Scikit-learn compatible spatial tools for geospatial model validation.
 
 Motivated by the discussion in [geopandas/geopandas#3781](https://github.com/geopandas/geopandas/issues/3781),
 this package provides four sampling strategies that follow the `sklearn.base.BaseEstimator`
@@ -109,6 +109,10 @@ pts = PointSampler(n_samples=200, quasi_random="halton", random_state=0).sample(
     nybb.geometry.iloc[0]
 )
 ```
+
+### Crossvalidation tools
+
+TBA: `LocalPermutation`, `LocalBootstrap`, `DispersionKFold`, `ClusterKFold`, `BallKFold`. 
 
 ### sklearn compatibility
 

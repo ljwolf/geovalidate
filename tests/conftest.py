@@ -5,7 +5,7 @@ from shapely.geometry import box
 
 @pytest.fixture
 def square():
-    """10×10 unit square."""
+    """10*10 unit square."""
     return box(0, 0, 10, 10)
 
 
@@ -22,9 +22,9 @@ def class_gdf():
 def multinomial_gdf():
     """Four equal-area boxes in two classes with varied weights.
 
-    Class A: weights [1, 9]  → total 10
-    Class B: weights [4, 6]  → total 10
-    Equal class totals → 50/50 expected split.
+    Class A: weights [1, 9]  -> total 10
+    Class B: weights [4, 6]  -> total 10
+    Equal class totals -> 50/50 expected split.
     """
     geoms = [box(0, 0, 5, 5), box(5, 0, 10, 5), box(0, 5, 5, 10), box(5, 5, 10, 10)]
     return geopandas.GeoDataFrame({

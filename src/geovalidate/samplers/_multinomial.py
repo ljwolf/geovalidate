@@ -11,7 +11,7 @@ from ._utils import _sample_geometry, _open_raster
 class MultinomialSampler(BasePointSampler):
     """Sample *n_samples* points via two-stage multinomial allocation.
 
-    **Stage 1 — allocate sample counts across classes:**
+    **Stage 1 -- allocate sample counts across classes:**
     Sum *weights* within each *labels* group to get a per-class total weight
     ``W_k``.  Draw class sample counts jointly from
 
@@ -19,7 +19,7 @@ class MultinomialSampler(BasePointSampler):
 
     so counts are stochastic but always sum exactly to *n_samples*.
 
-    **Stage 2 — place points within each class:**
+    **Stage 2 -- place points within each class:**
     Sample ``n_k`` points uniformly at random from within the union of
     geometries belonging to class ``k``.
 
@@ -45,7 +45,7 @@ class MultinomialSampler(BasePointSampler):
             gdf.geometry, gdf["lc_class"], gdf["area_ha"]
         )
 
-    Raster path — read bands yourself::
+    Raster path -- read bands yourself::
 
         with rasterio.open("landcover.tif") as ds:
             pts = MultinomialSampler(n_samples=500).sample(
@@ -120,7 +120,7 @@ class MultinomialSampler(BasePointSampler):
         total = class_totals.sum()
         if total == 0:
             raise ValueError(
-                "All weights are zero — cannot define class probabilities."
+                "All weights are zero -- cannot define class probabilities."
             )
 
         probs  = class_totals / total
@@ -160,7 +160,7 @@ class MultinomialSampler(BasePointSampler):
             classes = classes[classes != nodata]
 
         if weights_arr is None:
-            # Default: weight = 1 per pixel → class weight = pixel count
+            # Default: weight = 1 per pixel -> class weight = pixel count
             class_totals = numpy.array([
                 numpy.sum(class_data == cls) for cls in classes
             ], dtype=float)
@@ -173,7 +173,7 @@ class MultinomialSampler(BasePointSampler):
 
         total = class_totals.sum()
         if total == 0:
-            raise ValueError("All weights are zero — cannot define class probabilities.")
+            raise ValueError("All weights are zero -- cannot define class probabilities.")
 
         probs  = class_totals / total
         counts = rng.multinomial(n_samples, probs)

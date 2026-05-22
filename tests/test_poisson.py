@@ -8,7 +8,7 @@ from shapely.geometry import box
 from geovalidate import PoissonSampler
 
 
-# ── fixtures ──────────────────────────────────────────────────────────────────
+# -- fixtures ------------------------------------------------------------------
 
 @pytest.fixture
 def square():
@@ -24,10 +24,10 @@ def obs_points(square):
     return geopandas.GeoSeries(geopandas.points_from_xy(x, y))
 
 
-# ── callable mode ─────────────────────────────────────────────────────────────
+# -- callable mode -------------------------------------------------------------
 
 def test_callable_uniform_count(square):
-    """Uniform λ=1 → E[N] = 100. Run many seeds and check the mean."""
+    """Uniform λ=1 -> E[N] = 100. Run many seeds and check the mean."""
     counts = []
     for seed in range(30):
         pts = PoissonSampler(random_state=seed).sample(
@@ -46,7 +46,7 @@ def test_callable_points_inside_window(square):
 
 
 def test_callable_gradient_skews_distribution(square):
-    """λ(x,y) = x/10 → more points in the east half (x > 5) than the west."""
+    """λ(x,y) = x/10 -> more points in the east half (x > 5) than the west."""
     pts = PoissonSampler(random_state=42).sample(
         square, lambda x, y: numpy.asarray(x, dtype=float) / 10.0
     )
@@ -89,11 +89,11 @@ def test_callable_returns_geodataframe(square):
     assert "geometry" in pts.columns
 
 
-# ── raster / 2-D ndarray mode ─────────────────────────────────────────────────
+# -- raster / 2-D ndarray mode -------------------------------------------------
 
 def test_raster_array_nearest_count(square):
-    """Uniform pixel array of 1s → E[N] = pixel_sum × pixel_area = array_sum×1."""
-    arr = numpy.ones((10, 10), dtype=float)  # 10×10 pixels, each 1×1 unit
+    """Uniform pixel array of 1s -> E[N] = pixel_sum * pixel_area = array_sum*1."""
+    arr = numpy.ones((10, 10), dtype=float)  # 10*10 pixels, each 1*1 unit
     counts = []
     for seed in range(20):
         pts = PoissonSampler(interpolation="nearest", random_state=seed).sample(
@@ -101,7 +101,7 @@ def test_raster_array_nearest_count(square):
         )
         counts.append(len(pts))
     mean_n = numpy.mean(counts)
-    # Each pixel: intensity=1, area=1 → Λ = 100
+    # Each pixel: intensity=1, area=1 -> Λ = 100
     assert 60 < mean_n < 140, f"Expected E[N]≈100, got mean={mean_n:.1f}"
 
 
@@ -127,8 +127,8 @@ def test_raster_array_points_inside_window(square):
 
 
 def test_raster_array_gradient_skews_distribution(square):
-    """Pixel intensity increases east → more points in east half."""
-    arr = numpy.tile(numpy.linspace(0.1, 2.0, 20), (20, 1))  # west→east gradient
+    """Pixel intensity increases east -> more points in east half."""
+    arr = numpy.tile(numpy.linspace(0.1, 2.0, 20), (20, 1))  # west->east gradient
     pts = PoissonSampler(interpolation="nearest", random_state=0).sample(
         square, arr
     )
@@ -151,7 +151,7 @@ def test_raster_array_negative_clipped_to_zero(square):
     assert len(pts) == 0
 
 
-# ── KDE mode ──────────────────────────────────────────────────────────────────
+# -- KDE mode ------------------------------------------------------------------
 
 def test_kde_points_in_window(square, obs_points):
     pts = PoissonSampler(random_state=0).sample(
@@ -175,7 +175,7 @@ def test_kde_expected_count_near_n_obs(square, obs_points):
 
 
 def test_kde_cluster_skews_output(square, obs_points):
-    """Points concentrated in NE → output should be denser in NE."""
+    """Points concentrated in NE -> output should be denser in NE."""
     all_pts = []
     for seed in range(10):
         pts = PoissonSampler(random_state=seed).sample(
@@ -184,7 +184,7 @@ def test_kde_cluster_skews_output(square, obs_points):
         all_pts.append(pts)
     combined = geopandas.pd.concat(all_pts, ignore_index=True)
     if len(combined) == 0:
-        pytest.skip("No points generated — KDE clipped entirely outside window.")
+        pytest.skip("No points generated -- KDE clipped entirely outside window.")
     ne = ((combined.geometry.x > 5) & (combined.geometry.y > 5)).sum()
     other = len(combined) - ne
     assert ne > other, f"Expected NE cluster to dominate; NE={ne} other={other}"
@@ -216,7 +216,7 @@ def test_kde_bad_type_raises(square):
         PoissonSampler().sample(square, "not_a_valid_intensity")
 
 
-# ── GeoSeries window ──────────────────────────────────────────────────────────
+# -- GeoSeries window ----------------------------------------------------------
 
 def test_geoseries_window_crs_propagated():
     gs = geopandas.GeoSeries([box(0, 0, 10, 10)], crs="EPSG:4326")
@@ -227,7 +227,7 @@ def test_geoseries_window_crs_propagated():
     assert pts.crs.to_epsg() == 4326
 
 
-# ── sklearn API ───────────────────────────────────────────────────────────────
+# -- sklearn API ---------------------------------------------------------------
 
 def test_get_params():
     s = PoissonSampler(n_expected=200, bandwidth=50, kernel="epanechnikov",
