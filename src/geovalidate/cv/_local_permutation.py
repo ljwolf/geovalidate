@@ -135,7 +135,7 @@ class LocalPermutation(BaseEstimator):
 
         if self.graph is not None:
             n = self._n_from_graph(self.graph)
-            adj_csr, adj_sets = self._adj_from_graph(self.graph, n)
+            adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(self.graph, n)
         else:
             if self.threshold is None:
                 raise ValueError(
@@ -148,17 +148,17 @@ class LocalPermutation(BaseEstimator):
                 point_gdf = _to_point_gdf(X)
                 graph = Graph.build_distance_band(point_gdf, threshold=self.threshold)
                 n = len(point_gdf)
-                adj_csr, adj_sets = self._adj_from_graph(graph, n)
+                adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(graph, n)
             else:
                 coords = _get_coords(X)
                 n = len(coords)
-                adj_csr, adj_sets = self._build_adj(coords, n)
+                adj_csr, adj_sets, edge_i, edge_j, cumw = self._build_adj(coords, n)
 
         n_burn = self.n_burn if self.n_burn is not None else 10 * n
         perm = self._initial_permutation(adj_csr, n, rng)
 
         for _ in range(self.n_permutations):
-            perm = self._markov_mix(perm, adj_sets, n_burn, rng)
+            perm = self._markov_mix(perm, adj_sets, edge_i, edge_j, cumw, n_burn, rng)
             positions = perm.copy()
             yield idx[positions] if idx is not None else positions
 
@@ -171,21 +171,28 @@ class LocalPermutation(BaseEstimator):
         tree = cKDTree(coords)
         pairs = tree.query_pairs(self.threshold)  # set of (i,j), i < j
 
-        rows, cols = [], []
-        for i, j in pairs:
-            rows += [i, j]
-            cols += [j, i]
+        if pairs:
+            edge_i, edge_j = map(numpy.array, zip(*pairs))
+        else:
+            edge_i = edge_j = numpy.empty(0, dtype=numpy.intp)
+
+        # Uniform weights over edges (no graph weights available)
+        cumw = numpy.arange(1, len(edge_i) + 1, dtype=float)
+
+        rows = numpy.concatenate([edge_i, edge_j])
+        cols = numpy.concatenate([edge_j, edge_i])
 
         if not self.derangement:
-            rows += list(range(n))
-            cols += list(range(n))
+            diag = numpy.arange(n)
+            rows = numpy.concatenate([rows, diag])
+            cols = numpy.concatenate([cols, diag])
 
         data = numpy.ones(len(rows), dtype=bool)
         adj_csr = csr_matrix((data, (rows, cols)), shape=(n, n))
         adj_csr.sum_duplicates()
 
         adj_sets = self._sets_from_pairs(rows, cols, n)
-        return adj_csr, adj_sets
+        return adj_csr, adj_sets, edge_i, edge_j, cumw
 
     def _adj_from_graph(self, graph, n: int):
         """Sparse adjacency from graph edges, optionally filtered by threshold."""
@@ -206,10 +213,18 @@ class LocalPermutation(BaseEstimator):
 
         row = W_coo.row[mask]
         col = W_coo.col[mask]
+        weights = W_coo.data[mask]
 
-        # Remove self-loops (derangement: diagonal stays absent)
+        # Remove self-loops
         off_diag = row != col
-        row, col = row[off_diag], col[off_diag]
+        row, col, weights = row[off_diag], col[off_diag], weights[off_diag]
+
+        # Upper triangle only: each unordered pair sampled once, weighted by
+        # the graph weight so denser/stronger edges are proposed more often.
+        upper = row < col
+        edge_i = row[upper]
+        edge_j = col[upper]
+        cumw = numpy.cumsum(weights[upper])
 
         if not self.derangement:
             diag = numpy.arange(n)
@@ -221,7 +236,7 @@ class LocalPermutation(BaseEstimator):
         adj_csr.sum_duplicates()
 
         adj_sets = self._sets_from_pairs(row, col, n)
-        return adj_csr, adj_sets
+        return adj_csr, adj_sets, edge_i, edge_j, cumw
 
     @staticmethod
     def _sets_from_pairs(rows, cols, n) -> list:
@@ -282,21 +297,27 @@ class LocalPermutation(BaseEstimator):
         self,
         perm: numpy.ndarray,
         adj_sets: list,
+        edge_i: numpy.ndarray,
+        edge_j: numpy.ndarray,
+        cumw: numpy.ndarray,
         n_steps: int,
         rng,
     ) -> numpy.ndarray:
-        """Random-transposition Markov chain using O(1) set lookups.
+        """Random-transposition Markov chain with edge-weighted proposals.
 
-        Proposes swapping perm[i] <-> perm[j] and accepts iff:
-          - vj is a valid destination for site i  (vj in adj_sets[i])
-          - vi is a valid destination for site j  (vi in adj_sets[j])
-          - neither creates a fixed point (derangement constraint)
+        Samples candidate pair (i, j) proportional to graph edge weight
+        rather than uniformly over all n*(n-1)/2 pairs.  On a sparse graph
+        this eliminates the O(k/n) acceptance rate of uniform sampling --
+        every proposal is already a connected pair, so the only remaining
+        rejections are cases where the values perm[i]/perm[j] have drifted
+        outside each other's adjacency sets.
         """
-        n = len(perm)
         perm = perm.copy()
+        total_w = float(cumw[-1])
 
         for _ in range(n_steps):
-            i, j = rng.choice(n, size=2, replace=False)
+            idx = numpy.searchsorted(cumw, rng.uniform() * total_w)
+            i, j = int(edge_i[idx]), int(edge_j[idx])
             vi, vj = perm[i], perm[j]
 
             if vj not in adj_sets[i] or vi not in adj_sets[j]:
