@@ -23,6 +23,13 @@ from .samplers import (
     MultinomialSampler,
     PoissonSampler,
 )
+from .cv import (
+    DispersionKFold,
+    LocalBootstrap,
+    LocalPermutation,
+    correlogram_range,
+    knn_range,
+)
 
 
 __all__ = [
@@ -31,4 +38,9 @@ __all__ = [
     "StratifiedClassSampler",
     "MultinomialSampler",
     "PoissonSampler",
+    "DispersionKFold",
+    "LocalBootstrap",
+    "LocalPermutation",
+    "correlogram_range",
+    "knn_range",
 ]

@@ -6,98 +6,119 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import min_weight_full_bipartite_matching
 from scipy.spatial import cKDTree
 
-from ._utils import _get_coords, _to_point_gdf, _idx_and_is_geo
+from ._utils import _get_coords, _to_point_gdf, _idx_and_is_geo, KERNELS, LIBPYSAL_KERNEL_MAP
 
 
 class LocalPermutation(BaseEstimator):
     """Spatially-constrained permutation without replacement (derangement).
 
-    Shuffles the rows of an n-site dataset so that each row moves **at most**
-    *threshold* distance units from its origin (or only within the edges of a
-    pre-built *graph*).  Every row appears exactly once -- it is a true
+    Shuffles the rows of an n-site dataset so that each row moves only
+    within a local neighbourhood defined by *bandwidth*, *k*, or a
+    pre-built *graph*.  Every row appears exactly once -- it is a true
     permutation, analogous to :class:`LocalBootstrap` but **without**
     replacement.
 
     Optionally enforced as a **derangement**: no row may remain at its
     original site.
 
-    Specifying *threshold* and *graph*
+    Connectivity / proposal weighting
     -----------------------------------
-    *threshold* alone
-        Builds the adjacency from scratch: any pair of sites within
-        *threshold* distance units may swap.
-    *graph* alone
-        Every directly-connected pair in the graph may swap (no distance
-        filter on edge weights).
-    *graph* **and** *threshold*
-        Only directly-connected pairs whose stored edge weight is
-        **≤ threshold** may swap.  No shortest-path computation is
-        performed -- only direct (one-hop) edges are considered.
+    *bandwidth* + *kernel* (default ``'uniform'``)
+        Kernel-weighted adjacency.  With ``kernel='uniform'`` (the
+        default) this is a hard distance cutoff -- binary adjacency,
+        proposals drawn uniformly over edges -- which recovers the
+        classic threshold behaviour.  Smooth kernels (bisquare,
+        gaussian, ...) weight proposals so nearby pairs are proposed
+        more often.
+    *k* + *kernel*
+        k-nearest-neighbour adjacency with an adaptive per-site
+        bandwidth equal to the distance to the k-th neighbour.  The
+        adjacency is symmetrised (union of both directions) and
+        proposals are weighted by the kernel values.
+    *graph*
+        Every directly-connected pair may swap; stored edge weights
+        drive the proposal distribution.
 
     Algorithm
     ---------
-    1. Build a sparse boolean adjacency matrix A (feasible swap pairs).
+    1. Build a weighted adjacency: feasible pairs plus proposal weights.
     2. Find an initial feasible permutation via
-       ``scipy.sparse.csgraph.min_weight_full_bipartite_matching`` on a
-       sparse cost matrix whose entries are i.i.d. Uniform[0, 1] on
-       feasible pairs -- giving a random feasible matching without
-       materialising a dense (n, n) array.
-    3. Mix with a **Markov chain**: propose swapping ``perm[i]`` and
-       ``perm[j]``; accept iff both moves stay within A and neither
-       creates a fixed point.  Adjacency lookups use a list of sets --
-       O(1) average -- so no dense matrix is needed at any stage.
-       Run *n_burn* proposed steps between each yielded permutation.
+       ``scipy.sparse.csgraph.min_weight_full_bipartite_matching`` on
+       a sparse cost matrix with i.i.d. Uniform[0, 1] weights on
+       feasible pairs -- a random feasible matching without a dense
+       (n, n) array.
+    3. Mix with a **Markov chain**: sample candidate pair (i, j)
+       proportional to edge weight, propose swapping perm[i] <-> perm[j],
+       accept iff both moves stay within the adjacency and neither
+       creates a fixed point.  Run *n_burn* steps between yields.
 
     Parameters
     ----------
-    threshold : float or None
-        Maximum allowed distance (or maximum edge weight when used with
-        *graph*).  Required when *graph* is not provided.
+    bandwidth : float or None
+        Neighbourhood radius in the same units as the input distances.
+        Required unless *k* or *graph* is provided.
+        Mutually exclusive with *k*.
+    k : int or None
+        Number of nearest neighbours.  Mutually exclusive with
+        *bandwidth*.
+    kernel : str, default 'uniform'
+        One of ``'uniform'``, ``'bisquare'``, ``'triangular'``,
+        ``'gaussian'``, ``'exponential'``, ``'parabolic'``.
+        ``'uniform'`` gives a hard cutoff (binary adjacency);
+        smooth kernels weight swap proposals by proximity.
     derangement : bool, default True
         If True, every value must move (no fixed points).
     n_permutations : int, default 99
         Number of permutations to generate.
     n_burn : int or None
         Proposed Markov-chain steps between each yielded permutation.
-        Higher values give more independent samples at the cost of runtime.
         Defaults to ``10 * n``.
     graph : libpysal.graph.Graph or None
-        Pre-built spatial weights (must expose ``.sparse``).  Edge weights
-        are the values in the sparse matrix.  When *threshold* is also
-        given, only edges with weight ≤ threshold are used.
+        Pre-built spatial weights (must expose ``.sparse``).  Edge
+        weights drive proposals.  Overrides *bandwidth* and *k*.
     random_state : int, RandomState instance, or None
 
     Raises
     ------
     ValueError
-        If no valid (de)rangement exists for the given constraints, or if
-        neither *threshold* nor *graph* is supplied.
+        If no valid (de)rangement exists for the given constraints, or
+        if neither *bandwidth*, *k*, nor *graph* is supplied.
 
     Examples
     --------
-    Distance threshold only:
+    Bandwidth with default uniform kernel (hard cutoff):
 
-    >>> lp = LocalPermutation(threshold=50_000, random_state=0)
+    >>> lp = LocalPermutation(bandwidth=50_000, random_state=0)
     >>> for perm in lp.sample(gdf):
     ...     model.fit(X[perm], y[perm])
 
-    Graph with an additional weight filter (only edges ≤ 10 km):
+    Bandwidth with a smooth kernel (nearby pairs proposed more often):
 
-    >>> lp = LocalPermutation(graph=W, threshold=10_000, random_state=0)
+    >>> lp = LocalPermutation(bandwidth=50_000, kernel='bisquare',
+    ...                       random_state=0)
     >>> for perm in lp.sample(gdf):
     ...     model.fit(X[perm], y[perm])
     """
 
     def __init__(
         self,
-        threshold: float | None = None,
+        bandwidth: float | None = None,
+        k: int | None = None,
+        kernel: str = "uniform",
         derangement: bool = True,
         n_permutations: int = 99,
         n_burn: int | None = None,
         graph=None,
         random_state=None,
     ):
-        self.threshold = threshold
+        if bandwidth is not None and k is not None:
+            raise ValueError(
+                "Specify at most one of 'bandwidth' or 'k'. "
+                "They are mutually exclusive."
+            )
+        self.bandwidth = bandwidth
+        self.k = k
+        self.kernel = kernel
         self.derangement = derangement
         self.n_permutations = n_permutations
         self.n_burn = n_burn
@@ -111,24 +132,18 @@ class LocalPermutation(BaseEstimator):
     def sample(self, X):
         """Yield constrained permutation index arrays.
 
-        ``perm[i] = j`` means site i receives the row from site j.
-        Apply as ``y[perm]`` to permute a target vector, or
-        ``X[perm]`` / ``gdf.iloc[perm]`` to permute all features jointly
-        (keep the original geometry / time index separately).
-
         Parameters
         ----------
         X : GeoDataFrame | GeoSeries | (n, 2) ndarray | (n,) or (n, 1) ndarray
-            Locations.  When *graph* is provided coordinates are used only
-            to determine n (pass any array of the right length if
-            coordinates are not meaningful).
+            Locations.  When *graph* is provided coordinates are used
+            only to determine n.
 
         Yields
         ------
         perm : ndarray of shape (n,)
             ``perm[i]`` is the label of the row assigned to position i,
-            using the input's index when X is a GeoDataFrame/GeoSeries, or
-            integer positions for raw arrays.
+            using the input's index when X is a GeoDataFrame/GeoSeries,
+            or integer positions for raw arrays.
         """
         rng = check_random_state(self.random_state)
         idx, is_geo = _idx_and_is_geo(X)
@@ -136,23 +151,18 @@ class LocalPermutation(BaseEstimator):
         if self.graph is not None:
             n = self._n_from_graph(self.graph)
             adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(self.graph, n)
-        else:
-            if self.threshold is None:
+        elif self.bandwidth is not None or self.k is not None:
+            if self.kernel not in KERNELS:
                 raise ValueError(
-                    "Specify either 'threshold' (distance cutoff), "
-                    "a pre-built libpysal 'graph', or both."
+                    f"Unknown kernel '{self.kernel}'. "
+                    f"Choose from: {sorted(KERNELS)}."
                 )
-            if is_geo:
-                from libpysal.graph import Graph
-
-                point_gdf = _to_point_gdf(X)
-                graph = Graph.build_distance_band(point_gdf, threshold=self.threshold)
-                n = len(point_gdf)
-                adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(graph, n)
-            else:
-                coords = _get_coords(X)
-                n = len(coords)
-                adj_csr, adj_sets, edge_i, edge_j, cumw = self._build_adj(coords, n)
+            adj_csr, adj_sets, edge_i, edge_j, cumw = self._kernel_adj(X, is_geo)
+            n = adj_csr.shape[0]
+        else:
+            raise ValueError(
+                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
+            )
 
         n_burn = self.n_burn if self.n_burn is not None else 10 * n
         perm = self._initial_permutation(adj_csr, n, rng)
@@ -163,24 +173,46 @@ class LocalPermutation(BaseEstimator):
             yield idx[positions] if idx is not None else positions
 
     # ------------------------------------------------------------------
-    # Adjacency builders -- both return (adj_csr, adj_sets)
+    # Adjacency builders
     # ------------------------------------------------------------------
 
-    def _build_adj(self, coords: numpy.ndarray, n: int):
-        """Sparse adjacency from a coordinate distance threshold."""
+    def _kernel_adj(self, X, is_geo):
+        """Dispatch to bandwidth or k-NN kernel-weighted adjacency builder."""
+        if self.k is not None:
+            return self._knn_adj(X)
+        if is_geo:
+            from libpysal.graph import Graph
+
+            point_gdf = _to_point_gdf(X)
+            graph = Graph.build_kernel(
+                point_gdf,
+                bandwidth=self.bandwidth,
+                kernel=LIBPYSAL_KERNEL_MAP[self.kernel],
+            )
+            return self._adj_from_graph(graph, len(point_gdf))
+        return self._bandwidth_adj_1d(X)
+
+    def _bandwidth_adj_1d(self, X):
+        """Kernel-weighted adjacency for 1-D (array/Series) input."""
+        coords = _get_coords(X)
+        n = len(coords)
         tree = cKDTree(coords)
-        pairs = tree.query_pairs(self.threshold)  # set of (i,j), i < j
 
-        if pairs:
-            edge_i, edge_j = map(numpy.array, zip(*pairs))
-        else:
-            edge_i = edge_j = numpy.empty(0, dtype=numpy.intp)
+        D = tree.sparse_distance_matrix(
+            tree, max_distance=self.bandwidth, output_type="coo_matrix"
+        )
+        off_diag = D.row != D.col
+        rows = D.row[off_diag]
+        cols = D.col[off_diag]
+        weights = KERNELS[self.kernel](D.data[off_diag] / self.bandwidth)
 
-        # Uniform weights over edges (no graph weights available)
-        cumw = numpy.arange(1, len(edge_i) + 1, dtype=float)
+        nonzero = weights > 0
+        rows, cols, weights = rows[nonzero], cols[nonzero], weights[nonzero]
 
-        rows = numpy.concatenate([edge_i, edge_j])
-        cols = numpy.concatenate([edge_j, edge_i])
+        upper = rows < cols
+        edge_i = rows[upper]
+        edge_j = cols[upper]
+        cumw = numpy.cumsum(weights[upper])
 
         if not self.derangement:
             diag = numpy.arange(n)
@@ -190,12 +222,63 @@ class LocalPermutation(BaseEstimator):
         data = numpy.ones(len(rows), dtype=bool)
         adj_csr = csr_matrix((data, (rows, cols)), shape=(n, n))
         adj_csr.sum_duplicates()
-
         adj_sets = self._sets_from_pairs(rows, cols, n)
         return adj_csr, adj_sets, edge_i, edge_j, cumw
 
+    def _knn_adj(self, X):
+        """k-NN kernel-weighted adjacency (adaptive bandwidth, symmetrised)."""
+        from scipy.sparse import coo_matrix
+
+        coords = _get_coords(X)
+        n = len(coords)
+        tree = cKDTree(coords)
+
+        distances, indices = tree.query(coords, k=self.k + 1)
+        distances = distances[:, 1:]   # drop self (d=0)
+        indices   = indices[:, 1:]
+
+        bw = distances[:, -1:] + 1e-10
+        weights = KERNELS[self.kernel](distances / bw)   # (n, k)
+
+        row = numpy.repeat(numpy.arange(n), self.k)
+        col = indices.ravel()
+        w   = weights.ravel()
+
+        nonzero = w > 0
+        row, col, w = row[nonzero], col[nonzero], w[nonzero]
+
+        # Symmetrise by adding both directions; sum_duplicates merges them
+        sym_row = numpy.concatenate([row, col])
+        sym_col = numpy.concatenate([col, row])
+        sym_w   = numpy.concatenate([w, w])
+
+        W = coo_matrix((sym_w, (sym_row, sym_col)), shape=(n, n)).tocsr()
+        W.sum_duplicates()
+        W_coo = W.tocoo()
+
+        off_diag = W_coo.row != W_coo.col
+        r  = W_coo.row[off_diag]
+        c  = W_coo.col[off_diag]
+        wt = W_coo.data[off_diag]
+
+        upper = r < c
+        edge_i = r[upper]
+        edge_j = c[upper]
+        cumw = numpy.cumsum(wt[upper])
+
+        if not self.derangement:
+            diag = numpy.arange(n)
+            r = numpy.concatenate([r, diag])
+            c = numpy.concatenate([c, diag])
+
+        data = numpy.ones(len(r), dtype=bool)
+        adj_csr = csr_matrix((data, (r, c)), shape=(n, n))
+        adj_csr.sum_duplicates()
+        adj_sets = self._sets_from_pairs(r, c, n)
+        return adj_csr, adj_sets, edge_i, edge_j, cumw
+
     def _adj_from_graph(self, graph, n: int):
-        """Sparse adjacency from graph edges, optionally filtered by threshold."""
+        """Weighted adjacency from a pre-built graph."""
         try:
             W = graph.sparse.tocsr().astype(float)
         except AttributeError:
@@ -204,23 +287,15 @@ class LocalPermutation(BaseEstimator):
                 "(scipy sparse matrix)."
             )
 
-        # Convert to COO to filter entries without going dense
         W_coo = W.tocoo()
         mask = W_coo.data != 0
+        off_diag = W_coo.row != W_coo.col
+        mask &= off_diag
 
-        if self.threshold is not None:
-            mask &= W_coo.data <= self.threshold
-
-        row = W_coo.row[mask]
-        col = W_coo.col[mask]
+        row     = W_coo.row[mask]
+        col     = W_coo.col[mask]
         weights = W_coo.data[mask]
 
-        # Remove self-loops
-        off_diag = row != col
-        row, col, weights = row[off_diag], col[off_diag], weights[off_diag]
-
-        # Upper triangle only: each unordered pair sampled once, weighted by
-        # the graph weight so denser/stronger edges are proposed more often.
         upper = row < col
         edge_i = row[upper]
         edge_j = col[upper]
@@ -234,7 +309,6 @@ class LocalPermutation(BaseEstimator):
         data = numpy.ones(len(row), dtype=bool)
         adj_csr = csr_matrix((data, (row, col)), shape=(n, n))
         adj_csr.sum_duplicates()
-
         adj_sets = self._sets_from_pairs(row, col, n)
         return adj_csr, adj_sets, edge_i, edge_j, cumw
 
@@ -275,13 +349,12 @@ class LocalPermutation(BaseEstimator):
             src = (
                 "the supplied graph"
                 if self.graph is not None
-                else f"threshold={self.threshold}"
+                else f"bandwidth={self.bandwidth}" if self.bandwidth is not None
+                else f"k={self.k}"
             )
-            if self.graph is not None and self.threshold is not None:
-                src = f"the supplied graph filtered to edges ≤ {self.threshold}"
             raise ValueError(
                 f"No valid constrained {kind} exists within {src}.  "
-                "Increase the threshold, use a denser graph, or set "
+                "Increase bandwidth/k, use a denser graph, or set "
                 "derangement=False."
             )
 
@@ -290,7 +363,7 @@ class LocalPermutation(BaseEstimator):
         return perm
 
     # ------------------------------------------------------------------
-    # Markov chain -- set-based adjacency lookups
+    # Markov chain -- edge-weighted proposals
     # ------------------------------------------------------------------
 
     def _markov_mix(
@@ -306,11 +379,11 @@ class LocalPermutation(BaseEstimator):
         """Random-transposition Markov chain with edge-weighted proposals.
 
         Samples candidate pair (i, j) proportional to graph edge weight
-        rather than uniformly over all n*(n-1)/2 pairs.  On a sparse graph
-        this eliminates the O(k/n) acceptance rate of uniform sampling --
-        every proposal is already a connected pair, so the only remaining
-        rejections are cases where the values perm[i]/perm[j] have drifted
-        outside each other's adjacency sets.
+        rather than uniformly over all n*(n-1)/2 pairs.  On a sparse
+        graph this eliminates the O(k/n) acceptance rate of uniform
+        sampling -- every proposal is already a connected pair, so the
+        only remaining rejections are cases where the values perm[i]/
+        perm[j] have drifted outside each other's adjacency sets.
         """
         perm = perm.copy()
         total_w = float(cumw[-1])
