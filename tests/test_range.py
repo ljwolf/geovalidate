@@ -148,5 +148,5 @@ def test_correlogram_range_as_threshold(line_data):
     from geovalidate import LocalPermutation
     gdf, y = line_data
     d = correlogram_range(gdf, y, random_state=0)
-    perms = list(LocalPermutation(threshold=d, n_permutations=3, random_state=0).sample(gdf))
+    perms = list(LocalPermutation(bandwidth=d, n_permutations=3, random_state=0).sample(gdf))
     assert len(perms) == 3

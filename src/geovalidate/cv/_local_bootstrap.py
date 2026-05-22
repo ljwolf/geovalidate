@@ -77,8 +77,8 @@ class LocalBootstrap(BaseEstimator):
     def __init__(
         self,
         n_bootstraps: int = 100,
-        bandwidth: float | None = None,
-        k: int | None = None,
+        bandwidth: float | str | None = None,
+        k: int | str | None = None,
         kernel: str = "gaussian",
         graph=None,
         random_state=None,
@@ -88,12 +88,91 @@ class LocalBootstrap(BaseEstimator):
                 "Specify at most one of 'bandwidth' (radius-based) or "
                 "'k' (k-nearest-neighbour).  They are mutually exclusive."
             )
+        if isinstance(bandwidth, str) and bandwidth != "auto":
+            raise ValueError(
+                f"bandwidth must be a number, None, or 'auto'; got {bandwidth!r}"
+            )
+        if isinstance(k, str) and k != "auto":
+            raise ValueError(f"k must be an integer, None, or 'auto'; got {k!r}")
         self.n_bootstraps = n_bootstraps
         self.bandwidth = bandwidth
         self.k = k
         self.kernel = kernel
         self.graph = graph
         self.random_state = random_state
+
+    def _resolve_auto(self, X, y):
+        """Return (bandwidth, k) resolving 'auto' via correlogram/knn range."""
+        bw, k = self.bandwidth, self.k
+        if bw == "auto" or k == "auto":
+            if y is None:
+                raise ValueError(
+                    "Call fit(X, y) before sample() when bandwidth='auto' "
+                    "or k='auto'."
+                )
+            from ._range import correlogram_range, knn_range
+            if bw == "auto":
+                bw = correlogram_range(X, y)
+                self.bandwidth_ = bw
+            if k == "auto":
+                k = knn_range(X, y)
+                self.k_ = k
+        return bw, k
+
+    def fit(self, X, y=None):
+        """Build the spatial weight graph.
+
+        Parameters
+        ----------
+        X : GeoDataFrame | GeoSeries | (n, 2) ndarray | (n,) or (n, 1) ndarray
+            Locations.
+        y : array-like or None
+            Response variable; required when ``bandwidth='auto'`` or
+            ``k='auto'``.
+
+        Returns
+        -------
+        self
+        """
+        bw, k = self._resolve_auto(X, y)
+        _, is_geo = _idx_and_is_geo(X)
+
+        if self.graph is not None:
+            self.graph_ = self.graph
+            return self
+
+        if bw is None and k is None:
+            raise ValueError(
+                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
+            )
+        if self.kernel not in KERNELS:
+            raise ValueError(
+                f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
+            )
+
+        if k is not None:
+            from libpysal.graph import Graph
+
+            coords = _get_coords(X)
+            W_csr = self._knn_weight_csr(coords, coords, k, skip_self=True)
+            coo = W_csr.tocoo()
+            self.graph_ = Graph.from_arrays(coo.row, coo.col, coo.data)
+            return self
+
+        if is_geo:
+            from libpysal.graph import Graph
+
+            point_gdf = _to_point_gdf(X)
+            self.graph_ = Graph.build_kernel(
+                point_gdf,
+                bandwidth=bw,
+                kernel=LIBPYSAL_KERNEL_MAP[self.kernel],
+            )
+            return self
+
+        coords = _get_coords(X)
+        self._W_dense_ = self._dense_weight_matrix(coords, bw)
+        return self
 
     def sample(self, X, donor=None):
         """Yield locally-weighted bootstrap samples.
@@ -127,7 +206,8 @@ class LocalBootstrap(BaseEstimator):
             Otherwise: ``result[i]`` is the label (or position) of the donor
             row drawn for location i.
         """
-        # Setup runs eagerly so self.graph_ is set before iteration begins.
+        from sklearn.exceptions import NotFittedError
+
         rng = check_random_state(self.random_state)
 
         if donor is not None:
@@ -136,61 +216,42 @@ class LocalBootstrap(BaseEstimator):
                     "donor= cannot be combined with a pre-built graph. "
                     "Use bandwidth= for cross-geometry sampling."
                 )
-            return self._sample_cross(X, donor, rng)
+            bw = getattr(self, "bandwidth_", self.bandwidth)
+            k  = getattr(self, "k_", self.k)
+            if bw == "auto" or k == "auto":
+                raise NotFittedError(
+                    f"This {type(self).__name__} instance has bandwidth='auto' "
+                    "but fit() has not been called. Call fit(X, y) first."
+                )
+            return self._sample_cross(X, donor, rng, bw, k)
+
+        _fitted = hasattr(self, "graph_") or hasattr(self, "_W_dense_")
+        if not _fitted:
+            if self.bandwidth == "auto" or self.k == "auto":
+                raise NotFittedError(
+                    f"This {type(self).__name__} instance has bandwidth='auto' "
+                    "but fit() has not been called. Call fit(X, y) first."
+                )
+            self.fit(X)
 
         idx, is_geo = _idx_and_is_geo(X)
 
         def _out(positions):
             return idx[positions] if idx is not None else positions
 
-        if self.graph is not None:
-            self.graph_ = self.graph
-            W_csr = self._sparse_weights_from_graph(self.graph_)
-            return self._yield_csr(W_csr, rng, _out)
+        if hasattr(self, "_W_dense_"):
+            return self._yield_dense(self._W_dense_, rng, _out)
 
-        if self.bandwidth is None and self.k is None:
-            raise ValueError(
-                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
-            )
-
-        if self.kernel not in KERNELS:
-            raise ValueError(
-                f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
-            )
-
-        if self.k is not None:
-            from libpysal.graph import Graph
-
-            coords = _get_coords(X)
-            W_csr = self._knn_weight_csr(coords, coords, self.k, skip_self=True)
-            coo = W_csr.tocoo()
-            self.graph_ = Graph.from_arrays(coo.row, coo.col, coo.data)
-            return self._yield_csr(W_csr, rng, _out)
-
-        # bandwidth path
-        if is_geo:
-            from libpysal.graph import Graph
-
-            point_gdf = _to_point_gdf(X)
-            self.graph_ = Graph.build_kernel(
-                point_gdf,
-                bandwidth=self.bandwidth,
-                kernel=LIBPYSAL_KERNEL_MAP[self.kernel],
-            )
-            W_csr = self._sparse_weights_from_graph(self.graph_)
-            return self._yield_csr(W_csr, rng, _out)
-
-        coords = _get_coords(X)
-        W = self._dense_weight_matrix(coords)
-        return self._yield_dense(W, rng, _out)
+        W_csr = self._sparse_weights_from_graph(self.graph_)
+        return self._yield_csr(W_csr, rng, _out)
 
     # ------------------------------------------------------------------
     # Cross-geometry sampling
     # ------------------------------------------------------------------
 
-    def _sample_cross(self, X, donor, rng):
+    def _sample_cross(self, X, donor, rng, bw, k):
         """Set up and return a generator for cross-geometry sampling."""
-        if self.bandwidth is None and self.k is None:
+        if bw is None and k is None:
             raise ValueError(
                 "Specify one of 'bandwidth' or 'k' for cross-geometry sampling."
             )
@@ -203,10 +264,10 @@ class LocalBootstrap(BaseEstimator):
         donor_coords = _get_coords(donor)
         n_donor      = len(donor_coords)
 
-        if self.k is not None:
-            W_csr = self._knn_weight_csr(X_coords, donor_coords, self.k)
+        if k is not None:
+            W_csr = self._knn_weight_csr(X_coords, donor_coords, k)
         else:
-            W_csr = self._radius_weight_csr(X_coords, donor_coords, self.bandwidth)
+            W_csr = self._radius_weight_csr(X_coords, donor_coords, bw)
 
         return_df = (
             isinstance(X, geopandas.GeoDataFrame)
@@ -323,13 +384,13 @@ class LocalBootstrap(BaseEstimator):
     # Weight matrix builders
     # ------------------------------------------------------------------
 
-    def _dense_weight_matrix(self, coords: numpy.ndarray) -> numpy.ndarray:
+    def _dense_weight_matrix(self, coords: numpy.ndarray, bandwidth: float) -> numpy.ndarray:
         """Build a row-normalised (n, n) dense weight matrix."""
         if coords.shape[1] == 1:
             D = numpy.abs(coords - coords.T)
         else:
             D = cdist(coords, coords)
-        W = KERNELS[self.kernel](D / self.bandwidth)
+        W = KERNELS[self.kernel](D / bandwidth)
         row_sums = W.sum(axis=1, keepdims=True)
         row_sums = numpy.where(row_sums == 0, 1.0, row_sums)
         return W / row_sums
