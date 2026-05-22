@@ -35,7 +35,7 @@ def test_geodataframe_input_dissolved(class_gdf):
 
 
 def test_concave_geometry():
-    """L-shaped geometry — tests that rejection sampling handles non-convex shapes."""
+    """L-shaped geometry -- tests that rejection sampling handles non-convex shapes."""
     from shapely.geometry import Polygon
     l_shape = Polygon([(0,0),(10,0),(10,5),(5,5),(5,10),(0,10)])
     pts = PointSampler(n_samples=100, random_state=7).sample(l_shape)
@@ -62,7 +62,7 @@ def test_zero_area_raises():
         PointSampler(n_samples=10).sample(Polygon())  # empty / degenerate polygon
 
 
-# ── Line geometry tests ───────────────────────────────────────────────────────
+# -- Line geometry tests -------------------------------------------------------
 
 def test_linestring_count():
     from shapely.geometry import LineString
@@ -82,7 +82,7 @@ def test_linestring_points_on_line():
 
 def test_multilinestring_uniform_arc_length():
     from shapely.geometry import MultiLineString
-    # Two segments: length 6 and length 4 → total 10
+    # Two segments: length 6 and length 4 -> total 10
     mls = MultiLineString([[(0, 0), (6, 0)], [(10, 0), (14, 0)]])
     pts = PointSampler(n_samples=10_000, random_state=0).sample(mls)
     assert len(pts) == 10_000

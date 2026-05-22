@@ -6,9 +6,9 @@ so the parent sampler's ``random_state`` controls reproducibility.
 
 Sequences
 ---------
-sobol   scipy.stats.qmc.Sobol (scrambled)         — base-2 digital net
-halton  scipy.stats.qmc.Halton (scrambled)        — mixed-radix Van der Corput
-r2      Roberts' R2 / golden-ratio sequence        — pure NumPy, no scipy
+sobol   scipy.stats.qmc.Sobol (scrambled)         -- base-2 digital net
+halton  scipy.stats.qmc.Halton (scrambled)        -- mixed-radix Van der Corput
+r2      Roberts' R2 / golden-ratio sequence        -- pure NumPy, no scipy
 
 R2 implementation notes
 -----------------------
@@ -46,8 +46,8 @@ def _phi(d: int) -> float:
     Uses the iterative fixed-point method from Roberts (2018):
         x = (1 + x)^(1/(d+1))   repeated until convergence.
 
-    d=1 → golden ratio ≈ 1.6180339887
-    d=2 → plastic constant ≈ 1.3247179572
+    d=1 -> golden ratio ≈ 1.6180339887
+    d=2 -> plastic constant ≈ 1.3247179572
 
     Convergence rate is |1/(d+1) * phi_d^(-d)| per step.  d=2 converges in
     ~20 iterations; d=1 (square-root iteration) is slower and needs ~50 to
@@ -60,7 +60,7 @@ def _phi(d: int) -> float:
 
 
 # ---------------------------------------------------------------------------
-# 2-D generators — return (n, 2) arrays in [0, 1]^2
+# 2-D generators -- return (n, 2) arrays in [0, 1]^2
 # ---------------------------------------------------------------------------
 
 
@@ -88,7 +88,7 @@ def _r2_2d(n: int, seed: int) -> numpy.ndarray:
     """
     phi2 = _phi(2)
     alpha = numpy.array([1.0 / phi2, 1.0 / phi2**2])
-    # Single shared scalar seed — same offset for x and y
+    # Single shared scalar seed -- same offset for x and y
     offset = float(numpy.random.default_rng(seed).random())
     return (offset + numpy.outer(numpy.arange(1, n + 1), alpha)) % 1.0
 
@@ -104,7 +104,7 @@ def qrn_2d(n: int, sequence: str, seed: int) -> numpy.ndarray:
 
 
 # ---------------------------------------------------------------------------
-# 1-D generators — return (n,) arrays in [0, 1]
+# 1-D generators -- return (n,) arrays in [0, 1]
 # ---------------------------------------------------------------------------
 
 
@@ -121,7 +121,7 @@ def _halton_1d(n: int, seed: int) -> numpy.ndarray:
 
 
 def _r2_1d(n: int, seed: int) -> numpy.ndarray:
-    """Roberts R1 sequence — golden-ratio additive recurrence (d=1).
+    """Roberts R1 sequence -- golden-ratio additive recurrence (d=1).
 
     t[n] = (seed + n / phi_1) mod 1,   n = 1, 2, 3, ...
     """

@@ -17,9 +17,9 @@ def _sample_geometry(geometry, n_samples: int, rng: numpy.random.RandomState,
 
     Dispatch table
     --------------
-    Point / MultiPoint                          → return the point(s) directly
-    LineString / LinearRing / MultiLineString   → uniform arc-length sampling
-    Polygon / MultiPolygon                      → rejection sampling
+    Point / MultiPoint                          -> return the point(s) directly
+    LineString / LinearRing / MultiLineString   -> uniform arc-length sampling
+    Polygon / MultiPolygon                      -> rejection sampling
 
     Parameters
     ----------
@@ -111,7 +111,7 @@ def _sample_polygon_qrn(geometry, n_samples: int,
     if inside.size >= n_samples:
         return inside[:n_samples].tolist()
 
-    # Coverage lower than estimated — top up with random for the remainder.
+    # Coverage lower than estimated -- top up with random for the remainder.
     extra = _sample_polygon_random(geometry, n_samples - inside.size, rng)
     return inside.tolist() + extra
 

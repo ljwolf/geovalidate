@@ -3,13 +3,13 @@ Inhomogeneous Poisson point process (IPPP) sampler.
 
 Four intensity specifications are supported:
 
-  callable       – λ(x, y) → array  (Lewis-Shedler thinning)
+  callable       - λ(x, y) -> array  (Lewis-Shedler thinning)
   rasterio.DatasetReader / 2-D ndarray
-                 – pixel image  (pixel-selection or bilinear-thinning)
+                 - pixel image  (pixel-selection or bilinear-thinning)
   1-D numeric array aligned to polygon geometry
-                 – per-polygon values burned to a raster
-  point pattern  – GeoSeries / GeoDataFrame / (N, 2) ndarray
-                 → kernel-density intensity estimate
+                 - per-polygon values burned to a raster
+  point pattern  - GeoSeries / GeoDataFrame / (N, 2) ndarray
+                 -> kernel-density intensity estimate
 
 Unlike the fixed-n samplers, the output count N follows
 Poisson(∫∫_W λ(x,y) dA) and is itself random.  Use *n_expected* to
@@ -30,7 +30,7 @@ class PoissonSampler(BasePointSampler):
     """
     Inhomogeneous Poisson point process sampler.
 
-    The number of returned points is random — N ~ Poisson(∫∫_W λ(x,y) dA).
+    The number of returned points is random -- N ~ Poisson(∫∫_W λ(x,y) dA).
     Set *n_expected* to control the expected count; the sampler computes the
     normalisation constant K = ∫∫_W λ dA internally and derives
     scale = n_expected / K.  When *n_expected* is None the raw integral of
@@ -39,18 +39,18 @@ class PoissonSampler(BasePointSampler):
     Four ways to specify the intensity surface λ(x,y) are accepted by
     :meth:`sample`:
 
-    * **callable** ``f(x, y) → array`` — intensity in points per unit area.
+    * **callable** ``f(x, y) -> array`` -- intensity in points per unit area.
       Receives two 1-D NumPy arrays of x and y coordinates and must return
       a 1-D array of the same length.  Lewis-Shedler thinning is used.
-    * **rasterio.DatasetReader** or **2-D ndarray** — pixel image.
+    * **rasterio.DatasetReader** or **2-D ndarray** -- pixel image.
       With ``interpolation='nearest'`` the pixel-selection algorithm is used.
       With ``interpolation='linear'`` bilinear interpolation + Lewis-Shedler
       thinning.
     * **1-D numeric array / Series** (when *geometry* is a GeoSeries /
-      GeoDataFrame of Polygons) — per-feature values burned into a 512-cell
+      GeoDataFrame of Polygons) -- per-feature values burned into a 512-cell
       raster aligned to *geometry*.  E.g.
       ``sample(df.geometry, df.population)``.
-    * **GeoSeries / GeoDataFrame of Points / (N, 2) ndarray** — an observed
+    * **GeoSeries / GeoDataFrame of Points / (N, 2) ndarray** -- an observed
       point pattern; a kernel-density estimate of its intensity is used.
 
     Parameters
@@ -88,7 +88,7 @@ class PoissonSampler(BasePointSampler):
         self.interpolation = interpolation
         self.random_state = random_state
 
-    # ── public ────────────────────────────────────────────────────────────────
+    # -- public ----------------------------------------------------------------
 
     def sample(self, geometry, intensity):
         """
@@ -99,21 +99,21 @@ class PoissonSampler(BasePointSampler):
         geometry : shapely.Geometry | GeoSeries | GeoDataFrame | None
             Sampling window.  CRS is inferred automatically from GeoSeries /
             GeoDataFrame input.  Pass ``None`` when *intensity* is a
-            rasterio DatasetReader — the window and CRS are then taken
+            rasterio DatasetReader -- the window and CRS are then taken
             directly from the raster.
         intensity : callable | DatasetReader | ndarray (2-D) | array-like (1-D) | GeoSeries | ndarray (N, 2)
             Intensity surface (points per unit area):
 
-            * **callable** ``f(x, y)`` — receives two 1-D NumPy arrays and
+            * **callable** ``f(x, y)`` -- receives two 1-D NumPy arrays and
               must return a 1-D array of intensities at those locations.
-            * **rasterio.DatasetReader** — first band used.  *geometry* may
+            * **rasterio.DatasetReader** -- first band used.  *geometry* may
               be ``None`` to use the full raster extent.
-            * **2-D ndarray** — pixel values, rows=north→south,
-              columns=west→east, domain aligned to *geometry*'s bounding box.
+            * **2-D ndarray** -- pixel values, rows=north->south,
+              columns=west->east, domain aligned to *geometry*'s bounding box.
             * **1-D numeric array / Series** (when *geometry* contains
-              Polygons) — per-feature intensity values burned into a raster.
+              Polygons) -- per-feature intensity values burned into a raster.
               E.g. ``sample(df.geometry, df.population)``.
-            * **GeoSeries / GeoDataFrame of Points / (N, 2) ndarray** —
+            * **GeoSeries / GeoDataFrame of Points / (N, 2) ndarray** --
               a KDE is fitted and used as the intensity.
 
         Returns
@@ -124,7 +124,7 @@ class PoissonSampler(BasePointSampler):
         rng = numpy.random.default_rng(self.random_state)
         crs = None
 
-        # ── resolve sampling window ────────────────────────────────────────
+        # -- resolve sampling window ----------------------------------------
         # When geometry is None and intensity is a rasterio dataset, derive
         # the window and CRS from the raster itself.
         if geometry is None:
@@ -148,7 +148,7 @@ class PoissonSampler(BasePointSampler):
         else:
             window = geometry
 
-        # ── detect polygon-geometry case ───────────────────────────────────
+        # -- detect polygon-geometry case -----------------------------------
         if isinstance(geometry, geopandas.GeoDataFrame):
             geo_geoms = geometry.geometry
         elif isinstance(geometry, geopandas.GeoSeries):
@@ -161,7 +161,7 @@ class PoissonSampler(BasePointSampler):
             and geo_geoms.geom_type.isin({"Polygon", "MultiPolygon"}).any()
         )
 
-        # ── dispatch on intensity type ─────────────────────────────────────
+        # -- dispatch on intensity type -------------------------------------
         try:
             import rasterio as _rio
 
@@ -207,7 +207,7 @@ class PoissonSampler(BasePointSampler):
             )
         return geopandas.GeoDataFrame({"geometry": pts})
 
-    # ── scale helper ──────────────────────────────────────────────────────────
+    # -- scale helper ----------------------------------------------------------
 
     def _effective_scale(self, K: float) -> float:
         """Return scale = n_expected / K, or 1.0 when n_expected is None."""
@@ -215,7 +215,7 @@ class PoissonSampler(BasePointSampler):
             return 1.0
         return float(self.n_expected) / K
 
-    # ── Lewis-Shedler thinning ────────────────────────────────────────────────
+    # -- Lewis-Shedler thinning ------------------------------------------------
 
     def _thinning(self, window, fn, rng):
         """Accept-reject thinning for a vectorised intensity callable.
@@ -254,7 +254,7 @@ class PoissonSampler(BasePointSampler):
         inside = shapely.contains(window, shapely.points(xs, ys))
         return numpy.vstack((xs[inside], ys[inside])).T
 
-    # ── raster input ──────────────────────────────────────────────────────────
+    # -- raster input ----------------------------------------------------------
 
     def _from_raster_ds(self, window, ds, rng):
         from rasterio.mask import mask as rio_mask
@@ -345,7 +345,7 @@ class PoissonSampler(BasePointSampler):
 
         return self._thinning(window, fn, rng)
 
-    # ── polygon intensity ─────────────────────────────────────────────────────
+    # -- polygon intensity -----------------------------------------------------
 
     def _from_polygons(
         self, window, geoms: geopandas.GeoSeries, values: numpy.ndarray, rng
@@ -386,7 +386,7 @@ class PoissonSampler(BasePointSampler):
         )
         return self._pixel_algorithm(window, arr, transform, rng)
 
-    # ── KDE intensity ─────────────────────────────────────────────────────────
+    # -- KDE intensity ---------------------------------------------------------
 
     def _from_kde(self, window, points, rng):
         """Fit a 2-D kernel-density estimate, use it as the process intensity."""

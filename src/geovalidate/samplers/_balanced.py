@@ -30,7 +30,7 @@ class ConstantClassSampler(BasePointSampler):
             gdf.geometry, gdf["lc_class"]
         )
 
-    Raster path — read the band yourself, pass it as *labels*::
+    Raster path -- read the band yourself, pass it as *labels*::
 
         with rasterio.open("landcover.tif") as ds:
             pts = ConstantClassSampler(n_per_class=50).sample(ds, ds.read(1))
@@ -53,7 +53,7 @@ class ConstantClassSampler(BasePointSampler):
         ----------
         geometry : GeoSeries | GeoDataFrame | rasterio.DatasetReader | path-like
             Spatial source.  For the raster path a ``DatasetReader`` (or file
-            path) is used for its transform / CRS / nodata metadata only —
+            path) is used for its transform / CRS / nodata metadata only --
             no band is read from it here.
         labels : array-like of shape (n,) or 2-D ndarray, required
             Class label for each geometry (GDF path) or a 2-D numpy array of

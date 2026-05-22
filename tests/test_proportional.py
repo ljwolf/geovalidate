@@ -20,7 +20,7 @@ def test_exact_total_always(class_gdf):
 
 
 def test_value_weighted_equal_split(class_gdf):
-    """class_gdf: A sum(value)=30, B sum(value)=30  →  50/50 split at n=100."""
+    """class_gdf: A sum(value)=30, B sum(value)=30  ->  50/50 split at n=100."""
     pts = StratifiedClassSampler(n_samples=100, random_state=0).sample(
         class_gdf.geometry, class_gdf["class"], class_gdf["value"]
     )

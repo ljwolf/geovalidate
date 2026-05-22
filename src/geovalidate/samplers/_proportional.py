@@ -18,7 +18,7 @@ class StratifiedClassSampler(BasePointSampler):
 
     When *weights* are omitted the sampler falls back to **uniform random
     sampling** over the full union of all class geometries and then assigns
-    labels by spatial containment — equivalent to :class:`PointSampler`.
+    labels by spatial containment -- equivalent to :class:`PointSampler`.
 
     Parameters
     ----------
@@ -34,7 +34,7 @@ class StratifiedClassSampler(BasePointSampler):
             gdf.geometry, gdf["lc_class"], gdf["area_ha"]
         )
 
-    Raster path — read bands yourself::
+    Raster path -- read bands yourself::
 
         with rasterio.open("landcover.tif") as ds:
             pts = StratifiedClassSampler(n_samples=500).sample(

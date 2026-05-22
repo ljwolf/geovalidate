@@ -16,14 +16,14 @@ from geovalidate import (
 SEQS = ["sobol", "halton", "r2"]
 
 
-# ── Invalid sequence name ─────────────────────────────────────────────────────
+# -- Invalid sequence name -----------------------------------------------------
 
 def test_invalid_sequence_raises(square):
     with pytest.raises(ValueError, match="quasi_random"):
         PointSampler(n_samples=10, quasi_random="bad").sample(square)
 
 
-# ── PointSampler — polygon ────────────────────────────────────────────────────
+# -- PointSampler -- polygon ----------------------------------------------------
 
 @pytest.mark.parametrize("seq", SEQS)
 def test_point_polygon_count(square, seq):
@@ -46,7 +46,7 @@ def test_point_concave_polygon(seq):
     assert all(l_shape.contains(p) for p in pts.geometry)
 
 
-# ── PointSampler — line ───────────────────────────────────────────────────────
+# -- PointSampler -- line -------------------------------------------------------
 
 @pytest.mark.parametrize("seq", SEQS)
 def test_point_line_count(seq):
@@ -63,7 +63,7 @@ def test_point_line_on_line(seq):
     assert all(0.0 <= p.x <= 10.0 for p in pts.geometry)
 
 
-# ── Reproducibility ───────────────────────────────────────────────────────────
+# -- Reproducibility -----------------------------------------------------------
 
 @pytest.mark.parametrize("seq", SEQS)
 def test_reproducible(square, seq):
@@ -95,7 +95,7 @@ def test_qrn_differs_from_random(square):
     assert list(pts_rng.geometry.x) != list(pts_qrn.geometry.x)
 
 
-# ── Uniformity ────────────────────────────────────────────────────────────────
+# -- Uniformity ----------------------------------------------------------------
 
 def test_qrn_more_uniform_than_random(square):
     n, cells = 500, 5
@@ -114,7 +114,7 @@ def test_qrn_more_uniform_than_random(square):
     assert var_qrn < var_rng
 
 
-# ── Class samplers ────────────────────────────────────────────────────────────
+# -- Class samplers ------------------------------------------------------------
 
 @pytest.mark.parametrize("seq", SEQS)
 def test_constant_class_sampler(class_gdf, seq):
@@ -145,7 +145,7 @@ def test_multinomial_sampler(multinomial_gdf, seq):
     assert "class_label" in pts.columns
 
 
-# ── sklearn API ───────────────────────────────────────────────────────────────
+# -- sklearn API ---------------------------------------------------------------
 
 def test_get_params_includes_quasi_random():
     s = PointSampler(n_samples=100, quasi_random="sobol", random_state=1)
