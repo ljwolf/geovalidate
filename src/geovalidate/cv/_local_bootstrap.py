@@ -5,11 +5,12 @@ from sklearn.utils import check_random_state
 from scipy.sparse import diags
 from scipy.spatial.distance import cdist
 
-from ._utils import _get_coords, _to_point_gdf, KERNELS, LIBPYSAL_KERNEL_MAP
+from ._utils import _get_coords, _to_point_gdf, _idx_and_is_geo, KERNELS, LIBPYSAL_KERNEL_MAP
+
 
 
 class LocalBootstrap(BaseEstimator):
-    """Locally-weighted bootstrap — resampling with spatial (or temporal) proximity weighting.
+    """Locally-weighted bootstrap -- resampling with spatial (or temporal) proximity weighting.
 
     Generates *n_bootstraps* resampled datasets each of size n.  At every
     site i the observation placed there is drawn **with replacement** from all
@@ -45,8 +46,8 @@ class LocalBootstrap(BaseEstimator):
     Notes
     -----
     When input is a GeoDataFrame/GeoSeries and a supported kernel is given,
-    a libpysal Graph is built internally — the weight matrix stays sparse.
-    The dense O(n²) path is used only for raw array inputs or when kernel is
+    a libpysal Graph is built internally -- the weight matrix stays sparse.
+    The dense O(n**2) path is used only for raw array inputs or when kernel is
     ``'exponential'`` (not supported by libpysal).
 
     Explored initially in
@@ -77,70 +78,246 @@ class LocalBootstrap(BaseEstimator):
         self,
         n_bootstraps: int = 100,
         bandwidth: float | None = None,
+        k: int | None = None,
         kernel: str = "gaussian",
         graph=None,
         random_state=None,
     ):
+        if bandwidth is not None and k is not None:
+            raise ValueError(
+                "Specify at most one of 'bandwidth' (radius-based) or "
+                "'k' (k-nearest-neighbour).  They are mutually exclusive."
+            )
         self.n_bootstraps = n_bootstraps
         self.bandwidth = bandwidth
+        self.k = k
         self.kernel = kernel
         self.graph = graph
         self.random_state = random_state
 
-    def sample(self, X):
-        """Yield locally-weighted bootstrap index arrays.
+    def sample(self, X, donor=None):
+        """Yield locally-weighted bootstrap samples.
 
         Parameters
         ----------
         X : GeoDataFrame | GeoSeries | (n, 2) ndarray | (n,) or (n, 1) ndarray
-            Locations.  Pass a 1-D array of time indices for time-series data.
+            Target locations at which to draw samples.  Pass a 1-D array of
+            time indices for time-series data.
+        donor : same types as X, or None
+            Donor pool from which observations are drawn.  When None (default)
+            observations are drawn from X itself (standard bootstrap).
+
+            When provided, the weight matrix is (|X|, |donor|): row i weights
+            every donor observation by its kernel distance from X_i, so each
+            new location draws locally from the donor pool.
+
+            If both X and donor are GeoDataFrames, each yielded value is a
+            GeoDataFrame of donor rows with index and geometry overwritten to
+            match X -- i.e. donor attributes placed at new locations.
+            Otherwise each yielded value is an array of donor index labels
+            (or positional integers when donor has no pandas index).
+
+            Incompatible with a pre-built ``graph``.
 
         Yields
         ------
-        indices : ndarray of shape (n,)
-            ``indices[i]`` is the source row drawn at position i.
-            Apply with ``df.iloc[indices]`` (and restore original geometry /
-            time index separately).
+        result : GeoDataFrame or ndarray of shape (n,)
+            When donor is a GeoDataFrame and X is a GeoDataFrame: a
+            GeoDataFrame of selected donor rows with X's index and geometry.
+            Otherwise: ``result[i]`` is the label (or position) of the donor
+            row drawn for location i.
         """
+        # Setup runs eagerly so self.graph_ is set before iteration begins.
         rng = check_random_state(self.random_state)
 
-        if self.graph is not None:
-            W_csr = self._sparse_weights_from_graph(self.graph)
-            for _ in range(self.n_bootstraps):
-                yield self._sample_csr(W_csr, rng)
-            return
+        if donor is not None:
+            if self.graph is not None:
+                raise ValueError(
+                    "donor= cannot be combined with a pre-built graph. "
+                    "Use bandwidth= for cross-geometry sampling."
+                )
+            return self._sample_cross(X, donor, rng)
 
-        if self.bandwidth is None:
+        idx, is_geo = _idx_and_is_geo(X)
+
+        def _out(positions):
+            return idx[positions] if idx is not None else positions
+
+        if self.graph is not None:
+            self.graph_ = self.graph
+            W_csr = self._sparse_weights_from_graph(self.graph_)
+            return self._yield_csr(W_csr, rng, _out)
+
+        if self.bandwidth is None and self.k is None:
             raise ValueError(
-                "Specify either 'bandwidth' (kernel bandwidth) or "
-                "a pre-built libpysal 'graph'."
+                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
             )
 
         if self.kernel not in KERNELS:
             raise ValueError(
-                f"Unknown kernel '{self.kernel}'. "
-                f"Choose from: {sorted(KERNELS)}."
+                f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
             )
 
-        # GeoDataFrame/GeoSeries → sparse path via libpysal kernel graph
-        if isinstance(X, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
+        if self.k is not None:
             from libpysal.graph import Graph
+
+            coords = _get_coords(X)
+            W_csr = self._knn_weight_csr(coords, coords, self.k, skip_self=True)
+            coo = W_csr.tocoo()
+            self.graph_ = Graph.from_arrays(coo.row, coo.col, coo.data)
+            return self._yield_csr(W_csr, rng, _out)
+
+        # bandwidth path
+        if is_geo:
+            from libpysal.graph import Graph
+
             point_gdf = _to_point_gdf(X)
-            graph = Graph.build_kernel(
+            self.graph_ = Graph.build_kernel(
                 point_gdf,
                 bandwidth=self.bandwidth,
                 kernel=LIBPYSAL_KERNEL_MAP[self.kernel],
             )
-            W_csr = self._sparse_weights_from_graph(graph)
-            for _ in range(self.n_bootstraps):
-                yield self._sample_csr(W_csr, rng)
-            return
+            W_csr = self._sparse_weights_from_graph(self.graph_)
+            return self._yield_csr(W_csr, rng, _out)
 
-        # Fallback: dense path for raw arrays / 1-D time-series
         coords = _get_coords(X)
         W = self._dense_weight_matrix(coords)
+        return self._yield_dense(W, rng, _out)
+
+    # ------------------------------------------------------------------
+    # Cross-geometry sampling
+    # ------------------------------------------------------------------
+
+    def _sample_cross(self, X, donor, rng):
+        """Set up and return a generator for cross-geometry sampling."""
+        if self.bandwidth is None and self.k is None:
+            raise ValueError(
+                "Specify one of 'bandwidth' or 'k' for cross-geometry sampling."
+            )
+        if self.kernel not in KERNELS:
+            raise ValueError(
+                f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
+            )
+
+        X_coords     = _get_coords(X)
+        donor_coords = _get_coords(donor)
+        n_donor      = len(donor_coords)
+
+        if self.k is not None:
+            W_csr = self._knn_weight_csr(X_coords, donor_coords, self.k)
+        else:
+            W_csr = self._radius_weight_csr(X_coords, donor_coords, self.bandwidth)
+
+        return_df = (
+            isinstance(X, geopandas.GeoDataFrame)
+            and isinstance(donor, geopandas.GeoDataFrame)
+        )
+        donor_idx, _ = _idx_and_is_geo(donor)
+
+        return self._yield_cross(W_csr, X, donor, donor_idx, return_df, n_donor, rng)
+
+    def _yield_cross(self, W_csr, X, donor, donor_idx, return_df, n_donor, rng):
         for _ in range(self.n_bootstraps):
-            yield self._sample_dense(W, rng)
+            positions = self._sample_csr(W_csr, rng, n_cols=n_donor)
+            if return_df:
+                result = donor.iloc[positions].copy()
+                result.index = X.index
+                result["geometry"] = X.geometry.values
+                yield result
+            elif donor_idx is not None:
+                yield donor_idx[positions]
+            else:
+                yield positions
+
+    def _yield_csr(self, W_csr, rng, out_fn):
+        for _ in range(self.n_bootstraps):
+            yield out_fn(self._sample_csr(W_csr, rng))
+
+    def _yield_dense(self, W, rng, out_fn):
+        for _ in range(self.n_bootstraps):
+            yield out_fn(self._sample_dense(W, rng))
+
+    # ------------------------------------------------------------------
+    # Sparse weight matrix builders
+    # ------------------------------------------------------------------
+
+    def _knn_weight_csr(
+        self,
+        X_coords: numpy.ndarray,
+        donor_coords: numpy.ndarray,
+        k: int,
+        skip_self: bool = False,
+    ):
+        """Sparse (|X|, |donor|) CSR weight matrix via k-NN query.
+
+        Kernel weights use an adaptive bandwidth equal to the distance to
+        the k-th nearest neighbour, so the nearest neighbour always receives
+        the maximum weight regardless of absolute distance.
+        When skip_self=True the self-hit (distance 0) is dropped, which is
+        correct for the self-sampling case where X == donor.
+        """
+        from scipy.spatial import cKDTree
+        from scipy.sparse import csr_matrix
+
+        n_query = k + (1 if skip_self else 0)
+        tree = cKDTree(donor_coords)
+        distances, indices = tree.query(X_coords, k=n_query)
+
+        if skip_self:
+            distances = distances[:, 1:]
+            indices   = indices[:, 1:]
+
+        n_X    = len(X_coords)
+        n_donor = len(donor_coords)
+
+        # Adaptive bandwidth: distance to the k-th (farthest) neighbour
+        bw = distances[:, -1:] + 1e-10
+        weights = KERNELS[self.kernel](distances / bw)   # (n_X, k)
+
+        row_sums = weights.sum(axis=1, keepdims=True)
+        row_sums = numpy.where(row_sums == 0, 1.0, row_sums)
+        weights  = weights / row_sums
+
+        rows = numpy.repeat(numpy.arange(n_X), k)
+        cols = indices.ravel()
+        data = weights.ravel()
+        W = csr_matrix((data, (rows, cols)), shape=(n_X, n_donor))
+        W.eliminate_zeros()
+        return W
+
+    def _radius_weight_csr(
+        self,
+        X_coords: numpy.ndarray,
+        donor_coords: numpy.ndarray,
+        bandwidth: float,
+    ):
+        """Sparse (|X|, |donor|) CSR weight matrix via radius search.
+
+        Uses cKDTree.sparse_distance_matrix to find all donor-X pairs
+        within *bandwidth* without materialising the full dense matrix.
+        """
+        from scipy.spatial import cKDTree
+
+        tree_X     = cKDTree(X_coords)
+        tree_donor = cKDTree(donor_coords)
+
+        # sparse_distance_matrix returns a dok_matrix with shape (|X|, |donor|)
+        D = tree_X.sparse_distance_matrix(
+            tree_donor, max_distance=bandwidth, output_type="coo_matrix"
+        )
+        data = KERNELS[self.kernel](D.data / bandwidth)
+        mask = data > 0
+
+        from scipy.sparse import csr_matrix
+        n_X, n_donor = len(X_coords), len(donor_coords)
+        W = csr_matrix(
+            (data[mask], (D.row[mask], D.col[mask])), shape=(n_X, n_donor)
+        )
+        row_sums = numpy.asarray(W.sum(axis=1)).ravel()
+        row_sums = numpy.where(row_sums == 0, 1.0, row_sums)
+        W = diags(1.0 / row_sums) @ W
+        W.eliminate_zeros()
+        return W
 
     # ------------------------------------------------------------------
     # Weight matrix builders
@@ -158,7 +335,7 @@ class LocalBootstrap(BaseEstimator):
         return W / row_sums
 
     def _sparse_weights_from_graph(self, graph):
-        """Return a row-normalised CSR sparse matrix — stays sparse throughout."""
+        """Return a row-normalised CSR sparse matrix -- stays sparse throughout."""
         try:
             W = graph.sparse.tocsr().astype(float)
         except AttributeError:
@@ -168,27 +345,53 @@ class LocalBootstrap(BaseEstimator):
             )
         row_sums = numpy.asarray(W.sum(axis=1)).ravel()
         row_sums = numpy.where(row_sums == 0, 1.0, row_sums)
-        return diags(1.0 / row_sums) @ W
+        W_norm = diags(1.0 / row_sums) @ W
+        W_norm.eliminate_zeros()
+        return W_norm
 
     # ------------------------------------------------------------------
     # Samplers
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _sample_csr(W_csr, rng) -> numpy.ndarray:
+    def _sample_csr(W_csr, rng, n_cols=None) -> numpy.ndarray:
         """Draw one index per row from a row-normalised CSR weight matrix.
 
-        Uses ``numpy.searchsorted`` on each row's cumulative weights — O(k log k)
-        per row where k is the row's nnz.  Never builds an (n, n) array.
+        Uses ``numpy.searchsorted`` on each row's cumulative weights
+
+        Basic idea here is that "u" is how we select the random candidate,
+        cumw increases quickly when an candidate has a lot of weight, and
+        slowly if it doesnt. since "u" is U(0,1), observations with high
+        weight will be selected more frequently, because "u" is more likely
+        to fall in their range in the cumsum. It's like you're taking the row
+        standardized weight
+
+        0                                                                    1
+        |--------------------------------------------------------------------|
+        |----A: .2----|---------------B: .6----------------|-C: .1-||-D: .1--|
+        u1:.4                       *
+        u2:.7                                      *
+        u3:.2      *
+
+        Since we drop all zero-weight entries, there are no ties at zero,
+        which would result in the edge weight being picked arbitrarly often
+        (this was a fun bug to debug). Sampling with replacement, this selects
+        BBA as the ensemble.
         """
-        n = W_csr.shape[0]
-        u = rng.uniform(size=n)
-        result = numpy.empty(n, dtype=numpy.intp)
-        for i in range(n):
+        n_rows = W_csr.shape[0]
+        # n_cols is only supplied for cross-geometry (|X|, |donor|) matrices.
+        # When None (self-sampling) an isolated node falls back to drawing from
+        # itself, preserving the original behaviour.
+        cross = n_cols is not None
+        if n_cols is None:
+            n_cols = n_rows
+        u = rng.uniform(size=n_rows)
+        result = numpy.empty(n_rows, dtype=numpy.intp)
+        for i in range(n_rows):
             start = int(W_csr.indptr[i])
             end = int(W_csr.indptr[i + 1])
-            if start == end:  # isolated node — draw from self
-                result[i] = i
+            if start == end:
+                result[i] = int(rng.uniform() * n_cols) if cross else i
                 continue
             cumw = numpy.cumsum(W_csr.data[start:end])
             idx = numpy.searchsorted(cumw, u[i] * cumw[-1])
