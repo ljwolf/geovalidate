@@ -10,7 +10,7 @@ Samplers:
 
 Cross-validation: [PLANNED]
     DispersionKFold   o spatially balanced k-fold (Hilbert curve interleaving)
-    ClusterKFold      o spatially concentrated k-fold (user-specified location clusterer)
+    ClusterStratifiedKFold      o cluster-stratified k-fold (folds drawn proportionally from user-defined clusters)
     ExclusionBallFold o folds constructed such that no observation in any fold is within distance "r"
     LocalBootstrap    x locally-weighted bootstrap with replacement (spatial or 1-D)
     LocalPermutation  o spatially-constrained derangement without replacement
@@ -24,6 +24,7 @@ from .samplers import (
     PoissonSampler,
 )
 from .cv import (
+    ClusterStratifiedKFold,
     DispersionKFold,
     LocalBootstrap,
     LocalPermutation,
@@ -38,6 +39,7 @@ __all__ = [
     "StratifiedClassSampler",
     "MultinomialSampler",
     "PoissonSampler",
+    "ClusterStratifiedKFold",
     "DispersionKFold",
     "LocalBootstrap",
     "LocalPermutation",
