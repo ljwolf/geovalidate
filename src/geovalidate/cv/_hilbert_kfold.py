@@ -32,8 +32,8 @@ def _hilbert_sort(X, level: int = 16) -> numpy.ndarray:
     return numpy.argsort(gs.hilbert_distance(level=level).values, kind="stable")
 
 
-class DispersionKFold(BaseEstimator):
-    """Spatially balanced k-fold cross-validator.
+class HilbertKFold(BaseEstimator):
+    """Spatially balanced k-fold cross-validator via Hilbert curve ordering.
 
     Partitions observations into *n_splits* folds such that each fold is a
     **spatially spread-out** subsample covering the entire study area.
@@ -65,7 +65,7 @@ class DispersionKFold(BaseEstimator):
 
     Examples
     --------
-    >>> skf = DispersionKFold(n_splits=5, random_state=0)
+    >>> skf = HilbertKFold(n_splits=5, random_state=0)
     >>> for train_idx, test_idx in skf.split(gdf):
     ...     model.fit(X[train_idx], y[train_idx])
     ...     score = model.score(X[test_idx], y[test_idx])

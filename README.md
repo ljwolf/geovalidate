@@ -112,7 +112,7 @@ pts = PointSampler(n_samples=200, quasi_random="halton", random_state=0).sample(
 
 ### Crossvalidation tools
 
-TBA: `LocalPermutation`, `LocalBootstrap`, `DispersionKFold`, `ClusterKFold`, `BallKFold`. 
+TBA: `LocalPermutation`, `LocalBootstrap`, `HilbertKFold`, `ClusterKFold`, `BallKFold`. 
 
 ### sklearn compatibility
 
