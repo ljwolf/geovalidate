@@ -6,26 +6,34 @@ from sklearn.utils import check_random_state
 from ._utils import _get_coords
 
 
-def _hilbert_sort(coords: numpy.ndarray) -> numpy.ndarray:
-    """Return indices that sort *coords* along the Hilbert curve.
+def _hilbert_sort(X, level: int = 16) -> numpy.ndarray:
+    """Return indices that sort X along the Hilbert curve.
 
-    Uses ``GeoSeries.hilbert_distance()`` (backed by the Shapely/GeoPandas
-    implementation) for 2-D coordinates, and a plain value sort for 1-D
-    (time-series) input.  The Hilbert curve has no quadrant-boundary
-    discontinuities, so spatially nearby points always receive consecutive
-    codes -- making it strictly better than Morton (Z-order) for producing
-    spatially balanced folds.
+    For GeoDataFrame/GeoSeries input, calls ``hilbert_distance()`` directly
+    on the original geometries so that polygon extents inform the Hilbert
+    grid bounds -- not the centroid point cloud.  For array/Series input,
+    falls back to a centroid-point sort (2-D) or a plain value sort (1-D).
     """
+    from geopandas.array import GeometryArray
+
+    if isinstance(X, geopandas.GeoDataFrame):
+        hd = X.geometry.hilbert_distance(level=level).values
+        return numpy.argsort(hd, kind="stable")
+
+    if isinstance(X, (geopandas.GeoSeries, GeometryArray)):
+        gs = X if isinstance(X, geopandas.GeoSeries) else geopandas.GeoSeries(X)
+        hd = gs.hilbert_distance(level=level).values
+        return numpy.argsort(hd, kind="stable")
+
+    coords = _get_coords(X)
     if coords.shape[1] == 1:
-        # 1-D input (time series): sort by value directly
         return numpy.argsort(coords[:, 0])
-
     gs = geopandas.GeoSeries(geopandas.points_from_xy(coords[:, 0], coords[:, 1]))
-    return numpy.argsort(gs.hilbert_distance(level=16).values)
+    return numpy.argsort(gs.hilbert_distance(level=level).values, kind="stable")
 
 
-class DispersionKFold(BaseEstimator):
-    """Spatially balanced k-fold cross-validator.
+class HilbertKFold(BaseEstimator):
+    """Spatially balanced k-fold cross-validator via Hilbert curve ordering.
 
     Partitions observations into *n_splits* folds such that each fold is a
     **spatially spread-out** subsample covering the entire study area.
@@ -57,7 +65,7 @@ class DispersionKFold(BaseEstimator):
 
     Examples
     --------
-    >>> skf = DispersionKFold(n_splits=5, random_state=0)
+    >>> skf = HilbertKFold(n_splits=5, random_state=0)
     >>> for train_idx, test_idx in skf.split(gdf):
     ...     model.fit(X[train_idx], y[train_idx])
     ...     score = model.score(X[test_idx], y[test_idx])
@@ -82,14 +90,13 @@ class DispersionKFold(BaseEstimator):
         train : ndarray of int
         test  : ndarray of int
         """
-        coords = _get_coords(X)
-        n = len(coords)
+        n = len(X)
         k = self.n_splits
         if n < k:
             raise ValueError(f"n_splits={k} cannot exceed n_samples={n}.")
 
         rng = check_random_state(self.random_state)
-        order = _hilbert_sort(coords)
+        order = _hilbert_sort(X, level=self.level)
 
         # Assign fold IDs in bands of k along the Hilbert curve, with a
         # random within-band shuffle for reproducible but non-deterministic
