@@ -14,6 +14,9 @@ Cross-validation: [PLANNED]
     ExclusionBallFold o folds constructed such that no observation in any fold is within distance "r"
     LocalBootstrap    x locally-weighted bootstrap with replacement (spatial or 1-D)
     LocalPermutation  o spatially-constrained derangement without replacement
+
+Metrics:
+    area_of_applicability  x Meyer & Pebesma 2021 Area of Applicability
 """
 
 from .samplers import (
@@ -30,6 +33,7 @@ from .cv import (
     correlogram_range,
     knn_range,
 )
+from .metrics import area_of_applicability
 
 
 __all__ = [
@@ -43,4 +47,5 @@ __all__ = [
     "LocalPermutation",
     "correlogram_range",
     "knn_range",
+    "area_of_applicability",
 ]

@@ -1,0 +1,222 @@
+---
+title: "Area of Applicability: geovalidate vs CAST"
+subtitle: "Verifying the Python re-implementation against Meyer's R reference"
+author: "geovalidate"
+format:
+  html:
+    code-fold: false
+    toc: true
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+# Setup
+
+This document compares `geovalidate.area_of_applicability` (Python) with
+`CAST::aoa` (R), the original reference implementation from
+Meyer & Pebesma (2021). Both calculate the Area of Applicability (AOA)
+for a model trained on `X_train` and applied to `X_test`.
+
+```{r}
+#| label: setup-r
+library(CAST)
+library(reticulate)
+
+# Point reticulate at the conda env that ships geovalidate. The
+# RETICULATE_PYTHON env var (set when invoking quarto) takes precedence;
+# we fall back to an explicit miniforge path so the document is still
+# reproducible when rendered without env vars.
+py_bin <- Sys.getenv("RETICULATE_PYTHON",
+                     unset = "~/miniforge/envs/geovalidate/bin/python")
+use_python(py_bin, required = TRUE)
+```
+
+```{python}
+#| label: setup-py
+import numpy
+from geovalidate import area_of_applicability
+print("geovalidate area_of_applicability imported")
+```
+
+# Synthetic dataset
+
+We generate a 5-feature training cluster centred on the origin, and a
+test set composed of (a) in-domain points drawn from the same
+distribution, and (b) out-of-domain points shifted by 8 standard
+deviations. AOA should flag the in-domain points as applicable and the
+shifted ones as not.
+
+```{r}
+#| label: data-r
+set.seed(0)
+n_train <- 200
+n_in    <- 30
+n_out   <- 20
+n_feat  <- 5
+
+X_train <- matrix(rnorm(n_train * n_feat), n_train, n_feat)
+y_train <- X_train[, 1] + 2 * X_train[, 2] + 0.1 * rnorm(n_train)
+
+X_in    <- matrix(rnorm(n_in  * n_feat, mean = 0), n_in,  n_feat)
+X_out   <- matrix(rnorm(n_out * n_feat, mean = 8), n_out, n_feat)
+X_test  <- rbind(X_in, X_out)
+is_in_domain <- c(rep(TRUE, n_in), rep(FALSE, n_out))
+
+colnames(X_train) <- paste0("x", seq_len(n_feat))
+colnames(X_test)  <- paste0("x", seq_len(n_feat))
+
+cat("train:", nrow(X_train), "x", ncol(X_train),
+    "  test:", nrow(X_test), "x", ncol(X_test), "\n")
+```
+
+# CAST::aoa (R reference)
+
+We pass a uniform feature weight vector so the comparison is purely
+about the distance + normalisation + threshold pipeline (model-based
+permutation weights are non-deterministic, which would muddy the side-
+by-side).
+
+```{r}
+#| label: cast-uniform
+w_uniform <- rep(1.0 / n_feat, n_feat)
+names(w_uniform) <- colnames(X_train)
+
+cast_res <- aoa(
+  newdata     = as.data.frame(X_test),
+  train       = as.data.frame(X_train),
+  weight      = as.data.frame(rbind(w_uniform)),
+  variables   = colnames(X_train),
+  CVtest      = NULL,
+  CVtrain     = NULL,
+  verbose     = FALSE
+)
+
+cast_di       <- as.numeric(cast_res$DI)
+cast_aoa_mask <- as.logical(cast_res$AOA)
+cast_thresh   <- attr(cast_res, "aoa_stats")$threshold
+if (is.null(cast_thresh)) cast_thresh <- cast_res$parameters$threshold
+
+cat("CAST threshold:", round(cast_thresh, 4), "\n")
+cat("CAST DI range :", round(range(cast_di), 3), "\n")
+cat("CAST applicable: in-domain =",
+    round(mean(cast_aoa_mask[is_in_domain]) * 100, 1), "%, ",
+    "OOD =", round(mean(cast_aoa_mask[!is_in_domain]) * 100, 1), "%\n")
+```
+
+# geovalidate.area_of_applicability (Python)
+
+Same data, same uniform weights, called via reticulate.
+
+```{python}
+#| label: geo-uniform
+X_train = numpy.asarray(r.X_train)
+X_test  = numpy.asarray(r.X_test)
+is_in   = numpy.asarray(r.is_in_domain, dtype=bool)
+
+geo = area_of_applicability(
+    X_test, X_train,
+    feature_weights="uniform",
+    threshold="tukey",
+    return_diagnostics=True,
+)
+
+geo_di     = geo.dissimilarity_index
+geo_mask   = geo.applicable
+geo_thresh = geo.cutpoint
+
+print(f"geovalidate threshold: {geo_thresh:.4f}")
+print(f"geovalidate DI range : [{geo_di.min():.3f}, {geo_di.max():.3f}]")
+print(f"geovalidate applicable: in-domain = {geo_mask[is_in].mean()*100:.1f}%, "
+      f"OOD = {geo_mask[~is_in].mean()*100:.1f}%")
+```
+
+# Side-by-side comparison
+
+## Cut-off
+
+```{r}
+#| label: compare-cutoff
+geo_thresh <- py$geo_thresh
+cat(sprintf("CAST threshold       : %.4f\n", cast_thresh))
+cat(sprintf("geovalidate threshold: %.4f\n", geo_thresh))
+cat(sprintf("relative difference  : %.2f%%\n",
+            100 * abs(cast_thresh - geo_thresh) / cast_thresh))
+```
+
+## Dissimilarity index, per test point
+
+```{r}
+#| label: compare-di-table
+geo_di <- as.numeric(py$geo_di)
+ord <- order(cast_di)
+data.frame(
+  i               = seq_along(cast_di)[ord],
+  in_domain       = is_in_domain[ord],
+  cast_DI         = round(cast_di[ord], 3),
+  geovalidate_DI  = round(geo_di[ord], 3),
+  ratio_geo_cast  = round(geo_di[ord] / cast_di[ord], 3)
+) |> head(15)
+```
+
+```{r}
+#| label: compare-di-plot
+#| fig-width: 5.5
+#| fig-height: 5.5
+plot(cast_di, geo_di,
+     xlab = "CAST DI", ylab = "geovalidate DI",
+     pch  = ifelse(is_in_domain, 20, 4),
+     col  = ifelse(is_in_domain, "steelblue", "tomato"),
+     main = "Per-point DI: CAST vs geovalidate")
+abline(0, 1, lty = 2, col = "grey50")
+legend("topleft",
+       legend = c("in-domain", "out-of-domain", "y = x"),
+       pch    = c(20, 4, NA),
+       lty    = c(NA, NA, 2),
+       col    = c("steelblue", "tomato", "grey50"),
+       bty    = "n")
+```
+
+## AOA agreement
+
+```{r}
+#| label: compare-mask
+geo_mask  <- as.logical(py$geo_mask)
+cast_mask <- cast_aoa_mask
+
+agree <- geo_mask == cast_mask
+cat(sprintf("AOA mask agreement: %d / %d (%.1f%%)\n",
+            sum(agree), length(agree), 100 * mean(agree)))
+
+cat("\nConfusion (rows = CAST, cols = geovalidate):\n")
+print(table(CAST = cast_mask, geovalidate = geo_mask))
+```
+
+# Why DIs may differ in magnitude
+
+CAST and geovalidate share the same recipe -- weighted feature
+distances, normalisation by mean within-training distance, threshold
+from the Tukey rule on the training-DI distribution -- but the
+implementations diverge on small details:
+
+* **Normalisation constant.** CAST divides by the mean of the
+  full pairwise training-distance matrix (including the zero diagonal,
+  via its internal mean). The Python implementation here uses the
+  upper triangle only. This shifts every DI by a constant scale
+  factor.
+* **Weight application.** CAST multiplies the feature columns by
+  `weight` (a single-row data.frame keyed by variable name);
+  geovalidate multiplies the columns by a 1-D numpy array. Numerically
+  identical when the column orders match.
+* **Threshold history.** Original nanophyto/abil had two
+  off-by-100-percentile bugs in the Tukey + percentile threshold paths
+  that geovalidate fixes (see `_aoa.py` for the FIXED-relative-to
+  comments). CAST is the reference here, so disagreement on the
+  threshold scale should be attributed to that fix, not to CAST.
+
+What we should expect to match: the **AOA boolean mask** (modulo any
+points sitting almost exactly on the threshold), and the **rank
+ordering** of test points by DI (they're computing the same distances
+and dividing by constants, so the orderings are identical even when
+the absolute DI values differ).
