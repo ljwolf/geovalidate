@@ -212,3 +212,45 @@ def test_nan_input_raises(in_and_out_of_domain):
     X_bad[0, 0] = numpy.nan
     with pytest.raises(ValueError):
         area_of_applicability(X_bad, X_train, feature_weights="uniform")
+
+
+# -- Local Point Density (LPD) -------------------------------------------------
+
+def test_lpd_returned_with_diagnostics(in_and_out_of_domain):
+    X_train, X_test, _ = in_and_out_of_domain
+    res = area_of_applicability(
+        X_test, X_train, feature_weights="uniform",
+        return_diagnostics=True,
+    )
+    assert hasattr(res, "lpd")
+    assert res.lpd.shape == (len(X_test),)
+    assert res.lpd.dtype.kind in "iu"
+    # LPD is bounded by the number of training points.
+    assert res.lpd.min() >= 0
+    assert res.lpd.max() <= len(X_train)
+
+
+def test_lpd_higher_in_domain_than_out(in_and_out_of_domain):
+    """In-domain test points should have many training neighbours within
+    the cutpoint; out-of-domain points should have few or none."""
+    X_train, X_test, is_in_domain = in_and_out_of_domain
+    res = area_of_applicability(
+        X_test, X_train, feature_weights="uniform",
+        return_diagnostics=True,
+    )
+    in_mean = res.lpd[is_in_domain].mean()
+    out_mean = res.lpd[~is_in_domain].mean()
+    assert in_mean > out_mean
+    # OOD points are 8-sd away from training; basically nothing within cutpoint.
+    assert out_mean < 1.0
+
+
+def test_lpd_consistent_with_applicable(in_and_out_of_domain):
+    """A test point flagged applicable must have at least its nearest
+    training neighbour within the cutpoint, so LPD >= 1."""
+    X_train, X_test, _ = in_and_out_of_domain
+    res = area_of_applicability(
+        X_test, X_train, feature_weights="uniform",
+        return_diagnostics=True,
+    )
+    assert (res.lpd[res.applicable] >= 1).all()

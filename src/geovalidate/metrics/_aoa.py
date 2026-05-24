@@ -47,7 +47,7 @@ def area_of_applicability(
         Required when ``feature_weights='permutation'``; passed to
         ``sklearn.inspection.permutation_importance``.
     cv : sklearn CV splitter, optional
-        If provided, the training-DI distribution is computed by holding
+        If provided, the training-DI distribution is computed by holdinghi?
         out each fold in turn -- the held-out points get their distance
         to the in-fold training points.  If None, each training point's
         DI is its distance to its nearest OTHER training point.
@@ -71,16 +71,21 @@ def area_of_applicability(
         ``sklearn.inspection.permutation_importance``.  Defaults set
         ``n_repeats=10`` and ``n_jobs=-1`` if not overridden.
     return_diagnostics : bool, default False
-        If False, returns the boolean ``applicable`` mask.  If True,
-        returns a ``sklearn.utils.Bunch`` exposing the mask alongside
-        ``dissimilarity_index``, ``cutpoint``, and ``feature_weights``.
+        If False, returns the boolean ``applicable`` mask (cheap path:
+        only the nearest training point per test sample is computed).
+        If True, returns a ``sklearn.utils.Bunch`` with ``applicable``,
+        ``dissimilarity_index``, ``cutpoint``, ``feature_weights``, and
+        ``lpd`` (Local Point Density).  The diagnostics path computes
+        the full (n_test, n_train) distance matrix, so memory cost is
+        O(n_test * n_train).
 
     Returns
     -------
     applicable : (n_test,) bool ndarray
         True where the model is considered applicable.
     OR a Bunch with attributes ``applicable``, ``dissimilarity_index``,
-    ``cutpoint``, ``feature_weights`` when ``return_diagnostics=True``.
+    ``cutpoint``, ``feature_weights``, and ``lpd`` when
+    ``return_diagnostics=True``.
     """
     X_test = check_array(X_test, ensure_all_finite=True)
     X_train = check_array(X_train, ensure_all_finite=True)
@@ -90,14 +95,17 @@ def area_of_applicability(
 
     if n_features != n_features_train:
         raise ValueError(
-            f"X_test has {n_features} features but X_train has "
-            f"{n_features_train}."
+            f"X_test has {n_features} features but X_train has {n_features_train}."
         )
     if n_test < 2 or n_train < 2:
         raise ValueError("Both X_train and X_test need at least 2 samples.")
 
     weights = _resolve_weights(
-        feature_weights, X_train, y_train, model, n_features,
+        feature_weights,
+        X_train,
+        y_train,
+        model,
+        n_features,
         permutation_kwargs,
     )
 
@@ -134,14 +142,25 @@ def area_of_applicability(
     di_train = d_mins / d_mean
     cutpoint = _compute_cutpoint(di_train, threshold)
 
-    # Test-DI: nearest training point per test sample.
-    _, test_min = pairwise_distances_argmin_min(
-        Xw_test, Xw_train, metric=metric,
-    )
+    # Test-DI: nearest training point per test sample.  When diagnostics
+    # are requested we need the full (n_test, n_train) distance matrix so
+    # we can also compute Local Point Density per test sample; otherwise
+    # we take the cheap argmin_min path.
+    if return_diagnostics:
+        test_dists = pairwise_distances(Xw_test, Xw_train, metric=metric)
+        test_min = test_dists.min(axis=1)
+        # LPD: for each test point, count training points whose DI is at
+        # or below the cutpoint.
+        lpd = ((test_dists / d_mean) <= cutpoint).sum(axis=1).astype(int)
+    else:
+        _, test_min = pairwise_distances_argmin_min(
+            Xw_test,
+            Xw_train,
+            metric=metric,
+        )
     di_test = test_min / d_mean
 
-    # Convention here: True = INSIDE AOA (applicable).  The original
-    # implementation in nanophyto/abil returned 1 = OUTSIDE; flipped.
+    # Convention here: True = INSIDE AOA (applicable).
     applicable = di_test <= cutpoint
 
     if return_diagnostics:
@@ -150,12 +169,14 @@ def area_of_applicability(
             dissimilarity_index=di_test,
             cutpoint=float(cutpoint),
             feature_weights=weights,
+            lpd=lpd,
         )
     return applicable
 
 
-def _resolve_weights(feature_weights, X_train, y_train, model, n_features,
-                     permutation_kwargs):
+def _resolve_weights(
+    feature_weights, X_train, y_train, model, n_features, permutation_kwargs
+):
     """Return non-negative (n_features,) weight vector summing to 1."""
     if feature_weights is None or feature_weights is False:
         return numpy.full(n_features, 1.0 / n_features)
@@ -165,14 +186,16 @@ def _resolve_weights(feature_weights, X_train, y_train, model, n_features,
     if isinstance(feature_weights, str) and feature_weights == "permutation":
         if model is None or y_train is None:
             raise ValueError(
-                "feature_weights='permutation' requires both 'model' and "
-                "'y_train'."
+                "feature_weights='permutation' requires both 'model' and 'y_train'."
             )
         kwargs = dict(permutation_kwargs or {})
         kwargs.setdefault("n_jobs", -1)
         kwargs.setdefault("n_repeats", 10)
         importances = permutation_importance(
-            model, X_train, y_train, **kwargs,
+            model,
+            X_train,
+            y_train,
+            **kwargs,
         ).importances_mean
         importances = numpy.clip(importances, 0.0, None)
         total = importances.sum()
@@ -186,8 +209,7 @@ def _resolve_weights(feature_weights, X_train, y_train, model, n_features,
     arr = numpy.asarray(feature_weights, dtype=float)
     if arr.shape != (n_features,):
         raise ValueError(
-            f"feature_weights must have shape ({n_features},), "
-            f"got {arr.shape}."
+            f"feature_weights must have shape ({n_features},), got {arr.shape}."
         )
     if (arr < 0).any():
         raise ValueError("feature_weights must be non-negative.")
@@ -212,6 +234,5 @@ def _compute_cutpoint(di_train, threshold):
         # FIXED: scale 0-1 quantile to 0-100 for numpy.percentile.
         return float(numpy.percentile(di_train, threshold * 100.0))
     raise ValueError(
-        f"threshold must be 'tukey', 'mad', or a float in (0, 1); "
-        f"got {threshold!r}."
+        f"threshold must be 'tukey', 'mad', or a float in (0, 1); got {threshold!r}."
     )
