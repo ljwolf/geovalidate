@@ -102,8 +102,8 @@ class LocalPermutation(BaseEstimator):
 
     def __init__(
         self,
-        bandwidth: float | None = None,
-        k: int | None = None,
+        bandwidth: float | str | None = None,
+        k: int | str | None = None,
         kernel: str = "uniform",
         derangement: bool = True,
         n_permutations: int = 99,
@@ -116,6 +116,12 @@ class LocalPermutation(BaseEstimator):
                 "Specify at most one of 'bandwidth' or 'k'. "
                 "They are mutually exclusive."
             )
+        if isinstance(bandwidth, str) and bandwidth != "auto":
+            raise ValueError(
+                f"bandwidth must be a number, None, or 'auto'; got {bandwidth!r}"
+            )
+        if isinstance(k, str) and k != "auto":
+            raise ValueError(f"k must be an integer, None, or 'auto'; got {k!r}")
         self.bandwidth = bandwidth
         self.k = k
         self.kernel = kernel
@@ -125,9 +131,68 @@ class LocalPermutation(BaseEstimator):
         self.graph = graph
         self.random_state = random_state
 
+    def _resolve_auto(self, X, y):
+        """Return (bandwidth, k) resolving 'auto' via correlogram/knn range."""
+        bw, k = self.bandwidth, self.k
+        if bw == "auto" or k == "auto":
+            if y is None:
+                raise ValueError(
+                    "Call fit(X, y) before sample() when bandwidth='auto' "
+                    "or k='auto'."
+                )
+            from ._range import correlogram_range, knn_range
+            if bw == "auto":
+                bw = correlogram_range(X, y)
+                self.bandwidth_ = bw
+            if k == "auto":
+                k = knn_range(X, y)
+                self.k_ = k
+        return bw, k
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
+
+    def fit(self, X, y=None):
+        """Build the spatial adjacency structure.
+
+        Parameters
+        ----------
+        X : GeoDataFrame | GeoSeries | (n, 2) ndarray | (n,) or (n, 1) ndarray
+            Locations.
+        y : array-like or None
+            Response variable; required when ``bandwidth='auto'`` or
+            ``k='auto'``.
+
+        Returns
+        -------
+        self
+        """
+        bw, k = self._resolve_auto(X, y)
+        _, is_geo = _idx_and_is_geo(X)
+
+        if self.graph is not None:
+            n = self._n_from_graph(self.graph)
+            adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(self.graph, n)
+            self.graph_ = self.graph
+        elif bw is not None or k is not None:
+            if self.kernel not in KERNELS:
+                raise ValueError(
+                    f"Unknown kernel '{self.kernel}'. "
+                    f"Choose from: {sorted(KERNELS)}."
+                )
+            adj_csr, adj_sets, edge_i, edge_j, cumw = self._kernel_adj(X, is_geo, bw, k)
+        else:
+            raise ValueError(
+                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
+            )
+
+        self._adj_csr_  = adj_csr
+        self._adj_sets_ = adj_sets
+        self._edge_i_   = edge_i
+        self._edge_j_   = edge_j
+        self._cumw_     = cumw
+        return self
 
     def sample(self, X):
         """Yield constrained permutation index arrays.
@@ -145,30 +210,29 @@ class LocalPermutation(BaseEstimator):
             using the input's index when X is a GeoDataFrame/GeoSeries,
             or integer positions for raw arrays.
         """
+        from sklearn.exceptions import NotFittedError
+
         rng = check_random_state(self.random_state)
-        idx, is_geo = _idx_and_is_geo(X)
 
-        if self.graph is not None:
-            n = self._n_from_graph(self.graph)
-            adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(self.graph, n)
-        elif self.bandwidth is not None or self.k is not None:
-            if self.kernel not in KERNELS:
-                raise ValueError(
-                    f"Unknown kernel '{self.kernel}'. "
-                    f"Choose from: {sorted(KERNELS)}."
+        if not hasattr(self, "_adj_csr_"):
+            if self.bandwidth == "auto" or self.k == "auto":
+                raise NotFittedError(
+                    f"This {type(self).__name__} instance has bandwidth='auto' "
+                    "but fit() has not been called. Call fit(X, y) first."
                 )
-            adj_csr, adj_sets, edge_i, edge_j, cumw = self._kernel_adj(X, is_geo)
-            n = adj_csr.shape[0]
-        else:
-            raise ValueError(
-                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
-            )
+            self.fit(X)
 
+        idx, is_geo = _idx_and_is_geo(X)
+        n = self._adj_csr_.shape[0]
         n_burn = self.n_burn if self.n_burn is not None else 10 * n
-        perm = self._initial_permutation(adj_csr, n, rng)
+        perm = self._initial_permutation(self._adj_csr_, n, rng)
 
         for _ in range(self.n_permutations):
-            perm = self._markov_mix(perm, adj_sets, edge_i, edge_j, cumw, n_burn, rng)
+            perm = self._markov_mix(
+                perm, self._adj_sets_,
+                self._edge_i_, self._edge_j_, self._cumw_,
+                n_burn, rng,
+            )
             positions = perm.copy()
             yield idx[positions] if idx is not None else positions
 
@@ -176,35 +240,35 @@ class LocalPermutation(BaseEstimator):
     # Adjacency builders
     # ------------------------------------------------------------------
 
-    def _kernel_adj(self, X, is_geo):
+    def _kernel_adj(self, X, is_geo, bw, k):
         """Dispatch to bandwidth or k-NN kernel-weighted adjacency builder."""
-        if self.k is not None:
-            return self._knn_adj(X)
+        if k is not None:
+            return self._knn_adj(X, k)
         if is_geo:
             from libpysal.graph import Graph
 
             point_gdf = _to_point_gdf(X)
             graph = Graph.build_kernel(
                 point_gdf,
-                bandwidth=self.bandwidth,
+                bandwidth=bw,
                 kernel=LIBPYSAL_KERNEL_MAP[self.kernel],
             )
             return self._adj_from_graph(graph, len(point_gdf))
-        return self._bandwidth_adj_1d(X)
+        return self._bandwidth_adj_1d(X, bw)
 
-    def _bandwidth_adj_1d(self, X):
+    def _bandwidth_adj_1d(self, X, bandwidth):
         """Kernel-weighted adjacency for 1-D (array/Series) input."""
         coords = _get_coords(X)
         n = len(coords)
         tree = cKDTree(coords)
 
         D = tree.sparse_distance_matrix(
-            tree, max_distance=self.bandwidth, output_type="coo_matrix"
+            tree, max_distance=bandwidth, output_type="coo_matrix"
         )
         off_diag = D.row != D.col
         rows = D.row[off_diag]
         cols = D.col[off_diag]
-        weights = KERNELS[self.kernel](D.data[off_diag] / self.bandwidth)
+        weights = KERNELS[self.kernel](D.data[off_diag] / bandwidth)
 
         nonzero = weights > 0
         rows, cols, weights = rows[nonzero], cols[nonzero], weights[nonzero]
@@ -225,7 +289,7 @@ class LocalPermutation(BaseEstimator):
         adj_sets = self._sets_from_pairs(rows, cols, n)
         return adj_csr, adj_sets, edge_i, edge_j, cumw
 
-    def _knn_adj(self, X):
+    def _knn_adj(self, X, k):
         """k-NN kernel-weighted adjacency (adaptive bandwidth, symmetrised)."""
         from scipy.sparse import coo_matrix
 
@@ -233,14 +297,14 @@ class LocalPermutation(BaseEstimator):
         n = len(coords)
         tree = cKDTree(coords)
 
-        distances, indices = tree.query(coords, k=self.k + 1)
+        distances, indices = tree.query(coords, k=k + 1)
         distances = distances[:, 1:]   # drop self (d=0)
         indices   = indices[:, 1:]
 
         bw = distances[:, -1:] + 1e-10
         weights = KERNELS[self.kernel](distances / bw)   # (n, k)
 
-        row = numpy.repeat(numpy.arange(n), self.k)
+        row = numpy.repeat(numpy.arange(n), k)
         col = indices.ravel()
         w   = weights.ravel()
 
