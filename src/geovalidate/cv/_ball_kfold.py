@@ -22,28 +22,28 @@ class BallKFold(BaseEstimator):
     radius : float or None
         Exclusion radius in the same units as the input coordinates.
         Two points within this distance cannot share a fold.
-        Mutually exclusive with *n_folds*.
-    n_folds : int or None
+        Mutually exclusive with *n_splits*.
+    n_splits : int or None
         Target number of folds.  The implied radius is computed as the
-        minimum n_folds-th nearest-neighbour distance across all points
+        minimum n_splits-th nearest-neighbour distance across all points
         (set by the densest region), stored as ``radius_`` after
         ``split()`` is called.  Mutually exclusive with *radius*.
 
     Notes
     -----
-    When *n_folds* is given, the actual number of folds returned by
-    ``split()`` may be less than *n_folds* if the conflict graph is
+    When *n_splits* is given, the actual number of folds returned by
+    ``split()`` may be less than *n_splits* if the conflict graph is
     sparse enough to colour with fewer colours.  It will not exceed
-    *n_folds* by construction (the radius choice guarantees max degree
-    <= n_folds - 1, and greedy colouring uses at most max_degree + 1
+    *n_splits* by construction (the radius choice guarantees max degree
+    <= n_splits - 1, and greedy colouring uses at most max_degree + 1
     colours).
     """
 
-    def __init__(self, radius=None, n_folds=None):
-        if (radius is None) == (n_folds is None):
-            raise ValueError("Specify exactly one of 'radius' or 'n_folds'.")
+    def __init__(self, radius=None, n_splits=None):
+        if (radius is None) == (n_splits is None):
+            raise ValueError("Specify exactly one of 'radius' or 'n_splits'.")
         self.radius = radius
-        self.n_folds = n_folds
+        self.n_splits = n_splits
 
     def split(self, X, y=None, groups=None):
         """Yield ``(train_indices, test_indices)`` for each fold.
@@ -67,11 +67,11 @@ class BallKFold(BaseEstimator):
         if self.radius is not None:
             r = float(self.radius)
         else:
-            # r = minimum n_folds-th NN distance across all points.
-            # Every point then has at most n_folds-1 neighbours within r,
-            # so greedy colouring uses at most n_folds colours.
-            distances, _ = tree.query(coords, k=self.n_folds + 1)
-            r = float(distances[:, self.n_folds].min())
+            # r = minimum n_splits-th NN distance across all points.
+            # Every point then has at most n_splits-1 neighbours within r,
+            # so greedy colouring uses at most n_splits colours.
+            distances, _ = tree.query(coords, k=self.n_splits + 1)
+            r = float(distances[:, self.n_splits].min())
             self.radius_ = r
 
         colors = self._color(X, coords, r)
