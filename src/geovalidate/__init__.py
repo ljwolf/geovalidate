@@ -9,9 +9,9 @@ Samplers:
     PoissonSampler              x true IPPP; intensity via callable, raster, or KDE, implementing spatstat
 
 Cross-validation: [PLANNED]
-    DispersionKFold   o spatially balanced k-fold (Hilbert curve interleaving)
+    HilbertKFold      o spatially balanced k-fold (Hilbert curve interleaving)
+    BallKFold         o spatially exclusive k-fold (no two samples in a fold within radius r)
     ClusterKFold      o spatially concentrated k-fold (user-specified location clusterer)
-    ExclusionBallFold o folds constructed such that no observation in any fold is within distance "r"
     LocalBootstrap    x locally-weighted bootstrap with replacement (spatial or 1-D)
     LocalPermutation  o spatially-constrained derangement without replacement
 
@@ -27,7 +27,8 @@ from .samplers import (
     PoissonSampler,
 )
 from .cv import (
-    DispersionKFold,
+    BallKFold,
+    HilbertKFold,
     LocalBootstrap,
     LocalPermutation,
     correlogram_range,
@@ -42,7 +43,8 @@ __all__ = [
     "StratifiedClassSampler",
     "MultinomialSampler",
     "PoissonSampler",
-    "DispersionKFold",
+    "BallKFold",
+    "HilbertKFold",
     "LocalBootstrap",
     "LocalPermutation",
     "correlogram_range",
