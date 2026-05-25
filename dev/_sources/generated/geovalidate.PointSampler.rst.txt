@@ -1,0 +1,26 @@
+﻿geovalidate.PointSampler
+========================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: PointSampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PointSampler.__init__
+      ~PointSampler.get_metadata_routing
+      ~PointSampler.get_params
+      ~PointSampler.sample
+      ~PointSampler.set_params
+   
+   
+
+   
+   
+   

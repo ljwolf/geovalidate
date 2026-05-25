@@ -1,0 +1,27 @@
+﻿geovalidate.LocalPermutation
+============================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: LocalPermutation
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LocalPermutation.__init__
+      ~LocalPermutation.fit
+      ~LocalPermutation.get_metadata_routing
+      ~LocalPermutation.get_params
+      ~LocalPermutation.sample
+      ~LocalPermutation.set_params
+   
+   
+
+   
+   
+   

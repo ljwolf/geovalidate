@@ -1,0 +1,27 @@
+﻿geovalidate.LocalBootstrap
+==========================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: LocalBootstrap
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LocalBootstrap.__init__
+      ~LocalBootstrap.fit
+      ~LocalBootstrap.get_metadata_routing
+      ~LocalBootstrap.get_params
+      ~LocalBootstrap.sample
+      ~LocalBootstrap.set_params
+   
+   
+
+   
+   
+   

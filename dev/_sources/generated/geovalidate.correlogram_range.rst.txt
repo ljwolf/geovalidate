@@ -1,0 +1,6 @@
+﻿geovalidate.correlogram\_range
+==============================
+
+.. currentmodule:: geovalidate
+
+.. autofunction:: correlogram_range

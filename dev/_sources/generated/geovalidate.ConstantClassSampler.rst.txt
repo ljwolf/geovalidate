@@ -1,0 +1,26 @@
+﻿geovalidate.ConstantClassSampler
+================================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: ConstantClassSampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConstantClassSampler.__init__
+      ~ConstantClassSampler.get_metadata_routing
+      ~ConstantClassSampler.get_params
+      ~ConstantClassSampler.sample
+      ~ConstantClassSampler.set_params
+   
+   
+
+   
+   
+   

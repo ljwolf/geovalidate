@@ -1,0 +1,28 @@
+﻿geovalidate.BallKFold
+=====================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: BallKFold
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BallKFold.__init__
+      ~BallKFold.get_metadata_routing
+      ~BallKFold.get_n_splits
+      ~BallKFold.get_params
+      ~BallKFold.set_params
+      ~BallKFold.set_split_request
+      ~BallKFold.split
+   
+   
+
+   
+   
+   

@@ -1,0 +1,28 @@
+﻿geovalidate.HilbertKFold
+========================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: HilbertKFold
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HilbertKFold.__init__
+      ~HilbertKFold.get_metadata_routing
+      ~HilbertKFold.get_n_splits
+      ~HilbertKFold.get_params
+      ~HilbertKFold.set_params
+      ~HilbertKFold.set_split_request
+      ~HilbertKFold.split
+   
+   
+
+   
+   
+   
