@@ -88,7 +88,7 @@ inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold 
 <summary>Code</summary>
 
 ```python
-from geovalidate.sampler import PoissonSampler
+from geovalidate import PoissonSampler
 new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
     gdf_holdout.geometry,
     intensity=gdf_holdout.geometry,
@@ -106,7 +106,7 @@ new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
 <summary>Code</summary>
 
 ```python
-from geoalidate.cv import LocalBootstrap
+from geovalidate import LocalBootstrap
 lb = LocalBootstrap(k=15, kernel="bisquare", n_bootstraps=50, random_state=2)
 boot_samples = list(lb.sample(new_pts, donor=gdf_train))
 X_new = pandas.DataFrame(
