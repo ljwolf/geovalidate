@@ -25,6 +25,8 @@ jobs:
     name: Build & push docs
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: write
     defaults:
       run:
         shell: bash -l {0}
