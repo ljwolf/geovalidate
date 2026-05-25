@@ -81,8 +81,24 @@ model.fit(X_train, y_train, geometry=gdf_train.geometry)
 
 ![Step 2 — training data coloured by log price](docs/img/readme_step2.png)
 
-**3. Sample new prediction locations** within the held-out fold's footprint using an
-inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold point density:
+**3. Accuracy assessment** — predict at the known holdout locations and compare
+to observed prices:
+
+<details>
+<summary>Code</summary>
+
+```python
+X_holdout = gdf_holdout[feat_cols].fillna(0)
+y_holdout  = numpy.log(gdf_holdout["price"])
+y_holdout_pred = model.predict(X_holdout, geometry=gdf_holdout.geometry)
+```
+
+</details>
+
+![Step 3 — predicted vs actual log price at holdout fold](docs/img/readme_step3.png)
+
+**4. Sample new prediction locations** across the full study area using an
+inhomogeneous Poisson process — intensity is a KDE fitted to the full dataset's point density:
 
 <details>
 <summary>Code</summary>
@@ -90,16 +106,16 @@ inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold 
 ```python
 from geovalidate import PoissonSampler
 new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
-    gdf_holdout.geometry,
-    intensity=gdf_holdout.geometry,
+    gdf.geometry,
+    intensity=gdf.geometry,
 )
 ```
 
 </details>
 
-![Step 3 — Poisson-sampled prediction locations](docs/img/readme_step3.png)
+![Step 4 — Poisson-sampled prediction locations](docs/img/readme_step4.png)
 
-**4. Impute feature values** at the new locations from the training data —
+**5. Impute feature values** at the new locations from the training data —
 `LocalBootstrap` draws donor rows from `gdf_train`, weighted by distance to each new point:
 
 <details>
@@ -117,9 +133,9 @@ X_new = pandas.DataFrame(
 
 </details>
 
-![Step 4 — imputed vs training feature distributions](docs/img/readme_step4.png)
+![Step 5 — imputed vs training feature distributions](docs/img/readme_step5.png)
 
-**5. Predict** log(price) at the new locations:
+**6. Predict** log(price) at the new locations:
 
 <details>
 <summary>Code</summary>
@@ -130,9 +146,9 @@ log_price_pred = model.predict(X_new, geometry=new_pts.geometry)
 
 </details>
 
-![Step 5 — predicted log price at new locations](docs/img/readme_step5.png)
+![Step 6 — predicted log price at new locations](docs/img/readme_step6.png)
 
-**6. Check the Area of Applicability** — which new locations are close enough to the
+**7. Check the Area of Applicability** — which new locations are close enough to the
 training distribution for the model to be trusted?
 
 <details>
@@ -141,12 +157,12 @@ training distribution for the model to be trusted?
 ```python
 applicable = area_of_applicability(X_new.values, X_train.values, feature_weights="uniform")
 print(f"{applicable.sum()} / {len(applicable)} new points within AOA")
-# 83 / 91 new points within AOA
+# 79 / 100 new points within AOA
 ```
 
 </details>
 
-![Step 6 — Area of Applicability](docs/img/readme_step6.png)
+![Step 7 — Area of Applicability](docs/img/readme_step7.png)
 
 ## What's in the package
 
@@ -172,11 +188,11 @@ All cross-validators follow the sklearn splitter protocol (`split(X)` yields
 
 | Class | What it does |
 |---|---|
-| `HilbertKFold` | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area |
-| `BallKFold` | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other |
-| `ClusterStratifiedKFold` | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds |
-| `LocalBootstrap` | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood |
-| `LocalPermutation` | Locally-constrained derangement (permutation without replacement) |
+| `HilbertKFold` | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area (Lister & Scott, 2009) |
+| `BallKFold` | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
+| `ClusterStratifiedKFold` | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
+| `LocalBootstrap` | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
+| `LocalPermutation` | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
 
 `correlogram_range` and `knn_range` auto-detect a sensible bandwidth / *k* from
 the empirical spatial autocorrelation of the response variable.
