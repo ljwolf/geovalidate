@@ -190,6 +190,7 @@ All cross-validators follow the sklearn splitter protocol (`split(X)` yields
 |---|---|
 | `HilbertKFold` | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area (Lister & Scott, 2009) |
 | `BallKFold` | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
+| `LeaveBallOut` | Leave-one-out with an exclusion buffer: training points within radius *r* of the test point are dropped (Ploton et al., 2020) |
 | `ClusterStratifiedKFold` | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
 | `LocalBootstrap` | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
 | `LocalPermutation` | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
@@ -202,10 +203,17 @@ the empirical spatial autocorrelation of the response variable.
 | Function | What it does |
 |---|---|
 | `area_of_applicability` | Meyer & Pebesma (2021) Dissimilarity Index and AOA mask; feature weights from permutation importance, uniform, or user-supplied array |
-
-`area_of_applicability` returns a boolean mask by default.  Pass
-`return_diagnostics=True` for the full `Bunch` with `dissimilarity_index`,
-`cutpoint`, `feature_weights`, and `lpd` (Local Point Density).
+| `homogeneity` | Nowosad & Stepinski (2018) V-measure component, measuring how well-grouped one set of polygons is into another set of regions. (from [`esda`](https://github.com/pysal/esda))|
+| `completeness` | Nowosad & Stepinski (2018) V-measure component, measuring how well a set polygons partitions a set of regions.(from [`esda`](https://github.com/pysal/esda)) |
+| `v_measure` | Nowosad & Stepinski (2018) measure of how strongly-related two sets of regions or spatial classifications are. Harmonic mean of `homogeneity` and `completeness`. (from [`esda`](https://github.com/pysal/esda))|
+| `areal_entropy` | entropy of area distribution of polygon area sizes (from [`esda`](https://github.com/pysal/esda))|
+| `overlay_entropy` | entropy of the area distribution of polygons split by regions. (from [`esda`](https://github.com/pysal/esda))|
+| `boundary_silhouette` | Wolf, Knaap, and Rey (2017) Silhouette statistic measuring the strength of specific regionalization boundaries (from [`esda`](https://github.com/pysal/esda))|
+| `path_silhouette` | Wolf, Knaap, and Rey (2017) Silhouette statistic measuring the goodness of fit of a regionalization (from [`esda`](https://github.com/pysal/esda))|
+| `correlogram` | Moran correlogram, displaying autocorrelation in the input data as a function of distance (from [`esda`](https://github.com/pysal/esda))
+| `gearygram`| Correlogram built from Geary's C (from [`esda`](https://github.com/pysal/esda)) admitting multivariate inputs. 
+| `correlogram_range` | The distance at which the Moran correlogram first crosses zero, measured using a distance decay spatial weight |
+| `knn_range` | The distance at which the Moran correlogram first crosses zero, measured as a number of nearest neighbors |
 
 ## Examples
 
@@ -215,6 +223,7 @@ Runnable notebooks are in [`examples/`](examples/):
 |---|---|
 | `hilbert_kfold.ipynb` | Fold assignment along the Hilbert curve; comparison with random KFold |
 | `ball_kfold.ipynb` | Spatially exclusive folds; the exclusion guarantee; `radius=` vs `n_splits=` modes |
+| `leave_ball_out.ipynb` | Buffered leave-one-out CV; exclusion buffer visualised; RMSE vs standard LOO |
 | `cluster_stratified_kfold.ipynb` | HDBSCAN clusters on King County sales; noise-handling policies |
 | `local_bootstrap.ipynb` | Locally-weighted resampling; bandwidth selection |
 | `local_permutation.ipynb` | Constrained derangement; comparison with unconstrained permutation |
