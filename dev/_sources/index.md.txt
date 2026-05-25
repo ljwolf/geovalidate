@@ -19,10 +19,12 @@ installation.md
 
 examples/hilbert_kfold.ipynb
 examples/ball_kfold.ipynb
+examples/leave_ball_out.ipynb
 examples/cluster_stratified_kfold.ipynb
 examples/local_bootstrap.ipynb
 examples/local_permutation.ipynb
 examples/range_finding.ipynb
+examples/gearygram.ipynb
 ```
 
 ```{toctree}

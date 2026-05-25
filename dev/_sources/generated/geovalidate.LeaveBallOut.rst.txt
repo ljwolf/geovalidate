@@ -1,0 +1,28 @@
+﻿geovalidate.LeaveBallOut
+========================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: LeaveBallOut
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LeaveBallOut.__init__
+      ~LeaveBallOut.get_metadata_routing
+      ~LeaveBallOut.get_n_splits
+      ~LeaveBallOut.get_params
+      ~LeaveBallOut.set_params
+      ~LeaveBallOut.set_split_request
+      ~LeaveBallOut.split
+   
+   
+
+   
+   
+   

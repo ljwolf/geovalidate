@@ -21,6 +21,7 @@ Cross-validators
 
    geovalidate.HilbertKFold
    geovalidate.BallKFold
+   geovalidate.LeaveBallOut
    geovalidate.ClusterStratifiedKFold
    geovalidate.LocalBootstrap
    geovalidate.LocalPermutation
@@ -41,3 +42,4 @@ Metrics
    :toctree: generated/
 
    geovalidate.area_of_applicability
+   geovalidate.gearygram
