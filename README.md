@@ -1,128 +1,171 @@
 # geovalidate
 
-Scikit-learn compatible spatial tools for geospatial model validation.
+Scikit-learn compatible tools for spatial model validation.
 
-Motivated by the discussion in [geopandas/geopandas#3781](https://github.com/geopandas/geopandas/issues/3781),
-this package provides four sampling strategies that follow the `sklearn.base.BaseEstimator`
-API so they fit naturally into scikit-learn pipelines and cross-validation workflows.
-
-## Samplers
-
-Samplers are illustrated in the [`examples/usage.ipynb`](https://github.com/ljwolf/geovalidate/blob/main/examples/usage.ipynb) notebook. 
-
-| Class | What it does |
-|---|---|
-| `PointSampler` | Uniform random points inside any Shapely geometry |
-| `ConstantClassSampler` | Exactly *n* points from every class |
-| `StratifiedClassSampler` | Fixed total allocated proportionally to a value column |
-| `MultinomialSampler` | Multinomial allocation across label groups weighted by a per-geometry value |
-
-Each sampler also accepts `quasi_random="sobol"`, `"halton"`, or `"r2"` to replace the default uniform RNG with a low-discrepancy sequence. Quasi-random sequences have better space-filling properties than points sampled at random, meaning that they tend to be less "clumpy" than randomly-sampled points. These options are only supported for some samplers.
+`geovalidate` provides spatial point samplers, spatially-aware cross-validators,
+and prediction-quality metrics that slot directly into sklearn pipelines and
+`cross_val_score` workflows.
 
 ## Installation
 
 ```bash
-pip install -e ".[raster]"   # includes rasterio for raster-based samplers
+pip install -e ".[raster]"   # include rasterio for raster-based samplers
 ```
 
 ## Quick start
 
+Split King County house-price data with `HilbertKFold`, hold out one fold,
+sample new prediction locations in that fold's footprint, impute feature values
+with a locally-weighted bootstrap from the training data, predict, and check
+the Area of Applicability.
+
 ```python
-import geopandas, geodatasets
-from geovalidate.samplers import (
-  PointSampler,
-  ConstantClassSampler,
-  StratifiedClassSampler,
-  MultinomialSampler
+import geopandas, geodatasets, numpy, pandas
+from gwlearn.ensemble import GWRandomForestRegressor
+from geovalidate import HilbertKFold, PoissonSampler, LocalBootstrap, area_of_applicability
+```
+
+Load King County house sales and take a stratified subsample (60 per price decile):
+
+```python
+gdf_full = geopandas.read_file(geodatasets.get_path("geoda.home_sales")).to_crs("EPSG:32610")
+gdf_full["log_price"] = numpy.log(gdf_full["price"])
+gdf_full["decile"] = (
+    gdf_full["log_price"].rank(pct=True).multiply(10).clip(upper=9.99).astype(int)
 )
-
-nybb = geopandas.read_file(geodatasets.get_path("nybb"))
-```
-
-### PointSampler — uniform random points inside a geometry
-
-```python
-# Sample from a single geometry
-pts = PointSampler(n_samples=200, random_state=0).sample(nybb.geometry.iloc[0])
-
-# Or from the union of a GeoSeries
-pts = PointSampler(n_samples=500, random_state=0).sample(nybb.geometry)
-```
-
-### ConstantClassSampler — exactly n points per class
-
-```python
-# Pass geometry and a labels vector — no column names required
-pts = ConstantClassSampler(n_per_class=80, random_state=0).sample(
-    nybb.geometry, nybb["BoroName"]
+idx = (
+    gdf_full.groupby("decile")
+    .apply(lambda g: g.sample(min(60, len(g)), random_state=42), include_groups=False)
+    .index.get_level_values(1)
 )
-pts.groupby("class_label").size()
+gdf = gdf_full.loc[idx].reset_index(drop=True)
+feat_cols = ["sqft_liv", "bedrooms", "bathrooms", "grade"]
 ```
 
-### StratifiedClassSampler — total n allocated proportionally to weights
+**1. Spatially balanced split** — split into 5 folds; hold out fold 0 as the
+prediction target and train on the remaining four:
 
 ```python
-# Weights control the allocation; counts are deterministic (greatest remainder is assigned the final sample)
-pts = StratifiedClassSampler(n_samples=400, random_state=0).sample(
-    nybb.geometry, nybb["BoroName"], nybb["Shape_Area"]
+hkf = HilbertKFold(n_splits=5, random_state=0)
+train_idx, holdout_idx = list(hkf.split(gdf))[0]
+gdf_train   = gdf.iloc[train_idx].reset_index(drop=True)
+gdf_holdout = gdf.iloc[holdout_idx].reset_index(drop=True)
+X_train = gdf_train[feat_cols].fillna(0)
+y_train = numpy.log(gdf_train["price"])
+```
+
+**2. Fit a model** on the training folds using a geographically weighted random forest:
+
+```python
+model = GWRandomForestRegressor(
+    bandwidth=10000, fixed=True, kernel="bisquare",
+    keep_models=True, coplanar="clique", random_state=0,
 )
-
-# Without weights, allocation is uniform across classes
-pts = StratifiedClassSampler(n_samples=400, random_state=0).sample(
-    nybb.geometry, nybb["BoroName"]
-)
+model.fit(X_train, y_train, geometry=gdf_train.geometry)
 ```
 
-### MultinomialSampler — stochastic allocation from a multinomial draw
+**3. Sample new prediction locations** within the held-out fold's footprint using an
+inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold point density:
 
 ```python
-# Class totals W_k = sum(weights where label == k)
-# Counts ~ Multinomial(n_samples, W_k / ΣW_k), then points sampled uniformly per class
-pts = MultinomialSampler(n_samples=500, random_state=0).sample(
-    nybb.geometry, nybb["BoroName"], nybb["Shape_Area"]
-)
-```
-
-### Raster input
-
-Pass a rasterio `DatasetReader` as the geometry and read bands yourself:
-
-```python
-import rasterio
-
-with rasterio.open("classes.tif") as ds:
-    class_arr = ds.read(1)
-    pts = ConstantClassSampler(n_per_class=60, random_state=0).sample(ds, class_arr)
-
-with rasterio.open("classes.tif") as ds_c, rasterio.open("weights.tif") as ds_w:
-    pts = MultinomialSampler(n_samples=500, random_state=0).sample(
-        ds_c, ds_c.read(1), ds_w.read(1)
-    )
-```
-
-### Quasi-random sequences
-
-All samplers accept `quasi_random="sobol"`, `"halton"`, or `"r2"` for better spatial coverage:
-
-```python
-pts = PointSampler(n_samples=200, quasi_random="halton", random_state=0).sample(
-    nybb.geometry.iloc[0]
+new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
+    gdf_holdout.geometry,
+    intensity=gdf_holdout.geometry,
 )
 ```
 
-### Crossvalidation tools
-
-TBA: `LocalPermutation`, `LocalBootstrap`, `HilbertKFold`, `ClusterKFold`, `BallKFold`. 
-
-### sklearn compatibility
-
-Every sampler is a `BaseEstimator` subclass, so the standard sklearn utilities work:
+**4. Impute feature values** at the new locations from the training data —
+`LocalBootstrap` draws donor rows from `gdf_train`, weighted by distance to each new point:
 
 ```python
-from sklearn.model_selection import GridSearchCV
+lb = LocalBootstrap(k=15, kernel="bisquare", n_bootstraps=50, random_state=2)
+boot_samples = list(lb.sample(new_pts, donor=gdf_train))
+X_new = pandas.DataFrame(
+    numpy.mean([s[feat_cols].fillna(0).values for s in boot_samples], axis=0),
+    columns=feat_cols,
+)
+```
 
-# get / set hyperparameters
-sampler = ConstantClassSampler(n_per_class=50, class_col="cls")
-print(sampler.get_params())
-sampler.set_params(n_per_class=200)
+**5. Predict** log(price) at the new locations:
+
+```python
+log_price_pred = model.predict(X_new, geometry=new_pts.geometry)
+```
+
+**6. Check the Area of Applicability** — which new locations are close enough to the
+training distribution for the model to be trusted?
+
+```python
+applicable = area_of_applicability(X_new.values, X_train.values, feature_weights="uniform")
+print(f"{applicable.sum()} / {len(applicable)} new points within AOA")
+# 83 / 91 new points within AOA
+```
+
+## What's in the package
+
+### Samplers
+
+Generate spatial point samples from geometries, rasters, or intensity surfaces.
+
+| Class | What it does |
+|---|---|
+| `PointSampler` | Uniform random points inside any Shapely geometry |
+| `ConstantClassSampler` | Exactly *n* points per class |
+| `StratifiedClassSampler` | Fixed total allocated proportionally to a weight column |
+| `MultinomialSampler` | Stochastic class-count allocation via multinomial draw |
+| `PoissonSampler` | Inhomogeneous Poisson process; intensity from a callable, raster, polygon values, or KDE over existing points |
+
+All samplers accept `quasi_random="sobol"`, `"halton"`, or `"r2"` for
+low-discrepancy sequences with better spatial coverage than pure random sampling.
+
+### Cross-validators
+
+All cross-validators follow the sklearn splitter protocol (`split(X)` yields
+`(train_idx, test_idx)` pairs) and work directly with `cross_val_score`.
+
+| Class | What it does |
+|---|---|
+| `HilbertKFold` | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area |
+| `BallKFold` | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other |
+| `ClusterStratifiedKFold` | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds |
+| `LocalBootstrap` | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood |
+| `LocalPermutation` | Locally-constrained derangement (permutation without replacement) |
+
+`correlogram_range` and `knn_range` auto-detect a sensible bandwidth / *k* from
+the empirical spatial autocorrelation of the response variable.
+
+### Metrics
+
+| Function | What it does |
+|---|---|
+| `area_of_applicability` | Meyer & Pebesma (2021) Dissimilarity Index and AOA mask; feature weights from permutation importance, uniform, or user-supplied array |
+
+`area_of_applicability` returns a boolean mask by default.  Pass
+`return_diagnostics=True` for the full `Bunch` with `dissimilarity_index`,
+`cutpoint`, `feature_weights`, and `lpd` (Local Point Density).
+
+## Examples
+
+Runnable notebooks are in [`examples/`](examples/):
+
+| Notebook | What it shows |
+|---|---|
+| `hilbert_kfold.ipynb` | Fold assignment along the Hilbert curve; comparison with random KFold |
+| `ball_kfold.ipynb` | Spatially exclusive folds; the exclusion guarantee; `radius=` vs `n_splits=` modes |
+| `cluster_stratified_kfold.ipynb` | HDBSCAN clusters on King County sales; noise-handling policies |
+| `local_bootstrap.ipynb` | Locally-weighted resampling; bandwidth selection |
+| `local_permutation.ipynb` | Constrained derangement; comparison with unconstrained permutation |
+| `ippp.ipynb` | Inhomogeneous Poisson process; KDE, raster, and callable intensity |
+| `range_finding.ipynb` | `correlogram_range` and `knn_range` for auto bandwidth selection |
+
+## sklearn compatibility
+
+Every class is a `BaseEstimator` subclass — `get_params()` / `set_params()` and
+`GridSearchCV` work out of the box.
+
+```python
+from geovalidate import LocalBootstrap
+lb = LocalBootstrap(k=10, kernel="gaussian")
+print(lb.get_params())
+lb.set_params(k=20)
 ```

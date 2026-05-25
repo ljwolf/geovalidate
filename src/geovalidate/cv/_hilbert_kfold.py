@@ -1,3 +1,13 @@
+"""Hilbert Curve Crossvalidation
+
+References
+----------
+.. [1] Lister, Andrew and Scott, Charles T. "Use of space-fillting
+       curves to select sample locations in natural resource monitoring
+       studies." (2009). *Environment Monitoring and Assessment* 149: 71-80.
+       https://doi.org/10.1007/s10661-008-0184-y
+"""
+
 import numpy
 import geopandas
 from sklearn.base import BaseEstimator
@@ -33,7 +43,7 @@ def _hilbert_sort(X, level: int = 16) -> numpy.ndarray:
 
 
 class HilbertKFold(BaseEstimator):
-    """Spatially balanced k-fold cross-validator via Hilbert curve ordering.
+    """Spatially balanced k-fold cross-validator via Hilbert curve ordering. [1]
 
     Partitions observations into *n_splits* folds such that each fold is a
     **spatially spread-out** subsample covering the entire study area.

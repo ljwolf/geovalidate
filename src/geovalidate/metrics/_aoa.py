@@ -1,10 +1,11 @@
 """Area of Applicability (Meyer & Pebesma 2021).
 
-Reference
----------
-Meyer, H., & Pebesma, E. (2021). Predicting into unknown space?
-Estimating the area of applicability of spatial prediction models.
-Methods in Ecology and Evolution, 12(9), 1620-1633.
+References
+----------
+.. [1] Meyer, H., & Pebesma, E. (2021). Predicting into unknown space?
+   Estimating the area of applicability of spatial prediction models.
+   *Methods in Ecology and Evolution*, 12(9), 1620-1633.
+   https://doi.org/10.1111/2041-210X.13650
 """
 
 import numpy
@@ -32,7 +33,8 @@ def area_of_applicability(
     nearest training sample, normalises by the mean within-training
     distance to obtain a Dissimilarity Index (DI), and flags the sample
     as "applicable" if its DI does not exceed a cut-off calibrated from
-    the distribution of training DIs.
+    the distribution of training DIs.  Method introduced by
+    :cite:t:`meyer2021`.
 
     Parameters
     ----------
@@ -47,7 +49,7 @@ def area_of_applicability(
         Required when ``feature_weights='permutation'``; passed to
         ``sklearn.inspection.permutation_importance``.
     cv : sklearn CV splitter, optional
-        If provided, the training-DI distribution is computed by holdinghi?
+        If provided, the training-DI distribution is computed by holding
         out each fold in turn -- the held-out points get their distance
         to the in-fold training points.  If None, each training point's
         DI is its distance to its nearest OTHER training point.
@@ -86,6 +88,13 @@ def area_of_applicability(
     OR a Bunch with attributes ``applicable``, ``dissimilarity_index``,
     ``cutpoint``, ``feature_weights``, and ``lpd`` when
     ``return_diagnostics=True``.
+
+    References
+    ----------
+    .. [meyer2021] Meyer, H. & Pebesma, E. (2021). Predicting into unknown
+       space? Estimating the area of applicability of spatial prediction
+       models. *Methods in Ecology and Evolution*, 12(9), 1620-1633.
+       https://doi.org/10.1111/2041-210X.13650
     """
     X_test = check_array(X_test, ensure_all_finite=True)
     X_train = check_array(X_train, ensure_all_finite=True)

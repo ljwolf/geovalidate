@@ -28,6 +28,7 @@ from .samplers import (
 )
 from .cv import (
     BallKFold,
+    ClusterStratifiedKFold,
     HilbertKFold,
     LocalBootstrap,
     LocalPermutation,
@@ -36,6 +37,7 @@ from .cv import (
 )
 from .metrics import area_of_applicability
 
+__version__ = "0.1.0"
 
 __all__ = [
     "PointSampler",
@@ -44,6 +46,7 @@ __all__ = [
     "MultinomialSampler",
     "PoissonSampler",
     "BallKFold",
+    "ClusterStratifiedKFold",
     "HilbertKFold",
     "LocalBootstrap",
     "LocalPermutation",
