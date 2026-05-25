@@ -155,7 +155,6 @@ Runnable notebooks are in [`examples/`](examples/):
 | `cluster_stratified_kfold.ipynb` | HDBSCAN clusters on King County sales; noise-handling policies |
 | `local_bootstrap.ipynb` | Locally-weighted resampling; bandwidth selection |
 | `local_permutation.ipynb` | Constrained derangement; comparison with unconstrained permutation |
-| `ippp.ipynb` | Inhomogeneous Poisson process; KDE, raster, and callable intensity |
 | `range_finding.ipynb` | `correlogram_range` and `knn_range` for auto bandwidth selection |
 
 ## sklearn compatibility
