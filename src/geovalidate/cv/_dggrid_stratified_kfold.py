@@ -102,6 +102,13 @@ class DGGridStratifiedKFold(BaseEstimator):
     StratifiedKFold (the minority observations land in fewer folds).
     If this causes an error, increase *resolution* or reduce *n_splits*.
 
+    When ``shuffle=False`` (the default), observations within each cell are
+    assigned to folds in their original row order.  If the dataset has a
+    spatial sort order (common in GeoDataFrames), this can produce visually
+    clustered fold maps even though the stratification is correct.  Pass
+    ``shuffle=True, random_state=<int>`` for reproducible, spatially uniform
+    within-cell fold assignment.
+
     Examples
     --------
     >>> cv = DGGridStratifiedKFold(n_splits=5, grid="h3")

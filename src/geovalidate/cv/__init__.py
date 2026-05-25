@@ -1,6 +1,7 @@
 from ._ball_kfold import BallKFold
 from ._leave_ball_out import LeaveBallOut
 from ._cluster_stratified_kfold import ClusterStratifiedKFold
+from ._dggrid_stratified_kfold import DGGridStratifiedKFold
 from ._hilbert_kfold import HilbertKFold
 from ._local_bootstrap import LocalBootstrap
 from ._local_permutation import LocalPermutation
@@ -10,6 +11,7 @@ __all__ = [
     "BallKFold",
     "LeaveBallOut",
     "ClusterStratifiedKFold",
+    "DGGridStratifiedKFold",
     "HilbertKFold",
     "LocalBootstrap",
     "LocalPermutation",
