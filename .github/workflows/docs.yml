@@ -1,0 +1,85 @@
+---
+name: Build Docs
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - "*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Manual Doc Build
+        default: run-doc-build
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Build & push docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: docs/environment.yaml
+          micromamba-version: "latest"
+
+      - name: Install package
+        run: pip install . --no-deps
+
+      - name: Make docs
+        run: cd docs && make html
+
+      - name: Zip documentation
+        if: ${{ github.event_name == 'pull_request' }}
+        run: zip docs_artifact.zip docs/build/html -r
+
+      - name: Upload artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs_artifact
+          path: docs_artifact.zip
+
+      - name: Publish to Github Pages (dev)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html/
+          destination_dir: dev
+          keep_files: false
+
+      - name: Publish to Github Pages (versioned)
+        if: ${{ github.ref_type == 'tag' }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html/
+          destination_dir: ${{ github.ref_name }}
+
+      - name: Publish to Github Pages (stable)
+        if: ${{ github.ref_type == 'tag' }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html/
+          destination_dir: stable
+          keep_files: false

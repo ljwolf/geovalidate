@@ -1,0 +1,74 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches:
+      - "*"
+  schedule:
+    - cron: "59 23 * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Manual CI Run
+        default: test
+        required: false
+
+jobs:
+  tests:
+    name: ${{ matrix.os }}, ${{ matrix.environment-file }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        environment-file:
+          - ci/py312_latest.yaml
+          - ci/py313_latest.yaml
+        include:
+          - environment-file: ci/py313_latest.yaml
+            os: macos-latest
+          - environment-file: ci/py313_latest.yaml
+            os: windows-latest
+      fail-fast: false
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: ${{ matrix.environment-file }}
+          micromamba-version: "latest"
+
+      - name: Install package
+        run: pip install -e . --no-deps
+
+      - name: Spatial versions
+        run: python -c "import geopandas; geopandas.show_versions();"
+
+      - name: Run tests
+        run: |
+          pytest \
+            tests/ \
+            --verbose \
+            -r a \
+            --numprocesses logical \
+            --color yes \
+            --cov geovalidate \
+            --cov-append \
+            --cov-report term-missing \
+            --cov-report xml .
+
+      - name: Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
