@@ -12,6 +12,7 @@ dependencies:
   - numpy>=1.24
   - scipy>=1.7
   - libpysal
+  - esda
   - rasterio>=1.3
   - mapclassify
   - networkx
