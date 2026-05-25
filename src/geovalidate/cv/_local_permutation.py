@@ -1,3 +1,12 @@
+"""Local permutations for Spatial Model Validation
+
+References
+----------
+.. [1] Kim et al. "Local Permutation Tests for Conditional
+        Independence." *Annals of Statistics* 50(6): 3388-3414.
+        https://doi.org/10.1214/22-AOS2233
+"""
+
 import numpy
 import geopandas
 from sklearn.base import BaseEstimator
@@ -6,7 +15,13 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import min_weight_full_bipartite_matching
 from scipy.spatial import cKDTree
 
-from ._utils import _get_coords, _to_point_gdf, _idx_and_is_geo, KERNELS, LIBPYSAL_KERNEL_MAP
+from ._utils import (
+    _get_coords,
+    _to_point_gdf,
+    _idx_and_is_geo,
+    KERNELS,
+    LIBPYSAL_KERNEL_MAP,
+)
 
 
 class LocalPermutation(BaseEstimator):
@@ -137,10 +152,10 @@ class LocalPermutation(BaseEstimator):
         if bw == "auto" or k == "auto":
             if y is None:
                 raise ValueError(
-                    "Call fit(X, y) before sample() when bandwidth='auto' "
-                    "or k='auto'."
+                    "Call fit(X, y) before sample() when bandwidth='auto' or k='auto'."
                 )
             from ._range import correlogram_range, knn_range
+
             if bw == "auto":
                 bw = correlogram_range(X, y)
                 self.bandwidth_ = bw
@@ -173,25 +188,24 @@ class LocalPermutation(BaseEstimator):
 
         if self.graph is not None:
             n = self._n_from_graph(self.graph)
-            adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(self.graph, n)
+            adj_csr, adj_sets, edge_i, edge_j, cumw = self._adj_from_graph(
+                self.graph, n
+            )
             self.graph_ = self.graph
         elif bw is not None or k is not None:
             if self.kernel not in KERNELS:
                 raise ValueError(
-                    f"Unknown kernel '{self.kernel}'. "
-                    f"Choose from: {sorted(KERNELS)}."
+                    f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
                 )
             adj_csr, adj_sets, edge_i, edge_j, cumw = self._kernel_adj(X, is_geo, bw, k)
         else:
-            raise ValueError(
-                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
-            )
+            raise ValueError("Specify one of 'bandwidth', 'k', or a pre-built 'graph'.")
 
-        self._adj_csr_  = adj_csr
+        self._adj_csr_ = adj_csr
         self._adj_sets_ = adj_sets
-        self._edge_i_   = edge_i
-        self._edge_j_   = edge_j
-        self._cumw_     = cumw
+        self._edge_i_ = edge_i
+        self._edge_j_ = edge_j
+        self._cumw_ = cumw
         return self
 
     def sample(self, X):
@@ -229,9 +243,13 @@ class LocalPermutation(BaseEstimator):
 
         for _ in range(self.n_permutations):
             perm = self._markov_mix(
-                perm, self._adj_sets_,
-                self._edge_i_, self._edge_j_, self._cumw_,
-                n_burn, rng,
+                perm,
+                self._adj_sets_,
+                self._edge_i_,
+                self._edge_j_,
+                self._cumw_,
+                n_burn,
+                rng,
             )
             positions = perm.copy()
             yield idx[positions] if idx is not None else positions
@@ -298,15 +316,15 @@ class LocalPermutation(BaseEstimator):
         tree = cKDTree(coords)
 
         distances, indices = tree.query(coords, k=k + 1)
-        distances = distances[:, 1:]   # drop self (d=0)
-        indices   = indices[:, 1:]
+        distances = distances[:, 1:]  # drop self (d=0)
+        indices = indices[:, 1:]
 
         bw = distances[:, -1:] + 1e-10
-        weights = KERNELS[self.kernel](distances / bw)   # (n, k)
+        weights = KERNELS[self.kernel](distances / bw)  # (n, k)
 
         row = numpy.repeat(numpy.arange(n), k)
         col = indices.ravel()
-        w   = weights.ravel()
+        w = weights.ravel()
 
         nonzero = w > 0
         row, col, w = row[nonzero], col[nonzero], w[nonzero]
@@ -314,15 +332,15 @@ class LocalPermutation(BaseEstimator):
         # Symmetrise by adding both directions; sum_duplicates merges them
         sym_row = numpy.concatenate([row, col])
         sym_col = numpy.concatenate([col, row])
-        sym_w   = numpy.concatenate([w, w])
+        sym_w = numpy.concatenate([w, w])
 
         W = coo_matrix((sym_w, (sym_row, sym_col)), shape=(n, n)).tocsr()
         W.sum_duplicates()
         W_coo = W.tocoo()
 
         off_diag = W_coo.row != W_coo.col
-        r  = W_coo.row[off_diag]
-        c  = W_coo.col[off_diag]
+        r = W_coo.row[off_diag]
+        c = W_coo.col[off_diag]
         wt = W_coo.data[off_diag]
 
         upper = r < c
@@ -356,8 +374,8 @@ class LocalPermutation(BaseEstimator):
         off_diag = W_coo.row != W_coo.col
         mask &= off_diag
 
-        row     = W_coo.row[mask]
-        col     = W_coo.col[mask]
+        row = W_coo.row[mask]
+        col = W_coo.col[mask]
         weights = W_coo.data[mask]
 
         upper = row < col
@@ -413,7 +431,8 @@ class LocalPermutation(BaseEstimator):
             src = (
                 "the supplied graph"
                 if self.graph is not None
-                else f"bandwidth={self.bandwidth}" if self.bandwidth is not None
+                else f"bandwidth={self.bandwidth}"
+                if self.bandwidth is not None
                 else f"k={self.k}"
             )
             raise ValueError(

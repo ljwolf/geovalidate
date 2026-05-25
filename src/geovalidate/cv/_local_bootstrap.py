@@ -1,3 +1,12 @@
+"""Local Bootstraps for spatial/temporal Model Validation
+
+References
+----------
+.. [1] Statham, Thomas. *The Global Inconsistencies of Gridded
+        Population Data At Different Spatial Scales.* Doctoral
+        Dissertation, University of Bristol.
+"""
+
 import numpy
 import geopandas
 from sklearn.base import BaseEstimator
@@ -5,8 +14,13 @@ from sklearn.utils import check_random_state
 from scipy.sparse import diags
 from scipy.spatial.distance import cdist
 
-from ._utils import _get_coords, _to_point_gdf, _idx_and_is_geo, KERNELS, LIBPYSAL_KERNEL_MAP
-
+from ._utils import (
+    _get_coords,
+    _to_point_gdf,
+    _idx_and_is_geo,
+    KERNELS,
+    LIBPYSAL_KERNEL_MAP,
+)
 
 
 class LocalBootstrap(BaseEstimator):
@@ -107,10 +121,10 @@ class LocalBootstrap(BaseEstimator):
         if bw == "auto" or k == "auto":
             if y is None:
                 raise ValueError(
-                    "Call fit(X, y) before sample() when bandwidth='auto' "
-                    "or k='auto'."
+                    "Call fit(X, y) before sample() when bandwidth='auto' or k='auto'."
                 )
             from ._range import correlogram_range, knn_range
+
             if bw == "auto":
                 bw = correlogram_range(X, y)
                 self.bandwidth_ = bw
@@ -142,9 +156,7 @@ class LocalBootstrap(BaseEstimator):
             return self
 
         if bw is None and k is None:
-            raise ValueError(
-                "Specify one of 'bandwidth', 'k', or a pre-built 'graph'."
-            )
+            raise ValueError("Specify one of 'bandwidth', 'k', or a pre-built 'graph'.")
         if self.kernel not in KERNELS:
             raise ValueError(
                 f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
@@ -217,7 +229,7 @@ class LocalBootstrap(BaseEstimator):
                     "Use bandwidth= for cross-geometry sampling."
                 )
             bw = getattr(self, "bandwidth_", self.bandwidth)
-            k  = getattr(self, "k_", self.k)
+            k = getattr(self, "k_", self.k)
             if bw == "auto" or k == "auto":
                 raise NotFittedError(
                     f"This {type(self).__name__} instance has bandwidth='auto' "
@@ -260,18 +272,17 @@ class LocalBootstrap(BaseEstimator):
                 f"Unknown kernel '{self.kernel}'. Choose from: {sorted(KERNELS)}."
             )
 
-        X_coords     = _get_coords(X)
+        X_coords = _get_coords(X)
         donor_coords = _get_coords(donor)
-        n_donor      = len(donor_coords)
+        n_donor = len(donor_coords)
 
         if k is not None:
             W_csr = self._knn_weight_csr(X_coords, donor_coords, k)
         else:
             W_csr = self._radius_weight_csr(X_coords, donor_coords, bw)
 
-        return_df = (
-            isinstance(X, geopandas.GeoDataFrame)
-            and isinstance(donor, geopandas.GeoDataFrame)
+        return_df = isinstance(X, geopandas.GeoDataFrame) and isinstance(
+            donor, geopandas.GeoDataFrame
         )
         donor_idx, _ = _idx_and_is_geo(donor)
 
@@ -326,18 +337,18 @@ class LocalBootstrap(BaseEstimator):
 
         if skip_self:
             distances = distances[:, 1:]
-            indices   = indices[:, 1:]
+            indices = indices[:, 1:]
 
-        n_X    = len(X_coords)
+        n_X = len(X_coords)
         n_donor = len(donor_coords)
 
         # Adaptive bandwidth: distance to the k-th (farthest) neighbour
         bw = distances[:, -1:] + 1e-10
-        weights = KERNELS[self.kernel](distances / bw)   # (n_X, k)
+        weights = KERNELS[self.kernel](distances / bw)  # (n_X, k)
 
         row_sums = weights.sum(axis=1, keepdims=True)
         row_sums = numpy.where(row_sums == 0, 1.0, row_sums)
-        weights  = weights / row_sums
+        weights = weights / row_sums
 
         rows = numpy.repeat(numpy.arange(n_X), k)
         cols = indices.ravel()
@@ -359,7 +370,7 @@ class LocalBootstrap(BaseEstimator):
         """
         from scipy.spatial import cKDTree
 
-        tree_X     = cKDTree(X_coords)
+        tree_X = cKDTree(X_coords)
         tree_donor = cKDTree(donor_coords)
 
         # sparse_distance_matrix returns a dok_matrix with shape (|X|, |donor|)
@@ -370,10 +381,9 @@ class LocalBootstrap(BaseEstimator):
         mask = data > 0
 
         from scipy.sparse import csr_matrix
+
         n_X, n_donor = len(X_coords), len(donor_coords)
-        W = csr_matrix(
-            (data[mask], (D.row[mask], D.col[mask])), shape=(n_X, n_donor)
-        )
+        W = csr_matrix((data[mask], (D.row[mask], D.col[mask])), shape=(n_X, n_donor))
         row_sums = numpy.asarray(W.sum(axis=1)).ravel()
         row_sums = numpy.where(row_sums == 0, 1.0, row_sums)
         W = diags(1.0 / row_sums) @ W
@@ -384,7 +394,9 @@ class LocalBootstrap(BaseEstimator):
     # Weight matrix builders
     # ------------------------------------------------------------------
 
-    def _dense_weight_matrix(self, coords: numpy.ndarray, bandwidth: float) -> numpy.ndarray:
+    def _dense_weight_matrix(
+        self, coords: numpy.ndarray, bandwidth: float
+    ) -> numpy.ndarray:
         """Build a row-normalised (n, n) dense weight matrix."""
         if coords.shape[1] == 1:
             D = numpy.abs(coords - coords.T)
