@@ -17,6 +17,7 @@ Cross-validation: [PLANNED]
 
 Metrics:
     area_of_applicability  x Meyer & Pebesma 2021 Area of Applicability
+    gearygram              x Geary's C correlogram (bandwidth / kNN / nonparametric)
 """
 
 from .samplers import (
@@ -28,6 +29,7 @@ from .samplers import (
 )
 from .cv import (
     BallKFold,
+    LeaveBallOut,
     ClusterStratifiedKFold,
     HilbertKFold,
     LocalBootstrap,
@@ -35,7 +37,7 @@ from .cv import (
     correlogram_range,
     knn_range,
 )
-from .metrics import area_of_applicability
+from .metrics import area_of_applicability, gearygram
 
 __version__ = "0.1.0"
 
@@ -46,6 +48,7 @@ __all__ = [
     "MultinomialSampler",
     "PoissonSampler",
     "BallKFold",
+    "LeaveBallOut",
     "ClusterStratifiedKFold",
     "HilbertKFold",
     "LocalBootstrap",
@@ -53,4 +56,5 @@ __all__ = [
     "correlogram_range",
     "knn_range",
     "area_of_applicability",
+    "gearygram",
 ]
