@@ -145,6 +145,8 @@ class PoissonSampler(BasePointSampler):
         elif isinstance(geometry, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
             crs = geometry.crs
             window = geometry.union_all()
+            if window.area == 0:
+                window = window.convex_hull
         else:
             window = geometry
 

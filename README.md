@@ -20,14 +20,16 @@ with a locally-weighted bootstrap from the training data, predict, and check
 the Area of Applicability.
 
 ```python
-import geopandas, geodatasets, numpy, pandas
+
 from gwlearn.ensemble import GWRandomForestRegressor
 from geovalidate import HilbertKFold, PoissonSampler, LocalBootstrap, area_of_applicability
 ```
 
-Load King County house sales and take a stratified subsample (60 per price decile):
+<details>
+<summary>Load King County house sales and take a stratified subsample (60 per price decile):</summary>
 
 ```python
+import geopandas, geodatasets, numpy, pandas
 gdf_full = geopandas.read_file(geodatasets.get_path("geoda.home_sales")).to_crs("EPSG:32610")
 gdf_full["log_price"] = numpy.log(gdf_full["price"])
 gdf_full["decile"] = (
@@ -41,6 +43,7 @@ idx = (
 gdf = gdf_full.loc[idx].reset_index(drop=True)
 feat_cols = ["sqft_liv", "bedrooms", "bathrooms", "grade"]
 ```
+</details>
 
 **1. Spatially balanced split** — split into 5 folds; hold out fold 0 as the
 prediction target and train on the remaining four:
@@ -85,9 +88,8 @@ inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold 
 <summary>Code</summary>
 
 ```python
-holdout_window = gdf_holdout.geometry.union_all().convex_hull
 new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
-    holdout_window,
+    gdf_holdout.geometry,
     intensity=gdf_holdout.geometry,
 )
 ```
