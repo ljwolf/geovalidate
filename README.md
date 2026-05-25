@@ -20,8 +20,6 @@ with a locally-weighted bootstrap from the training data, predict, and check
 the Area of Applicability.
 
 ```python
-
-from gwlearn.ensemble import GWRandomForestRegressor
 from geovalidate import HilbertKFold, PoissonSampler, LocalBootstrap, area_of_applicability
 ```
 
@@ -52,6 +50,7 @@ prediction target and train on the remaining four:
 <summary>Code</summary>
 
 ```python
+from geovalidate import HilbertKFold
 hkf = HilbertKFold(n_splits=5, random_state=0)
 train_idx, holdout_idx = list(hkf.split(gdf))[0]
 gdf_train   = gdf.iloc[train_idx].reset_index(drop=True)
@@ -70,6 +69,7 @@ y_train = numpy.log(gdf_train["price"])
 <summary>Code</summary>
 
 ```python
+from gwlearn.ensemble import GWRandomForestRegressor
 model = GWRandomForestRegressor(
     bandwidth=10000, fixed=True, kernel="bisquare",
     keep_models=True, coplanar="clique", random_state=0,
@@ -88,6 +88,7 @@ inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold 
 <summary>Code</summary>
 
 ```python
+from geovalidate.sampler import PoissonSampler
 new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
     gdf_holdout.geometry,
     intensity=gdf_holdout.geometry,
@@ -105,6 +106,7 @@ new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
 <summary>Code</summary>
 
 ```python
+from geoalidate.cv import LocalBootstrap
 lb = LocalBootstrap(k=15, kernel="bisquare", n_bootstraps=50, random_state=2)
 boot_samples = list(lb.sample(new_pts, donor=gdf_train))
 X_new = pandas.DataFrame(
@@ -207,9 +209,6 @@ Runnable notebooks are in [`examples/`](examples/):
 Every class is a `BaseEstimator` subclass — `get_params()` / `set_params()` and
 `GridSearchCV` work out of the box.
 
-```python
-from geovalidate import LocalBootstrap
-lb = LocalBootstrap(k=10, kernel="gaussian")
-print(lb.get_params())
-lb.set_params(k=20)
-```
+## AI Usage Statement
+
+Claude code has been used to assist with test and documentation development, in addition to implementing additional features within human-authored classes. 
