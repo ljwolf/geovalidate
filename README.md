@@ -45,6 +45,9 @@ feat_cols = ["sqft_liv", "bedrooms", "bathrooms", "grade"]
 **1. Spatially balanced split** — split into 5 folds; hold out fold 0 as the
 prediction target and train on the remaining four:
 
+<details>
+<summary>Code</summary>
+
 ```python
 hkf = HilbertKFold(n_splits=5, random_state=0)
 train_idx, holdout_idx = list(hkf.split(gdf))[0]
@@ -54,7 +57,14 @@ X_train = gdf_train[feat_cols].fillna(0)
 y_train = numpy.log(gdf_train["price"])
 ```
 
+</details>
+
+![Step 1 — HilbertKFold fold map](docs/img/readme_step1.png)
+
 **2. Fit a model** on the training folds using a geographically weighted random forest:
+
+<details>
+<summary>Code</summary>
 
 ```python
 model = GWRandomForestRegressor(
@@ -64,18 +74,33 @@ model = GWRandomForestRegressor(
 model.fit(X_train, y_train, geometry=gdf_train.geometry)
 ```
 
+</details>
+
+![Step 2 — training data coloured by log price](docs/img/readme_step2.png)
+
 **3. Sample new prediction locations** within the held-out fold's footprint using an
 inhomogeneous Poisson process — intensity is a KDE fitted to the holdout-fold point density:
 
+<details>
+<summary>Code</summary>
+
 ```python
+holdout_window = gdf_holdout.geometry.union_all().convex_hull
 new_pts = PoissonSampler(n_expected=100, random_state=1).sample(
-    gdf_holdout.geometry,
+    holdout_window,
     intensity=gdf_holdout.geometry,
 )
 ```
 
+</details>
+
+![Step 3 — Poisson-sampled prediction locations](docs/img/readme_step3.png)
+
 **4. Impute feature values** at the new locations from the training data —
 `LocalBootstrap` draws donor rows from `gdf_train`, weighted by distance to each new point:
+
+<details>
+<summary>Code</summary>
 
 ```python
 lb = LocalBootstrap(k=15, kernel="bisquare", n_bootstraps=50, random_state=2)
@@ -86,20 +111,38 @@ X_new = pandas.DataFrame(
 )
 ```
 
+</details>
+
+![Step 4 — imputed vs training feature distributions](docs/img/readme_step4.png)
+
 **5. Predict** log(price) at the new locations:
+
+<details>
+<summary>Code</summary>
 
 ```python
 log_price_pred = model.predict(X_new, geometry=new_pts.geometry)
 ```
 
+</details>
+
+![Step 5 — predicted log price at new locations](docs/img/readme_step5.png)
+
 **6. Check the Area of Applicability** — which new locations are close enough to the
 training distribution for the model to be trusted?
+
+<details>
+<summary>Code</summary>
 
 ```python
 applicable = area_of_applicability(X_new.values, X_train.values, feature_weights="uniform")
 print(f"{applicable.sum()} / {len(applicable)} new points within AOA")
 # 83 / 91 new points within AOA
 ```
+
+</details>
+
+![Step 6 — Area of Applicability](docs/img/readme_step6.png)
 
 ## What's in the package
 
