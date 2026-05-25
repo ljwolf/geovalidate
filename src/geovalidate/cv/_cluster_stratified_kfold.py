@@ -1,3 +1,13 @@
+"""Cluster-Stratified K-fold Crossvalidation
+
+References
+----------
+.. [1] Ploton et al. "Spatial validation reveals poor
+        predictive performance of large-scale ecological
+        mapping models. (2020). *Nature Communications*
+        11:45450. https://doi.org/10.1038/s41467-020-18321-y
+"""
+
 import numpy
 from sklearn.base import BaseEstimator, clone
 from sklearn.utils import check_random_state
@@ -6,7 +16,7 @@ from ._utils import _get_coords
 
 
 # Sentinel values stored in the fold_id array.
-_EXCLUDE = -1     # point participates in neither train nor test
+_EXCLUDE = -1  # point participates in neither train nor test
 _TRAIN_POOL = -2  # point is always in train, never in test
 
 
@@ -67,9 +77,14 @@ class ClusterStratifiedKFold(BaseEstimator):
 
     _VALID_NOISE = ("stratify", "drop", "train_only")
 
-    def __init__(self, clusterer, n_splits: int = 5,
-                 noise: str = "stratify", noise_label: int = -1,
-                 random_state=None):
+    def __init__(
+        self,
+        clusterer,
+        n_splits: int = 5,
+        noise: str = "stratify",
+        noise_label: int = -1,
+        random_state=None,
+    ):
         self.clusterer = clusterer
         self.n_splits = n_splits
         self.noise = noise
@@ -91,9 +106,7 @@ class ClusterStratifiedKFold(BaseEstimator):
         test  : ndarray of int
         """
         if self.noise not in self._VALID_NOISE:
-            raise ValueError(
-                f"noise={self.noise!r} not in {self._VALID_NOISE}."
-            )
+            raise ValueError(f"noise={self.noise!r} not in {self._VALID_NOISE}.")
 
         coords = _get_coords(X)
         n = len(coords)
@@ -110,8 +123,7 @@ class ClusterStratifiedKFold(BaseEstimator):
             labels = numpy.asarray(self.clusterer.labels_, dtype=int)
             if len(labels) != n:
                 raise ValueError(
-                    f"Pre-fitted clusterer has {len(labels)} labels but X "
-                    f"has {n} rows."
+                    f"Pre-fitted clusterer has {len(labels)} labels but X has {n} rows."
                 )
         else:
             self.clusterer_ = clone(self.clusterer).fit(coords)
@@ -127,9 +139,7 @@ class ClusterStratifiedKFold(BaseEstimator):
         for label in numpy.unique(labels):
             members = numpy.flatnonzero(labels == label)
             if label == self.noise_label and self.noise != "stratify":
-                fold_ids[members] = (
-                    _EXCLUDE if self.noise == "drop" else _TRAIN_POOL
-                )
+                fold_ids[members] = _EXCLUDE if self.noise == "drop" else _TRAIN_POOL
             else:
                 rng.shuffle(members)
                 fold_ids[members] = numpy.arange(len(members)) % k

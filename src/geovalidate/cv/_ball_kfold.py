@@ -1,3 +1,13 @@
+"""Distance-based exclusion for ball k-fold crossvalidation
+
+References
+----------
+.. [1] Ploton et al. "Spatial validation reveals poor
+        predictive performance of large-scale ecological
+        mapping models. (2020). *Nature Communications*
+        11:45450. https://doi.org/10.1038/s41467-020-18321-y
+"""
+
 import numpy
 from sklearn.base import BaseEstimator
 
@@ -79,7 +89,7 @@ class BallKFold(BaseEstimator):
 
         indices = numpy.arange(n)
         for fold in range(self.n_splits_):
-            test  = indices[colors == fold]
+            test = indices[colors == fold]
             train = indices[colors != fold]
             yield train, test
 
@@ -91,6 +101,7 @@ class BallKFold(BaseEstimator):
 
         if isinstance(X, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
             import mapclassify
+
             gdf = X if isinstance(X, geopandas.GeoDataFrame) else X.to_frame()
             return mapclassify.greedy(
                 gdf,
@@ -102,6 +113,7 @@ class BallKFold(BaseEstimator):
 
         # Array input: build conflict graph and colour with networkx
         import networkx
+
         n = len(coords)
         tree = cKDTree(coords)
         G = networkx.Graph()
@@ -116,6 +128,4 @@ class BallKFold(BaseEstimator):
     def get_n_splits(self, X=None, y=None, groups=None):
         if hasattr(self, "n_splits_"):
             return self.n_splits_
-        raise ValueError(
-            "Call split(X) first to determine the number of folds."
-        )
+        raise ValueError("Call split(X) first to determine the number of folds.")
