@@ -3,3 +3,10 @@ __pycache__/*
 .ipynb_checkpoints
 docs/build/
 docs/source/generated/
+examples/make_*
+examples/*.html
+examples/*.pdf
+examples/fig_*
+examples/*.png
+.Rhistory
+.DS_Store
