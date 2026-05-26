@@ -17,10 +17,12 @@ installation.md
 :maxdepth: 1
 :caption: Examples
 
+examples/poissonsampler.ipynb
 examples/hilbert_kfold.ipynb
 examples/ball_kfold.ipynb
 examples/leave_ball_out.ipynb
 examples/cluster_stratified_kfold.ipynb
+examples/dggrid_stratified_kfold.ipynb
 examples/local_bootstrap.ipynb
 examples/local_permutation.ipynb
 examples/range_finding.ipynb
