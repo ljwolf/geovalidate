@@ -15,6 +15,10 @@ Cross-validation: [PLANNED]
     LocalBootstrap    x locally-weighted bootstrap with replacement (spatial or 1-D)
     LocalPermutation  o spatially-constrained derangement without replacement
 
+Preprocessing:
+    KNeighborsFeatures      x k nearest-neighbor feature columns (nn1 ... nnk per feature)
+    RadiusNeighborsFeatures x distance-band aggregated feature columns (annular or cumulative)
+
 Metrics:
     area_of_applicability  x Meyer & Pebesma 2021 Area of Applicability
     gearygram              x Geary's C correlogram (bandwidth / kNN / nonparametric)
@@ -39,6 +43,7 @@ from .cv import (
     knn_range,
 )
 from .metrics import area_of_applicability, gearygram
+from .preprocessing import KNeighborsFeatures, RadiusNeighborsFeatures
 
 __version__ = "0.1.0"
 
@@ -59,4 +64,6 @@ __all__ = [
     "knn_range",
     "area_of_applicability",
     "gearygram",
+    "KNeighborsFeatures",
+    "RadiusNeighborsFeatures",
 ]
