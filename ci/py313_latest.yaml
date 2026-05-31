@@ -14,6 +14,10 @@ dependencies:
   - statsmodels>=0.14
   - h3>=4
   - healpy
+  - s2sphere
+  - pip
+  - pip:
+    - pya5
   - libpysal
   - esda
   - rasterio>=1.3
