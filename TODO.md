@@ -1,5 +1,9 @@
 # TODO
 
+## Documentation
+
+- [ ] **Bibliography**: Add missing references from docstrings to `docs/source/_static/references.bib`
+
 ## Review & push feature branches for PR
 
 - [x] **`cv-bandwidth-auto`** (commit `2b9d581` — "add .fit() for auto bandwidth detection")
