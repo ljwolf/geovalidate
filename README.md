@@ -220,7 +220,7 @@ the empirical spatial autocorrelation of the response variable.
 
 ## Examples
 
-Runnable notebooks are in [`examples/`](examples/):
+Runnable notebooks are in the [documentation](https://ljwolf.org/geovalidate/dev/examples/):
 
 | Notebook | What it shows |
 |---|---|
