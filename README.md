@@ -172,11 +172,11 @@ Generate spatial point samples from geometries, rasters, or intensity surfaces.
 
 | Class | What it does |
 |---|---|
-| [`ConstantClassSampler`](https://ljwolf.org/geovalidate/dev/examples/pointsamplers.html) | Exactly *n* points per class |
-| [`MultinomialSampler`](https://ljwolf.org/geovalidate/dev/examples/pointsamplers.html) | Stochastic class-count allocation via multinomial draw |
-| [`PointSampler`](https://ljwolf.org/geovalidate/dev/examples/pointsamplers.html) | Uniform random points inside any Shapely geometry |
-| [`PoissonSampler`](https://ljwolf.org/geovalidate/dev/examples/poissonsampler.html) | Inhomogeneous Poisson process; intensity from a callable, raster, polygon values, or KDE over existing points |
-| [`StratifiedClassSampler`](https://ljwolf.org/geovalidate/dev/examples/pointsamplers.html) | Fixed total allocated proportionally to a weight column |
+| [`ConstantClassSampler`](https://www.ljwolf.org/geovalidate/examples/pointsamplers.html) | Exactly *n* points per class |
+| [`MultinomialSampler`](https://www.ljwolf.org/geovalidate/examples/pointsamplers.html) | Stochastic class-count allocation via multinomial draw |
+| [`PointSampler`](https://www.ljwolf.org/geovalidate/examples/pointsamplers.html) | Uniform random points inside any Shapely geometry |
+| [`PoissonSampler`](https://www.ljwolf.org/geovalidate/examples/poissonsampler.html) | Inhomogeneous Poisson process; intensity from a callable, raster, polygon values, or KDE over existing points |
+| [`StratifiedClassSampler`](https://www.ljwolf.org/geovalidate/examples/pointsamplers.html) | Fixed total allocated proportionally to a weight column |
 
 All samplers accept `quasi_random="sobol"`, `"halton"`, or `"r2"` for
 low-discrepancy sequences with better spatial coverage than pure random sampling.
@@ -188,15 +188,15 @@ All cross-validators follow the sklearn splitter protocol (`split(X)` yields
 
 | Class | What it does |
 |---|---|
-| [`CellStratifiedKFold`](https://ljwolf.org/geovalidate/dev/examples/cell_stratified_kfold.html) | Assigns observations to discrete global grid system (DGGS) cells and stratifies each cell across folds (Ploton et al., 2020) |
-| [`ClusterStratifiedKFold`](https://ljwolf.org/geovalidate/dev/examples/cluster_stratified_kfold.html) | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
-| [`HilbertKFold`](https://ljwolf.org/geovalidate/dev/examples/hilbert_kfold.html) | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area (Lister & Scott, 2009) |
-| [`BallKFold`](https://ljwolf.org/geovalidate/dev/examples/ball_kfold.html) | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
-| [`LeaveBallOut`](https://ljwolf.org/geovalidate/dev/examples/leave_ball_out.html) | Leave-one-out with an exclusion buffer: training points within radius *r* of the test point are dropped (Ploton et al., 2020) |
-| [`LeaveCellOut`](https://ljwolf.org/geovalidate/dev/examples/leave_cell_out.html) | Leave-one-DGGS-cell-out: holds out one grid cell per fold as the test region (Roberts et al., 2017) |
-| [`LeaveClusterOut`](https://ljwolf.org/geovalidate/dev/examples/leave_cluster_out.html) | Leave-one-cluster-out: holds out one spatial cluster per fold as the test region (Roberts et al., 2017) |
-| [`LocalBootstrap`](https://ljwolf.org/geovalidate/dev/examples/local_bootstrap.html) | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
-| [`LocalPermutation`](https://ljwolf.org/geovalidate/dev/examples/local_permutation.html) | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
+| [`CellStratifiedKFold`](https://www.ljwolf.org/geovalidate/examples/cell_stratified_kfold.html) | Assigns observations to discrete global grid system (DGGS) cells and stratifies each cell across folds (Ploton et al., 2020) |
+| [`ClusterStratifiedKFold`](https://www.ljwolf.org/geovalidate/examples/cluster_stratified_kfold.html) | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
+| [`HilbertKFold`](https://www.ljwolf.org/geovalidate/examples/hilbert_kfold.html) | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area (Lister & Scott, 2009) |
+| [`BallKFold`](https://www.ljwolf.org/geovalidate/examples/ball_kfold.html) | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
+| [`LeaveBallOut`](https://www.ljwolf.org/geovalidate/examples/leave_ball_out.html) | Leave-one-out with an exclusion buffer: training points within radius *r* of the test point are dropped (Ploton et al., 2020) |
+| [`LeaveCellOut`](https://www.ljwolf.org/geovalidate/examples/leave_cell_out.html) | Leave-one-DGGS-cell-out: holds out one grid cell per fold as the test region (Roberts et al., 2017) |
+| [`LeaveClusterOut`](https://www.ljwolf.org/geovalidate/examples/leave_cluster_out.html) | Leave-one-cluster-out: holds out one spatial cluster per fold as the test region (Roberts et al., 2017) |
+| [`LocalBootstrap`](https://www.ljwolf.org/geovalidate/examples/local_bootstrap.html) | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
+| [`LocalPermutation`](https://www.ljwolf.org/geovalidate/examples/local_permutation.html) | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
 
 `correlogram_range` and `knn_range` auto-detect a sensible bandwidth / *k* from
 the empirical spatial autocorrelation of the response variable.
@@ -220,23 +220,23 @@ the empirical spatial autocorrelation of the response variable.
 
 ## Examples
 
-Runnable notebooks are in the [documentation](https://ljwolf.org/geovalidate/dev/examples/):
+Runnable notebooks are in the [documentation](https://www.ljwolf.org/geovalidate/examples/):
 
 | Notebook | What it shows |
 |---|---|
-| [`cell_stratified_kfold.ipynb`](https://ljwolf.org/geovalidate/dev/examples/cell_stratified_kfold.html) | DGGS-stratified folds using H3; fold coverage vs random KFold |
-| [`cluster_stratified_kfold.ipynb`](https://ljwolf.org/geovalidate/dev/examples/cluster_stratified_kfold.html) | HDBSCAN clusters on King County sales; noise-handling policies including `nearest` |
-| [`gearygram.ipynb`](https://ljwolf.org/geovalidate/dev/examples/gearygram.html) | Geary's C correlogram in bandwidth, kNN, and LOWESS modes |
-| [`hilbert_kfold.ipynb`](https://ljwolf.org/geovalidate/dev/examples/hilbert_kfold.html) | Fold assignment along the Hilbert curve; comparison with random KFold |
-| [`ball_kfold.ipynb`](https://ljwolf.org/geovalidate/dev/examples/ball_kfold.html) | Spatially exclusive folds; the exclusion guarantee; `radius=` vs `n_splits=` modes |
-| [`leave_ball_out.ipynb`](https://ljwolf.org/geovalidate/dev/examples/leave_ball_out.html) | Buffered leave-one-out CV; exclusion buffer visualised; RMSE vs standard LOO |
-| [`leave_cell_out.ipynb`](https://ljwolf.org/geovalidate/dev/examples/leave_cell_out.html) | Leave-one-DGGS-cell-out; `min_test_size` and auto-resolution |
-| [`leave_cluster_out.ipynb`](https://ljwolf.org/geovalidate/dev/examples/leave_cluster_out.html) | Leave-one-cluster-out; comparison of `train_only`, `drop`, and `nearest` noise handling |
-| [`local_bootstrap.ipynb`](https://ljwolf.org/geovalidate/dev/examples/local_bootstrap.html) | Locally-weighted resampling; bandwidth selection |
-| [`local_permutation.ipynb`](https://ljwolf.org/geovalidate/dev/examples/local_permutation.html) | Constrained derangement; comparison with unconstrained permutation |
-| [`poissonsampler.ipynb`](https://ljwolf.org/geovalidate/dev/examples/poissonsampler.html) | Poisson point process sampling with various intensity surfaces |
-| [`pointsamplers.ipynb`](https://ljwolf.org/geovalidate/dev/examples/pointsamplers.html) | Point sampler classes: uniform, stratified, constant, and multinomial |
-| [`range_finding.ipynb`](https://ljwolf.org/geovalidate/dev/examples/range_finding.html) | `correlogram_range` and `knn_range` for auto bandwidth selection |
+| [`cell_stratified_kfold.ipynb`](https://www.ljwolf.org/geovalidate/examples/cell_stratified_kfold.html) | DGGS-stratified folds using H3; fold coverage vs random KFold |
+| [`cluster_stratified_kfold.ipynb`](https://www.ljwolf.org/geovalidate/examples/cluster_stratified_kfold.html) | HDBSCAN clusters on King County sales; noise-handling policies including `nearest` |
+| [`gearygram.ipynb`](https://www.ljwolf.org/geovalidate/examples/gearygram.html) | Geary's C correlogram in bandwidth, kNN, and LOWESS modes |
+| [`hilbert_kfold.ipynb`](https://www.ljwolf.org/geovalidate/examples/hilbert_kfold.html) | Fold assignment along the Hilbert curve; comparison with random KFold |
+| [`ball_kfold.ipynb`](https://www.ljwolf.org/geovalidate/examples/ball_kfold.html) | Spatially exclusive folds; the exclusion guarantee; `radius=` vs `n_splits=` modes |
+| [`leave_ball_out.ipynb`](https://www.ljwolf.org/geovalidate/examples/leave_ball_out.html) | Buffered leave-one-out CV; exclusion buffer visualised; RMSE vs standard LOO |
+| [`leave_cell_out.ipynb`](https://www.ljwolf.org/geovalidate/examples/leave_cell_out.html) | Leave-one-DGGS-cell-out; `min_test_size` and auto-resolution |
+| [`leave_cluster_out.ipynb`](https://www.ljwolf.org/geovalidate/examples/leave_cluster_out.html) | Leave-one-cluster-out; comparison of `train_only`, `drop`, and `nearest` noise handling |
+| [`local_bootstrap.ipynb`](https://www.ljwolf.org/geovalidate/examples/local_bootstrap.html) | Locally-weighted resampling; bandwidth selection |
+| [`local_permutation.ipynb`](https://www.ljwolf.org/geovalidate/examples/local_permutation.html) | Constrained derangement; comparison with unconstrained permutation |
+| [`poissonsampler.ipynb`](https://www.ljwolf.org/geovalidate/examples/poissonsampler.html) | Poisson point process sampling with various intensity surfaces |
+| [`pointsamplers.ipynb`](https://www.ljwolf.org/geovalidate/examples/pointsamplers.html) | Point sampler classes: uniform, stratified, constant, and multinomial |
+| [`range_finding.ipynb`](https://www.ljwolf.org/geovalidate/examples/range_finding.html) | `correlogram_range` and `knn_range` for auto bandwidth selection |
 
 ## sklearn compatibility
 
