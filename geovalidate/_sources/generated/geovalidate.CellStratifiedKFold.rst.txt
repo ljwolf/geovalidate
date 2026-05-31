@@ -1,0 +1,28 @@
+﻿geovalidate.CellStratifiedKFold
+===============================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: CellStratifiedKFold
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CellStratifiedKFold.__init__
+      ~CellStratifiedKFold.get_metadata_routing
+      ~CellStratifiedKFold.get_n_splits
+      ~CellStratifiedKFold.get_params
+      ~CellStratifiedKFold.set_params
+      ~CellStratifiedKFold.set_split_request
+      ~CellStratifiedKFold.split
+   
+   
+
+   
+   
+   

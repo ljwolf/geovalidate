@@ -1,0 +1,6 @@
+﻿geovalidate.knn\_range
+======================
+
+.. currentmodule:: geovalidate
+
+.. autofunction:: knn_range

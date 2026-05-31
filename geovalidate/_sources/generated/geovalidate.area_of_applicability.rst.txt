@@ -1,0 +1,6 @@
+﻿geovalidate.area\_of\_applicability
+===================================
+
+.. currentmodule:: geovalidate
+
+.. autofunction:: area_of_applicability

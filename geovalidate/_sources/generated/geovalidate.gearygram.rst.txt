@@ -1,0 +1,6 @@
+﻿geovalidate.gearygram
+=====================
+
+.. currentmodule:: geovalidate
+
+.. autofunction:: gearygram

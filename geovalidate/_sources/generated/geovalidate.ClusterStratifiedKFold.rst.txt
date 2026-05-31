@@ -1,0 +1,28 @@
+﻿geovalidate.ClusterStratifiedKFold
+==================================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: ClusterStratifiedKFold
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClusterStratifiedKFold.__init__
+      ~ClusterStratifiedKFold.get_metadata_routing
+      ~ClusterStratifiedKFold.get_n_splits
+      ~ClusterStratifiedKFold.get_params
+      ~ClusterStratifiedKFold.set_params
+      ~ClusterStratifiedKFold.set_split_request
+      ~ClusterStratifiedKFold.split
+   
+   
+
+   
+   
+   

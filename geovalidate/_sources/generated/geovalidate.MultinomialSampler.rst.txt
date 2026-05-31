@@ -1,0 +1,26 @@
+﻿geovalidate.MultinomialSampler
+==============================
+
+.. currentmodule:: geovalidate
+
+.. autoclass:: MultinomialSampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MultinomialSampler.__init__
+      ~MultinomialSampler.get_metadata_routing
+      ~MultinomialSampler.get_params
+      ~MultinomialSampler.sample
+      ~MultinomialSampler.set_params
+   
+   
+
+   
+   
+   
