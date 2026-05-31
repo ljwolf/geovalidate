@@ -22,7 +22,9 @@ examples/hilbert_kfold.ipynb
 examples/ball_kfold.ipynb
 examples/leave_ball_out.ipynb
 examples/cluster_stratified_kfold.ipynb
+examples/leave_cluster_out.ipynb
 examples/cell_stratified_kfold.ipynb
+examples/leave_cell_out.ipynb
 examples/local_bootstrap.ipynb
 examples/local_permutation.ipynb
 examples/range_finding.ipynb
