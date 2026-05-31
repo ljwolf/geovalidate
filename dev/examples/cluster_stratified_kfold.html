@@ -1012,7 +1012,7 @@ discovered at fit time.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>/Users/lw17329/miniforge/envs/geovalidate/lib/python3.11/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>/Users/ljwolf/miniforge3/envs/analysis/lib/python3.14/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
   from .autonotebook import tqdm as notebook_tqdm
 </code></pre></div>
 </div>
@@ -1037,6 +1037,13 @@ projected to UTM 10N (metres) so that HDBSCAN operates on meaningful distance un
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>n = 2000 sales  |  price $95,000 – $3,635,000
+</code></pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>Downloading file &#39;kingcounty.zip&#39; from &#39;https://geodacenter.github.io/data-and-lab//data/kingcounty.zip&#39; to &#39;/Users/ljwolf/Library/Caches/geodatasets&#39;.
+Extracting &#39;kingcounty/kc_house.shp&#39; from &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip&#39; to &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip.unzip&#39;
+Extracting &#39;kingcounty/kc_house.dbf&#39; from &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip&#39; to &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip.unzip&#39;
+Extracting &#39;kingcounty/kc_house.shx&#39; from &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip&#39; to &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip.unzip&#39;
+Extracting &#39;kingcounty/kc_house.prj&#39; from &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip&#39; to &#39;/Users/ljwolf/Library/Caches/geodatasets/kingcounty.zip.unzip&#39;
 </code></pre></div>
 </div>
 </div>
@@ -1117,22 +1124,25 @@ in a single geographic region.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/1da80f5572178ea9fb07961eb610a743f146d24850c7751a640b0be4eaa98937.png" src="../_images/1da80f5572178ea9fb07961eb610a743f146d24850c7751a640b0be4eaa98937.png" />
+<img alt="../_images/0bbb34dd531d09c38cb446262282d7887cbccc406713089cbe645fccaf602d06.png" src="../_images/0bbb34dd531d09c38cb446262282d7887cbccc406713089cbe645fccaf602d06.png" />
 </div>
 </div>
 <h2 id="noise-handling">Noise handling<a class="headerlink" href="#noise-handling" title="Link to this heading">¶</a></h2>
 <p>Density-based clusterers (HDBSCAN, OPTICS) label outlier points with <code class="docutils literal notranslate"><span class="pre">-1</span></code>.
-<code class="docutils literal notranslate"><span class="pre">ClusterStratifiedKFold</span></code> exposes three policies:</p>
+<code class="docutils literal notranslate"><span class="pre">ClusterStratifiedKFold</span></code> exposes four policies:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">noise='stratify'</span></code> (default): distribute noise across folds like any other cluster.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">noise='drop'</span></code>: exclude noise from both train and test.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">noise='train_only'</span></code>: noise is in every train set, never in any test set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noise='nearest'</span></code>: each noise point is reassigned to the cluster of its nearest
+non-noise neighbour and then participates in that cluster’s fold-assignment pool
+as a regular member.</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="n">noise_idx</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">ckf</span><span class="o">.</span><span class="n">labels_</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;stratify&quot;</span><span class="p">,</span> <span class="s2">&quot;drop&quot;</span><span class="p">,</span> <span class="s2">&quot;train_only&quot;</span><span class="p">):</span>
+<span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;stratify&quot;</span><span class="p">,</span> <span class="s2">&quot;drop&quot;</span><span class="p">,</span> <span class="s2">&quot;train_only&quot;</span><span class="p">,</span> <span class="s2">&quot;nearest&quot;</span><span class="p">):</span>
     <span class="n">ckf_m</span> <span class="o">=</span> <span class="n">ClusterStratifiedKFold</span><span class="p">(</span>
         <span class="n">HDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -1154,6 +1164,7 @@ in a single geographic region.</p>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>noise=stratify     fold0 train noise=689, test noise=173  fold sizes=[405, 403, 400, 396, 396]
 noise=drop         fold0 train noise=  0, test noise=  0  fold sizes=[232, 230, 228, 224, 224]
 noise=train_only   fold0 train noise=862, test noise=  0  fold sizes=[232, 230, 228, 224, 224]
+noise=nearest      fold0 train noise=707, test noise=155  fold sizes=[404, 401, 400, 399, 396]
 </code></pre></div>
 </div>
 </div>
