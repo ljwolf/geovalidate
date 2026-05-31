@@ -4,7 +4,7 @@ import numpy
 
 from sklearn.base import BaseEstimator
 
-from ._dggrid_stratified_kfold import _GRIDS, _RES_RANGES, _assign_cells, _to_lonlat
+from ._cell_stratified_kfold import _GRIDS, _RES_RANGES, _assign_cells, _to_lonlat
 
 
 class LeaveCellOut(BaseEstimator):
@@ -15,7 +15,7 @@ class LeaveCellOut(BaseEstimator):
     set is all observations in all other cells.
 
     This is the spatial block cross-validation analogue of
-    :class:`DGGridStratifiedKFold`: where that class distributes observations
+    :class:`CellStratifiedKFold`: where that class distributes observations
     from each cell across all folds, this class holds out one cell at a time.
     Block size and shape are controlled by the grid resolution.
 

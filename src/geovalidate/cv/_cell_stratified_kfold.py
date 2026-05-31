@@ -61,7 +61,7 @@ def _assign_cells(lonlat, grid, resolution):
         return numpy.array(cells)
 
 
-class DGGridStratifiedKFold(BaseEstimator):
+class CellStratifiedKFold(BaseEstimator):
     """Stratified k-fold cross-validator using a discrete global grid system.
 
     Each observation is indexed to a DGGS cell.  Cell membership becomes
@@ -111,7 +111,7 @@ class DGGridStratifiedKFold(BaseEstimator):
 
     Examples
     --------
-    >>> cv = DGGridStratifiedKFold(n_splits=5, grid="h3")
+    >>> cv = CellStratifiedKFold(n_splits=5, grid="h3")
     >>> for train, test in cv.split(gdf):
     ...     model.fit(X[train], y[train])
     ...     score = model.score(X[test], y[test])

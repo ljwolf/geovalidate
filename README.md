@@ -192,6 +192,9 @@ All cross-validators follow the sklearn splitter protocol (`split(X)` yields
 | `BallKFold` | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
 | `LeaveBallOut` | Leave-one-out with an exclusion buffer: training points within radius *r* of the test point are dropped (Ploton et al., 2020) |
 | `ClusterStratifiedKFold` | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
+| `LeaveClusterOut` | Leave-one-cluster-out: holds out one spatial cluster per fold as the test region (Roberts et al., 2017) |
+| `CellStratifiedKFold` | Assigns observations to discrete global grid system (DGGS) cells and stratifies each cell across folds (Ploton et al., 2020) |
+| `LeaveCellOut` | Leave-one-DGGS-cell-out: holds out one grid cell per fold as the test region (Roberts et al., 2017) |
 | `LocalBootstrap` | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
 | `LocalPermutation` | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
 
@@ -224,7 +227,10 @@ Runnable notebooks are in [`examples/`](examples/):
 | `hilbert_kfold.ipynb` | Fold assignment along the Hilbert curve; comparison with random KFold |
 | `ball_kfold.ipynb` | Spatially exclusive folds; the exclusion guarantee; `radius=` vs `n_splits=` modes |
 | `leave_ball_out.ipynb` | Buffered leave-one-out CV; exclusion buffer visualised; RMSE vs standard LOO |
-| `cluster_stratified_kfold.ipynb` | HDBSCAN clusters on King County sales; noise-handling policies |
+| `cluster_stratified_kfold.ipynb` | HDBSCAN clusters on King County sales; noise-handling policies including `nearest` |
+| `leave_cluster_out.ipynb` | Leave-one-cluster-out; comparison of `train_only`, `drop`, and `nearest` noise handling |
+| `cell_stratified_kfold.ipynb` | DGGS-stratified folds using H3; fold coverage vs random KFold |
+| `leave_cell_out.ipynb` | Leave-one-DGGS-cell-out; `min_test_size` and auto-resolution |
 | `local_bootstrap.ipynb` | Locally-weighted resampling; bandwidth selection |
 | `local_permutation.ipynb` | Constrained derangement; comparison with unconstrained permutation |
 | `range_finding.ipynb` | `correlogram_range` and `knn_range` for auto bandwidth selection |
