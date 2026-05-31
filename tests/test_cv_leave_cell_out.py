@@ -96,7 +96,7 @@ def test_min_test_size_1_includes_singleton(points_with_singleton):
 
 def test_auto_resolution_finds_multiple_cells(spread_points):
     lco = LeaveCellOut(grid="h3", resolution=None)
-    splits = list(lco.split(spread_points))
+    list(lco.split(spread_points))
     assert hasattr(lco, "resolution_")
     assert lco.n_cells_ >= 2
 

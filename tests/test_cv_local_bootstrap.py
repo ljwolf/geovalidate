@@ -175,7 +175,9 @@ def test_sparse_samples_locally(line_gdf):
         nbrs = [j for j in (i - 1, i, i + 1) if 0 <= j < n]
         w = 1.0 / len(nbrs)
         for j in nbrs:
-            rows.append(i); cols.append(j); data.append(w)
+            rows.append(i)
+            cols.append(j)
+            data.append(w)
     W_csr = sp.csr_matrix((data, (rows, cols)), shape=(n, n))
 
     class _MockGraph:

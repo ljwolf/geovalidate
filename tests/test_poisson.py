@@ -65,7 +65,8 @@ def test_callable_zero_intensity_returns_empty(square):
 
 def test_callable_n_expected(square):
     """n_expected pins the expected count regardless of the raw intensity."""
-    fn = lambda x, y: numpy.ones_like(x, dtype=float)
+    def fn(x, y):
+        return numpy.ones_like(x, dtype=float)
     counts = [
         len(PoissonSampler(n_expected=50, random_state=s).sample(square, fn))
         for s in range(30)
@@ -74,7 +75,8 @@ def test_callable_n_expected(square):
 
 
 def test_callable_reproducible(square):
-    fn = lambda x, y: numpy.ones_like(x, dtype=float)
+    def fn(x, y):
+        return numpy.ones_like(x, dtype=float)
     pts1 = PoissonSampler(random_state=5).sample(square, fn)
     pts2 = PoissonSampler(random_state=5).sample(square, fn)
     assert list(pts1.geometry.x) == list(pts2.geometry.x)
