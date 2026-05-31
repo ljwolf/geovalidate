@@ -21,7 +21,7 @@
     
     
       
-        <title>DGGridStratifiedKFold - geovalidate</title>
+        <title>CellStratifiedKFold - geovalidate</title>
       
     
     
@@ -107,7 +107,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              DGGridStratifiedKFold
+              CellStratifiedKFold
             
           </span>
         </div>
@@ -517,7 +517,7 @@
   
   
   <span class="md-ellipsis">
-    <span>DGGrid<wbr>Stratified<wbr>KFold</span>
+    <span>Cell<wbr>Stratified<wbr>KFold</span>
     
   </span>
   
@@ -530,7 +530,7 @@
   
   
   <span class="md-ellipsis">
-    <span>DGGrid<wbr>Stratified<wbr>KFold</span>
+    <span>Cell<wbr>Stratified<wbr>KFold</span>
     
   </span>
   
@@ -942,15 +942,15 @@
 
 
   
-    <a href="https://github.com/ljwolf/geovalidate/blob/main/docs/source/examples/dggrid_stratified_kfold.ipynb" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/ljwolf/geovalidate/blob/main/docs/source/examples/cell_stratified_kfold.ipynb" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
   
   
 
-<h1 id="dggridstratifiedkfold"><code class="docutils literal notranslate"><span class="pre">DGGridStratifiedKFold</span></code><a class="headerlink" href="#dggridstratifiedkfold" title="Link to this heading">¶</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">DGGridStratifiedKFold</span></code> partitions observations into k folds so that every
+<h1 id="cellstratifiedkfold"><code class="docutils literal notranslate"><span class="pre">CellStratifiedKFold</span></code><a class="headerlink" href="#cellstratifiedkfold" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">CellStratifiedKFold</span></code> partitions observations into k folds so that every
 fold receives a <strong>proportionally representative mix</strong> of observations from
 across the study area.</p>
 <p>Each observation is assigned to a <strong>Discrete Global Grid System (DGGS)</strong> tile
@@ -976,7 +976,7 @@ coarse regional structure without over-fragmenting small datasets.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">root_mean_squared_error</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">geovalidate</span><span class="w"> </span><span class="kn">import</span> <span class="n">DGGridStratifiedKFold</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geovalidate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CellStratifiedKFold</span>
 </code></pre></div>
 </div>
 </div>
@@ -1001,11 +1001,11 @@ resolution because it is the coarsest level with at least 5 occupied tiles.</p>
 <span class="c1"># shuffle=True randomises within-cell fold assignment; without it, observations</span>
 <span class="c1"># are assigned in row order, which can produce geographic clustering if the</span>
 <span class="c1"># dataset has a spatial sort (common in GeoDataFrames).</span>
-<span class="n">dggcv</span> <span class="o">=</span> <span class="n">DGGridStratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">N_SPLITS</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="s1">&#39;h3&#39;</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">splits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dggcv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">chicago</span><span class="p">))</span>
+<span class="n">cellcv</span> <span class="o">=</span> <span class="n">CellStratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">N_SPLITS</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="s1">&#39;h3&#39;</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">splits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cellcv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">chicago</span><span class="p">))</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Auto-detected H3 resolution: </span><span class="si">{</span><span class="n">dggcv</span><span class="o">.</span><span class="n">resolution_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unique tiles occupied: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dggcv</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Auto-detected H3 resolution: </span><span class="si">{</span><span class="n">cellcv</span><span class="o">.</span><span class="n">resolution_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unique tiles occupied: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cellcv</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Fold sizes: </span><span class="si">{</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">splits</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1017,7 +1017,7 @@ Unique tiles occupied: 8
 Fold sizes: [16, 16, 15, 15, 15]
 </code></pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>/Users/lw17329/Dropbox/work/dev/geovalidate/src/geovalidate/cv/_dggrid_stratified_kfold.py:28: UserWarning: Geometry is in a geographic CRS. Results from &#39;centroid&#39; are likely incorrect. Use &#39;GeoSeries.to_crs()&#39; to re-project geometries to a projected CRS before this operation.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>/Users/lw17329/Dropbox/work/dev/geovalidate/src/geovalidate/cv/_cell_stratified_kfold.py:28: UserWarning: Geometry is in a geographic CRS. Results from &#39;centroid&#39; are likely incorrect. Use &#39;GeoSeries.to_crs()&#39; to re-project geometries to a projected CRS before this operation.
 
   pts = geom.centroid
 /Users/lw17329/miniforge/envs/geovalidate/lib/python3.11/site-packages/sklearn/model_selection/_split.py:813: UserWarning: The least populated class in y has only 3 members, which is less than n_splits=5.
@@ -1033,7 +1033,7 @@ resulting 5-fold assignment: each fold receives observations from multiple tiles
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="c1"># Build H3 hex polygons for the occupied tiles</span>
-<span class="n">unique_cells</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dggcv</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">))</span>
+<span class="n">unique_cells</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cellcv</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">))</span>
 <span class="n">hex_polys</span><span class="p">,</span> <span class="n">hex_ids</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">unique_cells</span><span class="p">:</span>
     <span class="n">bnd</span> <span class="o">=</span> <span class="n">h3</span><span class="o">.</span><span class="n">cell_to_boundary</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>           <span class="c1"># list of (lat, lon)</span>
@@ -1045,7 +1045,7 @@ resulting 5-fold assignment: each fold receives observations from multiple tiles
 
 <span class="c1"># Map cell IDs to integers for colouring</span>
 <span class="n">cell_to_int</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_cells</span><span class="p">)}</span>
-<span class="n">chicago</span><span class="p">[</span><span class="s1">&#39;tile_int&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cell_to_int</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">dggcv</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">]</span>
+<span class="n">chicago</span><span class="p">[</span><span class="s1">&#39;tile_int&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cell_to_int</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cellcv</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">]</span>
 
 <span class="c1"># Fold labels</span>
 <span class="n">fold_labels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chicago</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -1070,7 +1070,7 @@ resulting 5-fold assignment: each fold receives observations from multiple tiles
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tiles</span><span class="p">)</span>
 <span class="p">]</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">tile_patches</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;H3 tile&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;H3 tile assignment (resolution </span><span class="si">{</span><span class="n">dggcv</span><span class="o">.</span><span class="n">resolution_</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;H3 tile assignment (resolution </span><span class="si">{</span><span class="n">cellcv</span><span class="o">.</span><span class="n">resolution_</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span>
              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">n_tiles</span><span class="si">}</span><span class="s1"> tiles, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">chicago</span><span class="p">)</span><span class="si">}</span><span class="s1"> community areas&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 
@@ -1086,7 +1086,7 @@ resulting 5-fold assignment: each fold receives observations from multiple tiles
              <span class="sa">f</span><span class="s1">&#39;fold sizes: </span><span class="si">{</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">splits</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;DGGridStratifiedKFold — Chicago community areas (H3)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;CellStratifiedKFold — Chicago community areas (H3)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
@@ -1119,7 +1119,7 @@ shows the 5 test folds individually; each fold covers most tiles.</p>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test fold </span><span class="si">{</span><span class="n">fi</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="se">\n</span><span class="s1">(n=</span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">chicago</span><span class="o">.</span><span class="n">fold</span><span class="o">==</span><span class="n">fi</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;DGGridStratifiedKFold — test fold coverage</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;CellStratifiedKFold — test fold coverage</span><span class="se">\n</span><span class="s1">&#39;</span>
              <span class="s1">&#39;(each fold samples proportionally from all H3 tiles)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1132,7 +1132,7 @@ shows the 5 test folds individually; each fold covers most tiles.</p>
 </div>
 <h2 id="large-example-king-county-house-sales-600-points">Large example — King County house sales (600 points)<a class="headerlink" href="#large-example-king-county-house-sales-600-points" title="Link to this heading">¶</a></h2>
 <p>With a larger, irregular point dataset the geographic balance benefit of
-<code class="docutils literal notranslate"><span class="pre">DGGridStratifiedKFold</span></code> becomes clearer.  We compare it against a plain
+<code class="docutils literal notranslate"><span class="pre">CellStratifiedKFold</span></code> becomes clearer.  We compare it against a plain
 <code class="docutils literal notranslate"><span class="pre">KFold</span></code> (no spatial structure) on three metrics:</p>
 <ol class="arabic simple">
 <li><p><strong>Fold map</strong> — where each fold’s test points fall</p></li>
@@ -1172,10 +1172,10 @@ lower fold-to-fold variance = more reliable CV estimates</p></li>
 <span class="n">X5</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">feat_cols</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
 <span class="n">coords5</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
 
-<span class="n">dggcv5</span> <span class="o">=</span> <span class="n">DGGridStratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">N_SPLITS5</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="s1">&#39;h3&#39;</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cellcv5</span> <span class="o">=</span> <span class="n">CellStratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">N_SPLITS5</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="s1">&#39;h3&#39;</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">rkf5</span>   <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">N_SPLITS5</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">dgg_splits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dggcv5</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">gdf</span><span class="p">))</span>
+<span class="n">dgg_splits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cellcv5</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">gdf</span><span class="p">))</span>
 <span class="n">rnd_splits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rkf5</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X5</span><span class="p">))</span>
 
 <span class="c1"># Fold labels for map</span>
@@ -1188,7 +1188,7 @@ lower fold-to-fold variance = more reliable CV estimates</p></li>
 <span class="n">gdf</span><span class="p">[</span><span class="s1">&#39;dgg_fold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dgg_labels</span>
 <span class="n">gdf</span><span class="p">[</span><span class="s1">&#39;rnd_fold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rnd_labels</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;H3 resolution: </span><span class="si">{</span><span class="n">dggcv5</span><span class="o">.</span><span class="n">resolution_</span><span class="si">}</span><span class="s1">, tiles: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dggcv5</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;H3 resolution: </span><span class="si">{</span><span class="n">cellcv5</span><span class="o">.</span><span class="n">resolution_</span><span class="si">}</span><span class="s1">, tiles: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cellcv5</span><span class="o">.</span><span class="n">cell_ids_</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DGGrid fold sizes: </span><span class="si">{</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">dgg_splits</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Random fold sizes: </span><span class="si">{</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">rnd_splits</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </code></pre></div>
@@ -1200,7 +1200,7 @@ DGGrid fold sizes: [120, 120, 120, 120, 120]
 Random fold sizes: [120, 120, 120, 120, 120]
 </code></pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>/Users/lw17329/Dropbox/work/dev/geovalidate/src/geovalidate/cv/_dggrid_stratified_kfold.py:28: UserWarning: Geometry is in a geographic CRS. Results from &#39;centroid&#39; are likely incorrect. Use &#39;GeoSeries.to_crs()&#39; to re-project geometries to a projected CRS before this operation.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>/Users/lw17329/Dropbox/work/dev/geovalidate/src/geovalidate/cv/_cell_stratified_kfold.py:28: UserWarning: Geometry is in a geographic CRS. Results from &#39;centroid&#39; are likely incorrect. Use &#39;GeoSeries.to_crs()&#39; to re-project geometries to a projected CRS before this operation.
 
   pts = geom.centroid
 /Users/lw17329/miniforge/envs/geovalidate/lib/python3.11/site-packages/sklearn/model_selection/_split.py:813: UserWarning: The least populated class in y has only 1 members, which is less than n_splits=5.
@@ -1259,7 +1259,7 @@ Random mean RMSE: 0.3659  std: 0.0268
          <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
          <span class="n">legend_kwds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Fold&#39;</span><span class="p">,</span> <span class="s1">&#39;markerscale&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;fontsize&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
          <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;DGGridStratifiedKFold -- 5 folds</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;CellStratifiedKFold -- 5 folds</span><span class="se">\n</span><span class="s1">&#39;</span>
                   <span class="s1">&#39;(H3 tile-proportional sampling)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Easting (m)&#39;</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Northing (m)&#39;</span><span class="p">)</span>
@@ -1293,7 +1293,7 @@ Random mean RMSE: 0.3659  std: 0.0268
               <span class="s1">&#39;(lower variance = more stable CV estimate)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">);</span> <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">);</span> <span class="n">ax3</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;DGGridStratifiedKFold vs Random KFold -- King County house sales&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;CellStratifiedKFold vs Random KFold -- King County house sales&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>

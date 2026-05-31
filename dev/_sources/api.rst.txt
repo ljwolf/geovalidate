@@ -23,7 +23,7 @@ Cross-validators
    geovalidate.BallKFold
    geovalidate.LeaveBallOut
    geovalidate.ClusterStratifiedKFold
-   geovalidate.DGGridStratifiedKFold
+   geovalidate.CellStratifiedKFold
    geovalidate.LocalBootstrap
    geovalidate.LocalPermutation
 
