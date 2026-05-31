@@ -188,15 +188,15 @@ All cross-validators follow the sklearn splitter protocol (`split(X)` yields
 
 | Class | What it does |
 |---|---|
-| [`CellStratifiedKFold`](examples/cell_stratified_kfold.ipynb) | Assigns observations to discrete global grid system (DGGS) cells and stratifies each cell across folds (Ploton et al., 2020) |
-| [`ClusterStratifiedKFold`](examples/cluster_stratified_kfold.ipynb) | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
-| [`HilbertKFold`](examples/hilbert_kfold.ipynb) | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area (Lister & Scott, 2009) |
-| [`BallKFold`](examples/ball_kfold.ipynb) | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
-| [`LeaveBallOut`](examples/leave_ball_out.ipynb) | Leave-one-out with an exclusion buffer: training points within radius *r* of the test point are dropped (Ploton et al., 2020) |
-| [`LeaveCellOut`](examples/leave_cell_out.ipynb) | Leave-one-DGGS-cell-out: holds out one grid cell per fold as the test region (Roberts et al., 2017) |
-| [`LeaveClusterOut`](examples/leave_cluster_out.ipynb) | Leave-one-cluster-out: holds out one spatial cluster per fold as the test region (Roberts et al., 2017) |
-| [`LocalBootstrap`](examples/local_bootstrap.ipynb) | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
-| [`LocalPermutation`](examples/local_permutation.ipynb) | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
+| [`CellStratifiedKFold`](https://ljwolf.org/geovalidate/dev/examples/cell_stratified_kfold.html) | Assigns observations to discrete global grid system (DGGS) cells and stratifies each cell across folds (Ploton et al., 2020) |
+| [`ClusterStratifiedKFold`](https://ljwolf.org/geovalidate/dev/examples/cluster_stratified_kfold.html) | Fits a user-supplied clusterer (HDBSCAN, KMeans, …) and stratifies each cluster across folds (Ploton et al., 2020) |
+| [`HilbertKFold`](https://ljwolf.org/geovalidate/dev/examples/hilbert_kfold.html) | Interleaves points along a Hilbert space-filling curve so every fold covers the whole study area (Lister & Scott, 2009) |
+| [`BallKFold`](https://ljwolf.org/geovalidate/dev/examples/ball_kfold.html) | Conflict-graph colouring: no two test points in the same fold are within radius *r* of each other (Ploton et al., 2020) |
+| [`LeaveBallOut`](https://ljwolf.org/geovalidate/dev/examples/leave_ball_out.html) | Leave-one-out with an exclusion buffer: training points within radius *r* of the test point are dropped (Ploton et al., 2020) |
+| [`LeaveCellOut`](https://ljwolf.org/geovalidate/dev/examples/leave_cell_out.html) | Leave-one-DGGS-cell-out: holds out one grid cell per fold as the test region (Roberts et al., 2017) |
+| [`LeaveClusterOut`](https://ljwolf.org/geovalidate/dev/examples/leave_cluster_out.html) | Leave-one-cluster-out: holds out one spatial cluster per fold as the test region (Roberts et al., 2017) |
+| [`LocalBootstrap`](https://ljwolf.org/geovalidate/dev/examples/local_bootstrap.html) | Locally-weighted bootstrap with replacement; bandwidth or *k*-NN neighbourhood (Statham, 2024) |
+| [`LocalPermutation`](https://ljwolf.org/geovalidate/dev/examples/local_permutation.html) | Locally-constrained derangement (permutation without replacement) (Kim et al., 2022) |
 
 `correlogram_range` and `knn_range` auto-detect a sensible bandwidth / *k* from
 the empirical spatial autocorrelation of the response variable.
