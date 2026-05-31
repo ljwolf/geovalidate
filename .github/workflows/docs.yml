@@ -66,6 +66,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build/html/
+          destination_dir: geovalidate
           keep_files: false
 
       - name: Publish to Github Pages (versioned)
