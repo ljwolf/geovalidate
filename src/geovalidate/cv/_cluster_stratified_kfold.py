@@ -48,6 +48,7 @@ class ClusterStratifiedKFold(BaseEstimator):
         first ``len(cluster)`` folds.
     noise : {'stratify', 'drop', 'train_only', 'nearest'}, default 'stratify'
         How to handle noise points (those whose label equals *noise_label*).
+
         - 'stratify'  : distribute noise across folds like a normal cluster.
         - 'drop'      : exclude noise points from both train and test.
         - 'train_only': noise points appear in every train set, never test.

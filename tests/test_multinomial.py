@@ -1,5 +1,4 @@
 import pytest
-import numpy
 import geopandas
 from shapely.geometry import box, LineString
 

@@ -1,5 +1,4 @@
 import geopandas
-import shapely
 from sklearn.utils import check_random_state
 
 from ._base import BasePointSampler

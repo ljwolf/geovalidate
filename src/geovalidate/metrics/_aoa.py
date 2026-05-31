@@ -55,6 +55,7 @@ def area_of_applicability(
         DI is its distance to its nearest OTHER training point.
     feature_weights : {'permutation', 'uniform'} or (n_features,) array
         How to weight features when computing distances.
+
         - 'permutation' : sklearn permutation importance, normalised to
           sum to 1.  Negative importances are clipped to zero.
         - 'uniform' / False / None : all features weighted equally.
@@ -65,6 +66,7 @@ def area_of_applicability(
     threshold : {'tukey', 'mad'} or float in (0, 1)
         Rule for converting the training-DI distribution into a single
         cut-off.
+
         - 'tukey' : 75th percentile + 1.5 * IQR.
         - 'mad'   : median + 3 * median absolute deviation.
         - float p : the p-quantile of the training DIs.

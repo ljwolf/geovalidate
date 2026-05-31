@@ -2,8 +2,7 @@
 
 import numpy
 import pytest
-import geopandas
-from shapely.geometry import box, LineString
+from shapely.geometry import LineString
 
 from geovalidate import (
     PointSampler,

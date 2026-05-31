@@ -72,7 +72,6 @@ def test_geodataframe_input(class_gdf):
 
 
 def test_weights_as_numpy_array(class_gdf):
-    import numpy
     pts = StratifiedClassSampler(n_samples=100, random_state=0).sample(
         class_gdf.geometry,
         class_gdf["class"].to_numpy(),

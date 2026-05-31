@@ -4,7 +4,6 @@ from contextlib import contextmanager
 
 import numpy
 import shapely
-import geopandas
 
 
 # ---------------------------------------------------------------------------

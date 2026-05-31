@@ -19,7 +19,6 @@ _RES_RANGES = {
 def _to_lonlat(X):
     """Return (n, 2) float64 array of [longitude, latitude] in WGS84 degrees."""
     import geopandas
-    from geopandas.array import GeometryArray
 
     if isinstance(X, (geopandas.GeoDataFrame, geopandas.GeoSeries)):
         geom = X.geometry if isinstance(X, geopandas.GeoDataFrame) else X

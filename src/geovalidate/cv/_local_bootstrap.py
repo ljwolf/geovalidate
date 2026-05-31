@@ -194,12 +194,13 @@ class LocalBootstrap(BaseEstimator):
         X : GeoDataFrame | GeoSeries | (n, 2) ndarray | (n,) or (n, 1) ndarray
             Target locations at which to draw samples.  Pass a 1-D array of
             time indices for time-series data.
-        donor : same types as X, or None
-            Donor pool from which observations are drawn.  When None (default)
-            observations are drawn from X itself (standard bootstrap).
+        donor : GeoDataFrame, GeoSeries, ndarray, or None
+            Donor pool from which observations are drawn (same types as ``X``).
+            When None (default), observations are drawn from ``X`` itself
+            (standard bootstrap).
 
             When provided, the weight matrix is (|X|, |donor|): row i weights
-            every donor observation by its kernel distance from X_i, so each
+            every donor observation by its kernel distance from ``X[i]``, so each
             new location draws locally from the donor pool.
 
             If both X and donor are GeoDataFrames, each yielded value is a

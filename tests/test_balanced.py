@@ -28,7 +28,6 @@ def test_geodataframe_input(class_gdf):
 
 
 def test_labels_as_numpy_array(class_gdf):
-    import numpy
     labels = class_gdf["class"].to_numpy()
     pts = ConstantClassSampler(n_per_class=15).sample(class_gdf.geometry, labels)
     assert set(pts["class_label"]) == {"A", "B"}

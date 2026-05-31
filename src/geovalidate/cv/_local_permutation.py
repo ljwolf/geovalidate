@@ -8,7 +8,6 @@ References
 """
 
 import numpy
-import geopandas
 from sklearn.base import BaseEstimator
 from sklearn.utils import check_random_state
 from scipy.sparse import csr_matrix

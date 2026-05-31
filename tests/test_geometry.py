@@ -1,7 +1,5 @@
 import pytest
 import geopandas
-import shapely
-from shapely.geometry import box
 
 from geovalidate import PointSampler
 
@@ -93,7 +91,6 @@ def test_multilinestring_uniform_arc_length():
 
 def test_diagonal_linestring():
     from shapely.geometry import LineString
-    import math
     line = LineString([(0, 0), (3, 4)])  # length = 5
     pts = PointSampler(n_samples=100, random_state=1).sample(line)
     assert len(pts) == 100
