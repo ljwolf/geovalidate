@@ -218,6 +218,43 @@ def test_noise_train_only_keeps_noise_out_of_test(clusters_with_noise):
         assert noise_idx.issubset(set(tr.tolist()))
 
 
+def test_noise_nearest_no_noise_in_labels(clusters_with_noise):
+    """noise='nearest': labels_ still records original -1 noise labels."""
+    gdf, _ = clusters_with_noise
+    ckf = ClusterStratifiedKFold(
+        HDBSCAN(min_cluster_size=5), n_splits=4,
+        noise="nearest", random_state=0,
+    )
+    list(ckf.split(gdf))
+    assert (ckf.labels_ == -1).any()
+
+
+def test_noise_nearest_all_indices_covered(clusters_with_noise):
+    """noise='nearest': every index (including original noise) appears in train or test."""
+    gdf, _ = clusters_with_noise
+    n = len(gdf)
+    ckf = ClusterStratifiedKFold(
+        HDBSCAN(min_cluster_size=5), n_splits=4,
+        noise="nearest", random_state=0,
+    )
+    seen = set()
+    for tr, te in ckf.split(gdf):
+        seen.update(tr.tolist())
+        seen.update(te.tolist())
+    assert seen == set(range(n))
+
+
+def test_noise_nearest_no_train_test_overlap(clusters_with_noise):
+    """noise='nearest': train and test are disjoint on every fold."""
+    gdf, _ = clusters_with_noise
+    ckf = ClusterStratifiedKFold(
+        HDBSCAN(min_cluster_size=5), n_splits=4,
+        noise="nearest", random_state=0,
+    )
+    for tr, te in ckf.split(gdf):
+        assert len(set(tr.tolist()) & set(te.tolist())) == 0
+
+
 def test_invalid_noise_mode_raises(three_clusters):
     gdf, _ = three_clusters
     with pytest.raises(ValueError, match="noise="):

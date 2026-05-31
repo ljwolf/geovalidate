@@ -12,7 +12,7 @@ import numpy
 from sklearn.base import BaseEstimator, clone
 from sklearn.utils import check_random_state
 
-from ._utils import _get_coords
+from ._utils import _assign_noise_to_nearest, _get_coords
 
 
 # Sentinel values stored in the fold_id array.
@@ -46,11 +46,14 @@ class ClusterStratifiedKFold(BaseEstimator):
         Number of folds.  Each cluster's members are split into this many
         parts; clusters smaller than *n_splits* contribute to only the
         first ``len(cluster)`` folds.
-    noise : {'stratify', 'drop', 'train_only'}, default 'stratify'
+    noise : {'stratify', 'drop', 'train_only', 'nearest'}, default 'stratify'
         How to handle noise points (those whose label equals *noise_label*).
         - 'stratify'  : distribute noise across folds like a normal cluster.
         - 'drop'      : exclude noise points from both train and test.
         - 'train_only': noise points appear in every train set, never test.
+        - 'nearest'   : each noise point is reassigned to the cluster of its
+          nearest non-noise point and then participates in that cluster's
+          fold-assignment pool as a regular member.
     noise_label : int, default -1
         Cluster label used by density-based clusterers (HDBSCAN, OPTICS)
         to mark noise points.
@@ -75,7 +78,7 @@ class ClusterStratifiedKFold(BaseEstimator):
     ...     score = model.score(X[test_idx], y[test_idx])
     """
 
-    _VALID_NOISE = ("stratify", "drop", "train_only")
+    _VALID_NOISE = ("stratify", "drop", "train_only", "nearest")
 
     def __init__(
         self,
@@ -131,6 +134,9 @@ class ClusterStratifiedKFold(BaseEstimator):
 
         self.labels_ = labels
         self.n_clusters_ = len(numpy.unique(labels))
+
+        if self.noise == "nearest":
+            labels = _assign_noise_to_nearest(coords, labels, self.noise_label, clusterer=self.clusterer_)
 
         # Assign each observation a fold id.  Within each cluster, shuffle
         # the members and deal them out round-robin to folds.  Noise points
