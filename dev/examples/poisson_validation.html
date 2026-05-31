@@ -1,0 +1,1416 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>PoissonSampler vs. spatstat — live comparison - geovalidate</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.74c816e3f9967dd6e.min.css?v=6cfe2491" />
+        <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+        <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+        <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6bbb80b6" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="geovalidate" class="md-header__button md-logo" aria-label="geovalidate" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            geovalidate
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PoissonSampler vs. spatstat — live comparison
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ljwolf/geovalidate/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ljwolf/geovalidate
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="geovalidate" class="md-nav__button md-logo" aria-label="geovalidate" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    geovalidate
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ljwolf/geovalidate/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ljwolf/geovalidate
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Getting started</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Getting started</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Installation</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Examples</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Examples</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="poissonsampler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Poisson<wbr>Sampler</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="hilbert_kfold.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hilbert<wbr>KFold</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ball_kfold.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball<wbr>KFold</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="leave_ball_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Ball<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cluster_stratified_kfold.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cluster<wbr>Stratified<wbr>KFold:<wbr> cluster-<wbr>stratified spatial CV</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="leave_cluster_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Cluster<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cell_stratified_kfold.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cell<wbr>Stratified<wbr>KFold</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="leave_cell_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Cell<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="local_bootstrap.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Local<wbr>Bootstrap</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="local_permutation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Local<wbr>Permutation</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="range_finding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Automatic bandwidth selection with correlogram_<wbr>range and knn_<wbr>range</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gearygram.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>gearygram — spatial autocorrelation as a function of distance</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>API reference</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>API reference</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>API Reference</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>References</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>References</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>References</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+  
+    <a href="https://github.com/ljwolf/geovalidate/blob/main/docs/source/examples/poisson_validation.ipynb" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+<h1 id="poissonsampler-vs-spatstat-live-comparison"><code class="docutils literal notranslate"><span class="pre">PoissonSampler</span></code> vs. spatstat — live comparison<a class="headerlink" href="#poissonsampler-vs-spatstat-live-comparison" title="Link to this heading">¶</a></h1>
+<p>This notebook runs <strong>identical simulations</strong> in both Python (<code class="docutils literal notranslate"><span class="pre">PoissonSampler</span></code>)
+and R (<code class="docutils literal notranslate"><span class="pre">spatstat::rpoispp</span></code>) via <strong>rpy2</strong>, then directly compares the results.</p>
+<p>The two implementations are statistically equivalent when a two-sample
+Kolmogorov-Smirnov test between their count distributions cannot reject
+the null hypothesis that they come from the same distribution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geovalidate</span><span class="w"> </span><span class="kn">import</span> <span class="n">PoissonSampler</span>
+
+<span class="n">W</span>   <span class="o">=</span> <span class="n">box</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">N_SIMS</span> <span class="o">=</span> <span class="mi">500</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="setup-load-spatstat-via-rpy2">Setup: load spatstat via rpy2<a class="headerlink" href="#setup-load-spatstat-via-rpy2" title="Link to this heading">¶</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">rpy2.robjects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ro</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rpy2.rinterface_lib.callbacks</span>
+
+<span class="c1"># Silence R&#39;s startup banners</span>
+<span class="n">rpy2</span><span class="o">.</span><span class="n">rinterface_lib</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">consolewrite_warnerror</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">None</span>
+
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;suppressMessages(library(spatstat))&quot;</span><span class="p">)</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;W_r &lt;- owin(c(0,10), c(0,10))&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;spatstat&quot;</span><span class="p">,</span> <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;as.character(packageVersion(&quot;spatstat&quot;))&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;loaded&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>spatstat 3.6.0 loaded
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="uniform-intensity-1-100">1  Uniform intensity  (λ = 1,  Λ = 100)<a class="headerlink" href="#uniform-intensity-1-100" title="Link to this heading">¶</a></h2>
+<p>Run 500 realisations in both Python and R, then compare:</p>
+<ul class="simple">
+<li><p>Do both have E[N] ≈ 100 and Var[N] ≈ 100?</p></li>
+<li><p>Does a two-sample KS test fail to distinguish the two count distributions?</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="c1"># ── Python ────────────────────────────────────────────────────────────────────</span>
+<span class="n">fn_uniform</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="n">py_uniform</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="nb">len</span><span class="p">(</span><span class="n">PoissonSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">fn_uniform</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_SIMS</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># ── R / spatstat ──────────────────────────────────────────────────────────────</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;set.seed(42)&quot;</span><span class="p">)</span>
+<span class="n">r_uniform</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;replicate(500, npoints(rpoispp(lambda=1, win=W_r)))&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># ── Compare ───────────────────────────────────────────────────────────────────</span>
+<span class="n">ks_stat</span><span class="p">,</span> <span class="n">ks_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">py_uniform</span><span class="p">,</span> <span class="n">r_uniform</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">&#39;Python&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">&#39;R (spatstat)&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;E[N]&#39;</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">py_uniform</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">10.2f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">r_uniform</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">14.2f</span><span class="si">}</span><span class="s2">  (theory: 100)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Var[N]&#39;</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">py_uniform</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="si">:</span><span class="s2">10.2f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">r_uniform</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="si">:</span><span class="s2">14.2f</span><span class="si">}</span><span class="s2">  (theory: 100)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;2-sample KS  statistic=</span><span class="si">{</span><span class="n">ks_stat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  p=</span><span class="si">{</span><span class="n">ks_p</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot distinguish Python from R:&quot;</span><span class="p">,</span> <span class="s2">&quot;YES&quot;</span> <span class="k">if</span> <span class="n">ks_p</span> <span class="o">&gt;</span> <span class="mf">0.05</span> <span class="k">else</span> <span class="s2">&quot;NO&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>                          Python    R (spatstat)
+E[N]                      100.72           99.96  (theory: 100)
+Var[N]                    107.26           98.09  (theory: 100)
+
+2-sample KS  statistic=0.0420  p=0.7704
+Cannot distinguish Python from R: YES
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">py_uniform</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">r_uniform</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">max</span><span class="p">(</span><span class="n">py_uniform</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">r_uniform</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">bins_e</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lo</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">hi</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="n">axes</span><span class="p">,</span>
+    <span class="p">[(</span><span class="n">py_uniform</span><span class="p">,</span> <span class="s2">&quot;Python (PoissonSampler)&quot;</span><span class="p">,</span> <span class="s2">&quot;#4878cf&quot;</span><span class="p">),</span>
+     <span class="p">(</span><span class="n">r_uniform</span><span class="p">,</span>  <span class="s2">&quot;R (spatstat::rpoispp)&quot;</span><span class="p">,</span>   <span class="s2">&quot;#d65f5f&quot;</span><span class="p">)],</span>
+<span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins_e</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="s2">&quot;k-&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Poisson(100)&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uniform λ=1 — 2-sample KS p = </span><span class="si">{</span><span class="n">ks_p</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/9de7d9bb8389dd26db7dca968b5db8d9fbf6a694f7be5b47be14e63e1e9e12be.png" src="../_images/9de7d9bb8389dd26db7dca968b5db8d9fbf6a694f7be5b47be14e63e1e9e12be.png" />
+</div>
+</div>
+<h2 id="gradient-intensity-x-y-x-50-10">2  Gradient intensity  (λ(x,y) = x/50,  Λ = 10)<a class="headerlink" href="#gradient-intensity-x-y-x-50-10" title="Link to this heading">¶</a></h2>
+<p>$$\Lambda = \int_0^{10}\int_0^{10} \frac{x}{50},dy,dx = 10 \quad\text{(analytic)}$$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="n">fn_gradient</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mf">50.0</span>
+
+<span class="n">py_grad</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="nb">len</span><span class="p">(</span><span class="n">PoissonSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">fn_gradient</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_SIMS</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;set.seed(42)&quot;</span><span class="p">)</span>
+<span class="n">r_grad</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;replicate(500, npoints(rpoispp(lambda=function(x,y) x/50, lmax=10/50, win=W_r)))&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">ks_stat</span><span class="p">,</span> <span class="n">ks_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">py_grad</span><span class="p">,</span> <span class="n">r_grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">&#39;Python&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="s1">&#39;R (spatstat)&#39;</span><span class="si">:</span><span class="s2">&gt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;E[N]&#39;</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">py_grad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">10.3f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">r_grad</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">14.3f</span><span class="si">}</span><span class="s2">  (theory: 10)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Var[N]&#39;</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">py_grad</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="si">:</span><span class="s2">10.3f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">r_grad</span><span class="o">.</span><span class="n">var</span><span class="p">()</span><span class="si">:</span><span class="s2">14.3f</span><span class="si">}</span><span class="s2">  (theory: 10)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;2-sample KS  statistic=</span><span class="si">{</span><span class="n">ks_stat</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  p=</span><span class="si">{</span><span class="n">ks_p</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot distinguish Python from R:&quot;</span><span class="p">,</span> <span class="s2">&quot;YES&quot;</span> <span class="k">if</span> <span class="n">ks_p</span> <span class="o">&gt;</span> <span class="mf">0.05</span> <span class="k">else</span> <span class="s2">&quot;NO&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>                          Python    R (spatstat)
+E[N]                      10.126          10.032  (theory: 10)
+Var[N]                    10.434           9.671  (theory: 10)
+
+2-sample KS  statistic=0.0420  p=0.7704
+Cannot distinguish Python from R: YES
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">lo</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">py_grad</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">r_grad</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="n">hi</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">py_grad</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">r_grad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">bins_e</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lo</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">hi</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="n">axes</span><span class="p">,</span>
+    <span class="p">[(</span><span class="n">py_grad</span><span class="p">,</span> <span class="s2">&quot;Python (PoissonSampler)&quot;</span><span class="p">,</span> <span class="s2">&quot;#4878cf&quot;</span><span class="p">),</span>
+     <span class="p">(</span><span class="n">r_grad</span><span class="p">,</span>  <span class="s2">&quot;R (spatstat::rpoispp)&quot;</span><span class="p">,</span>   <span class="s2">&quot;#d65f5f&quot;</span><span class="p">)],</span>
+<span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins_e</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s2">&quot;k-&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Poisson(10)&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gradient λ=x/50 — 2-sample KS p = </span><span class="si">{</span><span class="n">ks_p</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/748923d2471d3d4507274d0f34311cfaaf4a573b28781a0c5f1e24a5f4810c81.png" src="../_images/748923d2471d3d4507274d0f34311cfaaf4a573b28781a0c5f1e24a5f4810c81.png" />
+</div>
+</div>
+<h2 id="spatial-intensity-recovery-x-y-x-y-2-scaled-to-100">3  Spatial intensity recovery  (λ(x,y) = (x+y)²,  scaled to Λ = 100)<a class="headerlink" href="#spatial-intensity-recovery-x-y-x-y-2-scaled-to-100" title="Link to this heading">¶</a></h2>
+<p>$$\lambda(x,y) = (x+y)^2 \times \frac{3}{350}$$</p>
+<p>$$\Lambda = \int_0^{10}\int_0^{10}(x+y)^2,dy,dx
+= \frac{35000}{3}\quad\Rightarrow\quad
+\Lambda_{\rm scaled} = 100 \quad\text{(analytic)}$$</p>
+<p>This surface varies in <strong>both</strong> x and y — it is zero at the origin and
+peaks at $(10,10)$ — giving a clear diagonal ridge that is easy to verify
+visually.  The window is divided into a 10×10 grid; the expected count in
+cell $(i,j)$ is $\lambda(i+\tfrac{1}{2},,j+\tfrac{1}{2})\times 1\times R$.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="c1"># Λ_raw = 35000/3;  scale so that Λ_scaled = 100</span>
+<span class="n">_SCALE</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">350.0</span>          <span class="c1"># = 100 / (35000/3)</span>
+<span class="n">_LMAX</span>  <span class="o">=</span> <span class="mf">400.0</span> <span class="o">*</span> <span class="n">_SCALE</span>       <span class="c1"># max of (x+y)^2 * scale over [0,10]^2</span>
+
+<span class="n">fn_quad</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="o">*</span> <span class="n">_SCALE</span>
+<span class="p">)</span>
+
+<span class="c1"># ── Python ────────────────────────────────────────────────────────────────────</span>
+<span class="n">py_cells</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_SIMS</span><span class="p">):</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">PoissonSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">fn_quad</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="n">xi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+    <span class="n">yi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">):</span>
+        <span class="n">py_cells</span><span class="p">[</span><span class="n">cy</span><span class="p">,</span> <span class="n">cx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># ── R / spatstat ──────────────────────────────────────────────────────────────</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;set.seed(42)&quot;</span><span class="p">)</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">fn_quad_r &lt;- function(x, y) (x + y)^2 * </span><span class="si">{</span><span class="n">_SCALE</span><span class="si">}</span>
+<span class="s1">r_cells &lt;- matrix(0, 10, 10)</span>
+<span class="s1">for (i in 1:500) </span><span class="se">{{</span>
+<span class="s1">  pp &lt;- rpoispp(lambda=fn_quad_r, lmax=</span><span class="si">{</span><span class="n">_LMAX</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">, win=W_r)</span>
+<span class="s1">  if (pp$n &gt; 0) </span><span class="se">{{</span>
+<span class="s1">    xi &lt;- pmin(as.integer(floor(pp$x)), 9) + 1L</span>
+<span class="s1">    yi &lt;- pmin(as.integer(floor(pp$y)), 9) + 1L</span>
+<span class="s1">    for (k in seq_along(xi)) r_cells[yi[k], xi[k]] &lt;- r_cells[yi[k], xi[k]] + 1</span>
+<span class="s1">  </span><span class="se">}}</span>
+<span class="se">}}</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">r_cells</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;r_cells&quot;</span><span class="p">))</span>
+
+<span class="c1"># ── Theoretical ───────────────────────────────────────────────────────────────</span>
+<span class="n">xs</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+<span class="n">CX</span><span class="p">,</span> <span class="n">CY</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+<span class="n">expected</span> <span class="o">=</span> <span class="n">fn_quad</span><span class="p">(</span><span class="n">CX</span><span class="p">,</span> <span class="n">CY</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_SIMS</span>
+
+<span class="n">r_py</span>        <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">py_cells</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">r_cells</span><span class="o">.</span><span class="n">ravel</span><span class="p">())[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">r_py_theory</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">py_cells</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">expected</span><span class="o">.</span><span class="n">ravel</span><span class="p">())[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">r_r_theory</span>  <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">r_cells</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">expected</span><span class="o">.</span><span class="n">ravel</span><span class="p">())[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pearson r — Python vs R:       </span><span class="si">{</span><span class="n">r_py</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pearson r — Python vs theory:  </span><span class="si">{</span><span class="n">r_py_theory</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pearson r — R vs theory:       </span><span class="si">{</span><span class="n">r_r_theory</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>Pearson r — Python vs R:       0.9966
+Pearson r — Python vs theory:  0.9985
+Pearson r — R vs theory:       0.9980
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">py_cells</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">r_cells</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">expected</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="s2">&quot;Theoretical E[n_ij]&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">py_cells</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Python  (r=</span><span class="si">{</span><span class="n">r_py_theory</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">r_cells</span><span class="p">,</span>  <span class="sa">f</span><span class="s2">&quot;R spatstat  (r=</span><span class="si">{</span><span class="n">r_r_theory</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">),</span>
+<span class="p">]):</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+                   <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrRd&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;Spatial intensity recovery  $\lambda=(x+y)^2\times 3/350$&quot;</span>
+    <span class="s2">&quot; — Python vs R vs theory&quot;</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/9c4715bccf10f70efe6455b0cf474fb246284dd723343c808c6e0ee1fce39449.png" src="../_images/9c4715bccf10f70efe6455b0cf474fb246284dd723343c808c6e0ee1fce39449.png" />
+</div>
+</div>
+<h2 id="subregion-independence">4  Subregion independence<a class="headerlink" href="#subregion-independence" title="Link to this heading">¶</a></h2>
+<p>For an IPPP, counts in disjoint regions must be independent.
+We check that off-diagonal correlations are near zero in both implementations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+
+<span class="n">quadrants</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;NW&quot;</span><span class="p">:</span> <span class="n">box</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="s2">&quot;NE&quot;</span><span class="p">:</span> <span class="n">box</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+             <span class="s2">&quot;SW&quot;</span><span class="p">:</span> <span class="n">box</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>  <span class="s2">&quot;SE&quot;</span><span class="p">:</span> <span class="n">box</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">)}</span>
+
+<span class="c1"># ── Python ────────────────────────────────────────────────────────────────────</span>
+<span class="n">py_records</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_SIMS</span><span class="p">):</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">PoissonSampler</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">fn_uniform</span><span class="p">)</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">geometry</span>
+    <span class="n">py_records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">q</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">quad</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">quad</span> <span class="ow">in</span> <span class="n">quadrants</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="n">df_py</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">py_records</span><span class="p">)</span>
+
+<span class="c1"># ── R / spatstat ──────────────────────────────────────────────────────────────</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;set.seed(42)&quot;</span><span class="p">)</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">Q &lt;- list(NW=owin(c(0,5),c(5,10)), NE=owin(c(5,10),c(5,10)),</span>
+<span class="s1">          SW=owin(c(0,5),c(0,5)),  SE=owin(c(5,10),c(0,5)))</span>
+<span class="s1">counts_r_quad &lt;- replicate(500, {</span>
+<span class="s1">  pp &lt;- rpoispp(lambda=1, win=W_r)</span>
+<span class="s1">  sapply(Q, function(q) npoints(pp[q]))</span>
+<span class="s1">})</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;counts_r_quad&quot;</span><span class="p">))</span>   <span class="c1"># shape (4, 500)</span>
+<span class="n">df_r</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;NW&quot;</span><span class="p">,</span> <span class="s2">&quot;NE&quot;</span><span class="p">,</span> <span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;SE&quot;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max off-diagonal |r|:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span> <span class="n">df_py</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="n">df_r</span><span class="p">)]:</span>
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">6s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">corr</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  (should be ≈ 0)&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><code>Max off-diagonal |r|:
+  Python: 0.0422  (should be ≈ 0)
+  R     : 0.0219  (should be ≈ 0)
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[(</span><span class="n">df_py</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">df_r</span><span class="p">,</span> <span class="s2">&quot;R (spatstat)&quot;</span><span class="p">)]):</span>
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">corr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subregion correlation — </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/ab4210af15b54b4b5beb2fc0cea6036c2f5d0a087d2963978c66e16d828773ca.png" src="../_images/ab4210af15b54b4b5beb2fc0cea6036c2f5d0a087d2963978c66e16d828773ca.png" />
+</div>
+</div>
+<h2 id="paired-realisations-side-by-side">5  Paired realisations — side by side<a class="headerlink" href="#paired-realisations-side-by-side" title="Link to this heading">¶</a></h2>
+<p>Five runs with matched seeds (Python <code class="docutils literal notranslate"><span class="pre">random_state=s</span></code>, R <code class="docutils literal notranslate"><span class="pre">set.seed(s)</span></code>).
+The RNGs are independent so the point patterns differ, but each pair is a
+valid draw from the same IPPP.</p>
+<p>Intensity:
+$$\lambda(x,y) = 8\sin^2!\left(\frac{\pi x}{5}\right)
+\sin^2!\left(\frac{\pi y}{5}\right)$$</p>
+<p>$$\Lambda = \int_0^{10}\sin^2!\left(\tfrac{\pi x}{5}\right)dx
+\times\int_0^{10}\sin^2!\left(\tfrac{\pi y}{5}\right)dy
+= 5 \times 5 = 25
+\quad\Rightarrow\quad N_{{\rm exp}} = 8 \times 25 = 200$$</p>
+<p>This creates a <strong>2×2 grid of bright spots</strong> at
+$(2.5,,2.5)$, $(2.5,,7.5)$, $(7.5,,2.5)$, $(7.5,,7.5)$,
+with zero-intensity borders along $x, y \in {0, 5, 10}$.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="c1"># λ(x,y) = 8 sin²(πx/5) sin²(πy/5)</span>
+<span class="c1"># Λ = 8 * 5 * 5 = 200  (n_expected = 200 achieved with scale = 1)</span>
+<span class="n">_LMAX_WAVE</span> <span class="o">=</span> <span class="mf">8.0</span>  <span class="c1"># maximum of the unscaled function</span>
+
+<span class="n">fn_wave</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span>
+    <span class="mf">8.0</span>
+    <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;fn_wave_r &lt;- function(x,y) 8 * sin(pi*x/5)^2 * sin(pi*y/5)^2&quot;</span><span class="p">)</span>
+
+<span class="n">N_SEEDS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">_xs</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">_CX</span><span class="p">,</span> <span class="n">_CY</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">_xs</span><span class="p">,</span> <span class="n">_xs</span><span class="p">)</span>
+<span class="n">_bg</span> <span class="o">=</span> <span class="n">fn_wave</span><span class="p">(</span><span class="n">_CX</span><span class="p">,</span> <span class="n">_CY</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+    <span class="mi">2</span><span class="p">,</span>
+    <span class="n">N_SEEDS</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;hspace&quot;</span><span class="p">:</span> <span class="mf">0.08</span><span class="p">,</span> <span class="s2">&quot;wspace&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_SEEDS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
+
+    <span class="c1"># Python — Λ=200 so n_expected=200 means scale=1</span>
+    <span class="n">py_pts</span> <span class="o">=</span> <span class="n">PoissonSampler</span><span class="p">(</span>
+        <span class="n">n_expected</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">fn_wave</span><span class="p">)</span>
+    <span class="n">py_x</span> <span class="o">=</span> <span class="n">py_pts</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">py_y</span> <span class="o">=</span> <span class="n">py_pts</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># R</span>
+    <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;set.seed(</span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pp_pair &lt;- rpoispp(lambda=fn_wave_r, lmax=</span><span class="si">{</span><span class="n">_LMAX_WAVE</span><span class="si">}</span><span class="s2">, win=W_r)&quot;</span><span class="p">)</span>
+    <span class="n">r_x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;pp_pair$x&quot;</span><span class="p">))</span>
+    <span class="n">r_y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ro</span><span class="o">.</span><span class="n">r</span><span class="p">(</span><span class="s2">&quot;pp_pair$y&quot;</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="p">(</span><span class="n">xs_pts</span><span class="p">,</span> <span class="n">ys_pts</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="p">[(</span><span class="n">py_x</span><span class="p">,</span> <span class="n">py_y</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">py_x</span><span class="p">)),</span> <span class="p">(</span><span class="n">r_x</span><span class="p">,</span> <span class="n">r_y</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_x</span><span class="p">))]</span>
+    <span class="p">):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+            <span class="n">_bg</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrRd&quot;</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+            <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">xs_pts</span><span class="p">,</span>
+            <span class="n">ys_pts</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1f4e79&quot;</span><span class="p">,</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;seed </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2"> — N=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Python&quot;</span> <span class="k">if</span> <span class="n">row</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;R  spatstat&quot;</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span>
+                <span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">6</span>
+            <span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;$\lambda(x,y)=8\sin^2(\pi x/5)\sin^2(\pi y/5)$,&quot;</span>
+    <span class="sa">r</span><span class="s2">&quot; $N_{{\rm exp}}=200$ — 5 paired realisations (Python top, R bottom)&quot;</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/b8e570d88048dd47d3aed5f88407f4c907f66d84185876cc9131b58279161cf9.png" src="../_images/b8e570d88048dd47d3aed5f88407f4c907f66d84185876cc9131b58279161cf9.png" />
+</div>
+</div>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<table class="docutils data align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Test</p></th>
+<th class="head"><p>Metric</p></th>
+<th class="head"><p>Python ≡ R?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Uniform λ=1</p></td>
+<td><p>2-sample KS p &gt; 0.05</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gradient λ=x/50</p></td>
+<td><p>2-sample KS p &gt; 0.05</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p>Spatial intensity recovery</p></td>
+<td><p>Pearson r(Python, R) &gt; 0.96</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p>Subregion independence</p></td>
+<td><p>max off-diagonal |r| ≈ 0 in both</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p>Paired realisations</p></td>
+<td><p>visual — gradient visible in both</p></td>
+<td><p>✓</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">PoissonSampler</span></code> is statistically indistinguishable from <code class="docutils literal notranslate"><span class="pre">spatstat::rpoispp</span></code>.</p>
+<p><strong>References</strong></p>
+<ul class="simple">
+<li><p>Baddeley, A., Rubak, E., Turner, R. (2015). <em>Spatial Point Patterns:
+Methodology and Applications with R.</em> CRC Press.</p></li>
+<li><p>Lewis, P.A.W. &amp; Shedler, G.S. (1979). Simulation of nonhomogeneous Poisson
+processes by thinning. <em>Naval Research Logistics</em>, 26, 403–413.</p></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2024-, Levi John Wolf.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    8.2.3.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.top", "search.share", "search.suggest", "toc.follow", "toc.sticky", "content.code.copy", "content.action.edit"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    
+  </body>
+</html>

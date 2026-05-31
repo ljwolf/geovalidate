@@ -682,6 +682,30 @@
   
   
     <li class="md-nav__item">
+      <a href="leave_cell_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Cell<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="local_bootstrap.html" class="md-nav__link">
         
   
@@ -1355,7 +1379,7 @@ Random KFold — 14 folds, RMSE mean=0.363  std=0.030
 <span class="c1"># fold sizes</span>
 <span class="n">ax2</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c_ball</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;BallKFold  (r = 2 km)&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;BallKFold  (r = 2 km)&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">rkf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)],</span> <span class="s2">&quot;s--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">c_rand</span><span class="p">,</span>
          <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Random KFold&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Fold index&quot;</span><span class="p">)</span>

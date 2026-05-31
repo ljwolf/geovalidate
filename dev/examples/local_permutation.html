@@ -553,6 +553,30 @@
   
   
     <li class="md-nav__item">
+      <a href="leave_cell_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Cell<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="local_bootstrap.html" class="md-nav__link">
         
   
@@ -1088,7 +1112,6 @@ Compare with <code class="docutils literal notranslate"><span class="pre">LocalB
     <span class="n">perm</span>  <span class="o">=</span> <span class="n">perms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">y_perm</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span>
 
-    
     <span class="k">def</span><span class="w"> </span><span class="nf">acf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">max_lag</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
@@ -1101,7 +1124,6 @@ Compare with <code class="docutils literal notranslate"><span class="pre">LocalB
     <span class="n">acf_perm</span>  <span class="o">=</span> <span class="n">acf</span><span class="p">(</span><span class="n">y_perm</span><span class="p">)</span>
     <span class="c1"># envelope across all 50 permutations</span>
     <span class="n">acf_all</span>   <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">acf</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">p</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">perms</span><span class="p">])</span>
-
 
     <span class="c1"># Panel 1 -- time series</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="p">,</span>      <span class="n">lw</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;AR(3) original&quot;</span><span class="p">)</span>

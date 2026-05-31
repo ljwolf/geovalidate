@@ -14,7 +14,7 @@
         <link rel="prev" href="leave_cluster_out.html">
       
       
-        <link rel="next" href="local_bootstrap.html">
+        <link rel="next" href="leave_cell_out.html">
       
       
       <link rel="icon" href="">
@@ -638,6 +638,30 @@
   
   
     <li class="md-nav__item">
+      <a href="leave_cell_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Cell<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="local_bootstrap.html" class="md-nav__link">
         
   
@@ -996,7 +1020,7 @@ coarse regional structure without over-fragmenting small datasets.</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">cdist</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">KFold</span><span class="p">,</span> <span class="n">StratifiedKFold</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">KFold</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">root_mean_squared_error</span>
 
@@ -1242,6 +1266,7 @@ Random fold sizes: [120, 120, 120, 120, 120]
         <span class="n">D</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
         <span class="n">means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">means</span>
+
 
 <span class="n">dgg_nn</span> <span class="o">=</span> <span class="n">mean_nn</span><span class="p">(</span><span class="n">dgg_splits</span><span class="p">,</span> <span class="n">coords5</span><span class="p">)</span>
 <span class="n">rnd_nn</span> <span class="o">=</span> <span class="n">mean_nn</span><span class="p">(</span><span class="n">rnd_splits</span><span class="p">,</span> <span class="n">coords5</span><span class="p">)</span>

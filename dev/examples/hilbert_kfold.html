@@ -642,6 +642,30 @@
   
   
     <li class="md-nav__item">
+      <a href="leave_cell_out.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Leave<wbr>Cell<wbr>Out</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="local_bootstrap.html" class="md-nav__link">
         
   
@@ -1139,6 +1163,7 @@ See: https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html#impl
         <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
 
+
 <span class="n">d_disp</span> <span class="o">=</span> <span class="n">mean_nn</span><span class="p">(</span><span class="n">disp_labels</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">N_SPLITS</span><span class="p">)</span>
 <span class="n">d_rand</span> <span class="o">=</span> <span class="n">mean_nn</span><span class="p">(</span><span class="n">rand_labels</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">N_SPLITS</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HilbertKFold mean within-fold NN: </span><span class="si">{</span><span class="n">d_disp</span><span class="o">/</span><span class="mi">1000</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> km&quot;</span><span class="p">)</span>
@@ -1240,7 +1265,9 @@ lower fold-to-fold variance means more reliable CV estimates</p></li>
 </ol>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">geodatasets</span><span class="o">,</span><span class="w"> </span><span class="nn">numpy</span><span class="o">,</span><span class="w"> </span><span class="nn">geopandas</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">geodatasets</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span>
 
 <span class="n">gdf_full</span> <span class="o">=</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">geodatasets</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="s2">&quot;geoda.home_sales&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:32610&quot;</span><span class="p">)</span>
 <span class="n">gdf_full</span><span class="p">[</span><span class="s2">&quot;log_price&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gdf_full</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">])</span>
@@ -1285,6 +1312,7 @@ lower fold-to-fold variance means more reliable CV estimates</p></li>
 
 <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;disp_fold5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">disp_labels5</span>
 
+
 <span class="k">def</span><span class="w"> </span><span class="nf">fold_nn</span><span class="p">(</span><span class="n">splits</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
     <span class="n">means</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">:</span>
@@ -1292,6 +1320,7 @@ lower fold-to-fold variance means more reliable CV estimates</p></li>
         <span class="n">D</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
         <span class="n">means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">means</span>
+
 
 <span class="n">spatial_nn5</span> <span class="o">=</span> <span class="n">fold_nn</span><span class="p">(</span><span class="n">disp_splits5</span><span class="p">,</span> <span class="n">coords5</span><span class="p">)</span>
 <span class="n">random_nn5</span>  <span class="o">=</span> <span class="n">fold_nn</span><span class="p">(</span><span class="n">rand_splits5</span><span class="p">,</span>  <span class="n">coords5</span><span class="p">)</span>

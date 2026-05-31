@@ -46,11 +46,10 @@
     "import colormaps\n",
     "import matplotlib.pyplot as plt\n",
     "import matplotlib.patches as mpatches\n",
-    "from scipy.spatial.distance import cdist\n",
     "from sklearn.linear_model import LinearRegression\n",
     "from sklearn.metrics import root_mean_squared_error\n",
     "\n",
-    "from geovalidate import LeaveBallOut\n"
+    "from geovalidate import LeaveBallOut"
    ]
   },
   {
@@ -92,7 +91,7 @@
     "    chicago.geometry.centroid.x,\n",
     "    chicago.geometry.centroid.y,\n",
     "])\n",
-    "print(f'n = {len(chicago)} community areas')\n"
+    "print(f'n = {len(chicago)} community areas')"
    ]
   },
   {
@@ -184,7 +183,7 @@
     "ax.axis('off')\n",
     "fig.tight_layout()\n",
     "plt.show()\n",
-    "print(f'Excluded: {in_buffer.sum()} areas   Training: {outside.sum()} areas')\n"
+    "print(f'Excluded: {in_buffer.sum()} areas   Training: {outside.sum()} areas')"
    ]
   },
   {
@@ -265,7 +264,7 @@
     "fig.suptitle('LeaveBallOut — Chicago community areas', fontsize=13)\n",
     "fig.tight_layout()\n",
     "plt.show()\n",
-    "print(f'Training sizes: min={min(train_sizes)}, median={numpy.median(train_sizes):.0f}, max={max(train_sizes)}')\n"
+    "print(f'Training sizes: min={min(train_sizes)}, median={numpy.median(train_sizes):.0f}, max={max(train_sizes)}')"
    ]
   },
   {
@@ -317,7 +316,7 @@
     "    .index.get_level_values(1)\n",
     ")\n",
     "gdf = gdf_full.loc[idx].reset_index(drop=True)\n",
-    "print(f'n = {len(gdf)} sales  |  price ${gdf.price.min():,.0f} -- ${gdf.price.max():,.0f}')\n"
+    "print(f'n = {len(gdf)} sales  |  price ${gdf.price.min():,.0f} -- ${gdf.price.max():,.0f}')"
    ]
   },
   {
@@ -380,7 +379,7 @@
     "ax.axhline(len(gdf) - 1, color='k', lw=0.8, ls=':', label='LOO without buffer')\n",
     "ax.legend()\n",
     "fig.tight_layout()\n",
-    "plt.show()\n"
+    "plt.show()"
    ]
   },
   {
@@ -456,7 +455,7 @@
     "\n",
     "print(f'LeaveBallOut (r={RADIUS_M/1000:.0f} km)  RMSE: {lbo_rmse:.4f}  (n={valid.sum()} predictions)')\n",
     "print(f'LOO (no buffer)                RMSE: {loo_rmse:.4f}  (n={len(gdf)} predictions)')\n",
-    "print(f'Buffered exclusion adds {lbo_rmse - loo_rmse:+.4f} log-price RMSE -- spatial leakage effect')\n"
+    "print(f'Buffered exclusion adds {lbo_rmse - loo_rmse:+.4f} log-price RMSE -- spatial leakage effect')"
    ]
   },
   {
@@ -533,7 +532,7 @@
     "    fontsize=13,\n",
     ")\n",
     "fig.tight_layout()\n",
-    "plt.show()\n"
+    "plt.show()"
    ]
   }
  ],
