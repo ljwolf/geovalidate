@@ -60,37 +60,12 @@ jobs:
           name: docs_artifact
           path: docs_artifact.zip
 
-      - name: Create root redirect
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run: |
-          mkdir -p /tmp/redirect
-          cat > /tmp/redirect/index.html <<'EOF'
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <meta http-equiv="refresh" content="0; url=./dev/">
-              <link rel="canonical" href="./dev/">
-            </head>
-            <body>Redirecting to <a href="./dev/">docs</a>…</body>
-          </html>
-          EOF
-
-      - name: Publish root redirect
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: /tmp/redirect
-          keep_files: true
-
-      - name: Publish to Github Pages (dev)
+      - name: Publish to Github Pages (main)
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build/html/
-          destination_dir: dev
           keep_files: false
 
       - name: Publish to Github Pages (versioned)

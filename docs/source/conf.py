@@ -61,7 +61,7 @@ html_css_files = ["custom.css"]
 
 html_theme_options = {
     "icon": {"repo": "fontawesome/brands/github"},
-    "site_url": "https://ljwolf.github.io/geovalidate",
+    "site_url": "https://ljwolf.org/geovalidate",
     "repo_url": "https://github.com/ljwolf/geovalidate/",
     "edit_uri": "blob/main/docs/source",
     "repo_name": "ljwolf/geovalidate",
