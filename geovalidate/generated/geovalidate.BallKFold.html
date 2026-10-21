@@ -42,7 +42,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.74c816e3f9967dd6e.min.css?v=6cfe2491" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.6efbe22605a23fcd6.min.css?v=b2ceb110" />
         <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
         <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
         <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6bbb80b6" />
@@ -1997,11 +1997,11 @@ which minimises the number of colours on most practical inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="geovalidate.BallKFold-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="geovalidate.BallKFold.__init__.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a> or None</span></span><a class="headerlink" href="#geovalidate.BallKFold.__init__.radius" title="Permalink to this definition">¶</a></dt><dd><p>Exclusion radius in the same units as the input coordinates.
+<dt id="geovalidate.BallKFold.__init__.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a> or None</span></span><a class="headerlink" href="#geovalidate.BallKFold.__init__.radius" title="Permalink to this definition">¶</a></dt><dd><p>Exclusion radius in the same units as the input coordinates.
 Two points within this distance cannot share a fold.
 Mutually exclusive with <em>n_splits</em>.</p>
 </dd>
-<dt id="geovalidate.BallKFold.__init__.n_splits"><span class="sig-name descname">n_splits</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or None</span></span><a class="headerlink" href="#geovalidate.BallKFold.__init__.n_splits" title="Permalink to this definition">¶</a></dt><dd><p>Target number of folds.  The implied radius is computed as the
+<dt id="geovalidate.BallKFold.__init__.n_splits"><span class="sig-name descname">n_splits</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a> or None</span></span><a class="headerlink" href="#geovalidate.BallKFold.__init__.n_splits" title="Permalink to this definition">¶</a></dt><dd><p>Target number of folds.  The implied radius is computed as the
 minimum n_splits-th nearest-neighbour distance across all points
 (set by the densest region), stored as <code class="docutils literal notranslate"><span class="pre">radius_</span></code> after
 <code class="docutils literal notranslate"><span class="pre">split()</span></code> is called.  Mutually exclusive with <em>radius</em>.</p>
@@ -2049,13 +2049,13 @@ colours).</p>
 </table>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="geovalidate.BallKFold.get_metadata_routing">
-<span class="sig-name descname"><span class="pre">get_metadata_routing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/utils/_metadata_requests.py#L1550-L1562"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.get_metadata_routing" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_metadata_routing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/utils/_metadata_requests.py#L1743-L1755"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.get_metadata_routing" title="Link to this definition">¶</a></dt>
 <dd><p>Get metadata routing of this object.</p>
-<p>Please check <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.8)"><span class="xref std std-ref">User Guide</span></a> on how the routing
+<p>Please check <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.9)"><span class="xref std std-ref">User Guide</span></a> on how the routing
 mechanism works.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="geovalidate.BallKFold.get_metadata_routing-returns">Returns<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.get_metadata_routing-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>routing</strong> – A <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.utils.metadata_routing.MetadataRequest.html#sklearn.utils.metadata_routing.MetadataRequest" title="(in scikit-learn v1.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetadataRequest</span></code></a> encapsulating
+<dd class="field-odd"><p><strong>routing</strong> – A <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.utils.metadata_routing.MetadataRequest.html#sklearn.utils.metadata_routing.MetadataRequest" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetadataRequest</span></code></a> encapsulating
 routing information.</p>
 </dd>
 <dt class="field-even" id="geovalidate.BallKFold.get_metadata_routing-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.get_metadata_routing-return-type" title="Permalink to this headline">¶</a></dt>
@@ -2071,12 +2071,12 @@ routing information.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="geovalidate.BallKFold.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#geovalidate.BallKFold.get_params.deep" title="geovalidate.BallKFold.get_params.deep (Python parameter) — If True, will return the parameters for this estimator and contained subobjects that are estimators."><span class="n"><span class="pre">deep</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em></span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/base.py#L240-L262"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.get_params" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#geovalidate.BallKFold.get_params.deep" title="geovalidate.BallKFold.get_params.deep (Python parameter) — If True, will return the parameters for this estimator and contained subobjects that are estimators."><span class="n"><span class="pre">deep</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em></span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/base.py#L248-L270"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.get_params" title="Link to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="geovalidate.BallKFold.get_params-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.get_params-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="geovalidate.BallKFold.get_params.deep"><span class="sig-name descname">deep</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, default=True</span></span><a class="headerlink" href="#geovalidate.BallKFold.get_params.deep" title="Permalink to this definition">¶</a></dt><dd><p>If True, will return the parameters for this estimator and
+<dt id="geovalidate.BallKFold.get_params.deep"><span class="sig-name descname">deep</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)">bool</a>, default=True</span></span><a class="headerlink" href="#geovalidate.BallKFold.get_params.deep" title="Permalink to this definition">¶</a></dt><dd><p>If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
 </dl>
@@ -2085,23 +2085,23 @@ contained subobjects that are estimators.</p>
 <dd class="field-even"><p><strong>params</strong> – Parameter names mapped to their values.</p>
 </dd>
 <dt class="field-odd" id="geovalidate.BallKFold.get_params-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.get_params-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="geovalidate.BallKFold.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">**</span></span><a class="n reference internal" href="#geovalidate.BallKFold.set_params.params" title="geovalidate.BallKFold.set_params.params (Python parameter) — Estimator parameters."><span class="n"><span class="pre">params</span></span></a></em></span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/base.py#L338-L380"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.set_params" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">**</span></span><a class="n reference internal" href="#geovalidate.BallKFold.set_params.params" title="geovalidate.BallKFold.set_params.params (Python parameter) — Estimator parameters."><span class="n"><span class="pre">params</span></span></a></em></span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/base.py#L400-L442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.set_params" title="Link to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
-(such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
+(such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
 parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
 possible to update each component of a nested object.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="geovalidate.BallKFold.set_params-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.set_params-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="geovalidate.BallKFold.set_params.params"><span class="sig-name descname">**params</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></span></span><a class="headerlink" href="#geovalidate.BallKFold.set_params.params" title="Permalink to this definition">¶</a></dt><dd><p>Estimator parameters.</p>
+<dt id="geovalidate.BallKFold.set_params.params"><span class="sig-name descname">**params</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a></span></span><a class="headerlink" href="#geovalidate.BallKFold.set_params.params" title="Permalink to this definition">¶</a></dt><dd><p>Estimator parameters.</p>
 </dd>
 </dl>
 </dd>
@@ -2116,12 +2116,12 @@ possible to update each component of a nested object.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="geovalidate.BallKFold.set_split_request">
-<span class="sig-name descname"><span class="pre">set_split_request</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#geovalidate.BallKFold.set_split_request.groups" title="geovalidate.BallKFold.set_split_request.groups (Python parameter) — Metadata routing for groups parameter in split."><span class="n"><span class="pre">groups</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;$UNCHANGED$&#39;</span></code></em></span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/utils/_metadata_requests.py#L1315-L1360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.set_split_request" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_split_request</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#geovalidate.BallKFold.set_split_request.groups" title="geovalidate.BallKFold.set_split_request.groups (Python parameter) — Metadata routing for groups parameter in split."><span class="n"><span class="pre">groups</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">'$UNCHANGED$'</span></code></em></span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/ljwolf/geovalidate/blob/v0.1.0/src/geovalidate/../../../../../micromamba/envs/geovalidate-docs/lib/python3.12/site-packages/sklearn/utils/_metadata_requests.py#L1440-L1485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geovalidate.BallKFold.set_split_request" title="Link to this definition">¶</a></dt>
 <dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">split</span></code> method.</p>
 <p>Note that this method is only relevant when this estimator is used as a
-sub-estimator within a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-meta-estimator" title="(in scikit-learn v1.8)"><span class="xref std std-term">meta-estimator</span></a> and metadata routing is enabled
-with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html#sklearn.set_config" title="(in scikit-learn v1.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code></a>).
-Please check the <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.8)"><span class="xref std std-ref">User Guide</span></a> on how the routing
+sub-estimator within a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-meta-estimator" title="(in scikit-learn v1.9)"><span class="xref std std-term">meta-estimator</span></a> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html#sklearn.set_config" title="(in scikit-learn v1.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code></a>).
+Please check the <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.9)"><span class="xref std std-ref">User Guide</span></a> on how the routing
 mechanism works.</p>
 <p>The options for each parameter are:</p>
 <ul class="simple">
@@ -2139,7 +2139,7 @@ parameters and not others.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="geovalidate.BallKFold.set_split_request-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.set_split_request-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="geovalidate.BallKFold.set_split_request.groups"><span class="sig-name descname">groups</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, True, False, or None,                     default=sklearn.utils.metadata_routing.UNCHANGED</span></span><a class="headerlink" href="#geovalidate.BallKFold.set_split_request.groups" title="Permalink to this definition">¶</a></dt><dd><p>Metadata routing for <code class="docutils literal notranslate"><span class="pre">groups</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">split</span></code>.</p>
+<dt id="geovalidate.BallKFold.set_split_request.groups"><span class="sig-name descname">groups</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>, True, False, or None,                     default=sklearn.utils.metadata_routing.UNCHANGED</span></span><a class="headerlink" href="#geovalidate.BallKFold.set_split_request.groups" title="Permalink to this definition">¶</a></dt><dd><p>Metadata routing for <code class="docutils literal notranslate"><span class="pre">groups</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">split</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -2147,7 +2147,7 @@ parameters and not others.</p>
 <dd class="field-even"><p><strong>self</strong> – The updated object.</p>
 </dd>
 <dt class="field-odd" id="geovalidate.BallKFold.set_split_request-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#geovalidate.BallKFold.set_split_request-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)">object</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)">object</a></p>
 </dd>
 </dl>
 </dd></dl>

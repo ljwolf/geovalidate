@@ -42,7 +42,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.74c816e3f9967dd6e.min.css?v=6cfe2491" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.6efbe22605a23fcd6.min.css?v=b2ceb110" />
         <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
         <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
         <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6bbb80b6" />
@@ -1401,20 +1401,20 @@ is not provided, locations are read from that column.</p>
 </dd>
 <dt id="geovalidate.gearygram.geometry"><span class="sig-name descname">geometry</span><span class="p"> : </span><span class="desctype"><span class="desctype">GeoDataFrame | GeoSeries | (n, 2) ndarray or None</span></span><a class="headerlink" href="#geovalidate.gearygram.geometry" title="Permalink to this definition">¶</a></dt><dd><p>Locations.  Required if <em>X</em> has no <code class="docutils literal notranslate"><span class="pre">geometry</span></code> attribute.</p>
 </dd>
-<dt id="geovalidate.gearygram.n_bins"><span class="sig-name descname">n_bins</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, default 15</span></span><a class="headerlink" href="#geovalidate.gearygram.n_bins" title="Permalink to this definition">¶</a></dt><dd><p>Number of bandwidths (bandwidth/nonparametric mode).
+<dt id="geovalidate.gearygram.n_bins"><span class="sig-name descname">n_bins</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a>, default 15</span></span><a class="headerlink" href="#geovalidate.gearygram.n_bins" title="Permalink to this definition">¶</a></dt><dd><p>Number of bandwidths (bandwidth/nonparametric mode).
 Ignored for kNN mode.</p>
 </dd>
-<dt id="geovalidate.gearygram.max_distance"><span class="sig-name descname">max_distance</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a> or None</span></span><a class="headerlink" href="#geovalidate.gearygram.max_distance" title="Permalink to this definition">¶</a></dt><dd><p>Maximum bandwidth (bandwidth/nonparametric mode).  Defaults to the
+<dt id="geovalidate.gearygram.max_distance"><span class="sig-name descname">max_distance</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a> or None</span></span><a class="headerlink" href="#geovalidate.gearygram.max_distance" title="Permalink to this definition">¶</a></dt><dd><p>Maximum bandwidth (bandwidth/nonparametric mode).  Defaults to the
 maximum pairwise distance.  Ignored for kNN mode.</p>
 </dd>
-<dt id="geovalidate.gearygram.max_k"><span class="sig-name descname">max_k</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or None</span></span><a class="headerlink" href="#geovalidate.gearygram.max_k" title="Permalink to this definition">¶</a></dt><dd><p>If set, use kNN mode with k = 1 … <em>max_k</em>.</p>
+<dt id="geovalidate.gearygram.max_k"><span class="sig-name descname">max_k</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a> or None</span></span><a class="headerlink" href="#geovalidate.gearygram.max_k" title="Permalink to this definition">¶</a></dt><dd><p>If set, use kNN mode with k = 1 … <em>max_k</em>.</p>
 </dd>
-<dt id="geovalidate.gearygram.kernel"><span class="sig-name descname">kernel</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</span></span><a class="headerlink" href="#geovalidate.gearygram.kernel" title="Permalink to this definition">¶</a></dt><dd><p>Kernel weighting.  One of <code class="docutils literal notranslate"><span class="pre">&quot;gaussian&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;exponential&quot;</span></code>,
+<dt id="geovalidate.gearygram.kernel"><span class="sig-name descname">kernel</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a> or None</span></span><a class="headerlink" href="#geovalidate.gearygram.kernel" title="Permalink to this definition">¶</a></dt><dd><p>Kernel weighting.  One of <code class="docutils literal notranslate"><span class="pre">&quot;gaussian&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;exponential&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;bisquare&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;triangular&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;uniform&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;parabolic&quot;</span></code>.
 Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;uniform&quot;</span></code> for kNN mode and <code class="docutils literal notranslate"><span class="pre">&quot;gaussian&quot;</span></code> for
 bandwidth mode.  Ignored for nonparametric mode.</p>
 </dd>
-<dt id="geovalidate.gearygram.nonparametric"><span class="sig-name descname">nonparametric</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, default False</span></span><a class="headerlink" href="#geovalidate.gearygram.nonparametric" title="Permalink to this definition">¶</a></dt><dd><p>If True, fit a LOWESS curve instead of computing kernel-weighted
+<dt id="geovalidate.gearygram.nonparametric"><span class="sig-name descname">nonparametric</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)">bool</a>, default False</span></span><a class="headerlink" href="#geovalidate.gearygram.nonparametric" title="Permalink to this definition">¶</a></dt><dd><p>If True, fit a LOWESS curve instead of computing kernel-weighted
 bins.  Ignored when <em>max_k</em> is set.</p>
 </dd>
 </dl>
@@ -1432,7 +1432,7 @@ bins.  Ignored when <em>max_k</em> is set.</p>
 </p>
 </dd>
 <dt class="field-odd" id="geovalidate.gearygram-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#geovalidate.gearygram-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.utils.Bunch.html#sklearn.utils.Bunch" title="(in scikit-learn v1.8)">sklearn.utils.Bunch</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.utils.Bunch.html#sklearn.utils.Bunch" title="(in scikit-learn v1.9)">sklearn.utils.Bunch</a></p>
 </dd>
 </dl>
 <p class="example rubric">Examples</p>
@@ -1441,7 +1441,7 @@ bins.  Ignored when <em>max_k</em> is set.</p>
 </code></pre></div>
 </div>
 <p>kNN correlogram with Gaussian kernel weighting:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">gearygram</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">max_k</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">gearygram</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">max_k</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">"gaussian"</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <p>Nonparametric LOWESS correlogram:</p>
